@@ -79,6 +79,9 @@
         <h3>My Cart</h3>
         <div id="cart-items"></div>
         <div style="padding-top:15px; border-top: 1px solid #eee;">
+<button onclick="clearCart()" style="background:#666; color:white; border:none; width:100%; padding:10px; border-radius:8px; margin-bottom:10px; font-weight:bold;">
+    🗑️ Clear Cart
+</button>
             <h3 id="total-price" style="margin-bottom:15px;">Total: $0.00</h3>
             <button class="btn-action" onclick="sendWhatsAppOrder()" style="background:var(--whatsapp-color);">
                 <i class="fab fa-whatsapp"></i> Order via WhatsApp
@@ -180,6 +183,13 @@
             text += `\nTotal: ${document.getElementById('total-price').innerText}`;
             window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`);
         }
+
+        window.clearCart = () => {
+    if(confirm("Are you sure you want to empty your cart?")) {
+        cart = []; // Empty the array
+        updateUI(); // Refresh the screen
+    }
+}
     </script>
 </body>
 </html>
