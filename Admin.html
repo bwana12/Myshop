@@ -10,7 +10,8 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
         body { background-color: #f5f5f5; padding: 20px; }
         .admin-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; border: 2px solid var(--secondary-color); }
-        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; }
+        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; outline: none; }
+        textarea { height: 80px; resize: none; }
         .btn-add { background: var(--secondary-color); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); position: relative; }
@@ -22,14 +23,15 @@
 <body>
 
     <div class="admin-card">
-        <h2 style="margin-bottom:15px; color:var(--secondary-color);">Admin Dashboard</h2>
-        <input type="text" id="p-name" placeholder="Item Name (e.g., Laptop Bag)">
-        <input type="number" id="p-price" placeholder="Price (Numbers only)">
-        <input type="text" id="p-img" placeholder="Direct Image Link (Ends in .jpg or .png)">
-        <button class="btn-add" onclick="handleUpload()">🚀 Add Product to Shop</button>
+        <h2 style="margin-bottom:15px; color:var(--secondary-color);">Manage Shop Inventory</h2>
+        <input type="text" id="p-name" placeholder="Item Name (e.g., Samsung S21)">
+        <input type="number" id="p-price" placeholder="Price (Numbers only, e.g. 450000)">
+        <input type="text" id="p-img" placeholder="Direct Image Link (from ImgBB)">
+        <textarea id="p-desc" placeholder="Product Details (e.g. 128GB Storage, Blue Color, Slightly Used)"></textarea>
+        <button class="btn-add" onclick="handleUpload()">🚀 Publish to Shop</button>
     </div>
 
-    <h3>Current Inventory</h3>
+    <h3>Live Products</h3>
     <div class="products-grid" id="admin-container"></div>
 
     <script type="module">
@@ -59,20 +61,23 @@
             const name = document.getElementById('p-name').value;
             const price = document.getElementById('p-price').value;
             const image = document.getElementById('p-img').value;
+            const description = document.getElementById('p-desc').value;
 
             if(name && price && image) {
                 await addDoc(collection(db, "products"), { 
                     name, 
                     price: parseFloat(price), 
                     image, 
+                    description: description || "Quality product from ShopEasy Malawi",
                     timestamp: Date.now() 
                 });
-                alert("Product Added!");
+                alert("Success! Item added to shop.");
                 document.getElementById('p-name').value = ''; 
                 document.getElementById('p-price').value = ''; 
                 document.getElementById('p-img').value = '';
+                document.getElementById('p-desc').value = '';
             } else {
-                alert("Please fill all fields!");
+                alert("Please fill in Name, Price, and Image link.");
             }
         }
 
@@ -83,10 +88,10 @@
                 const p = docSnap.data();
                 container.innerHTML += `
                     <div class="product-card">
-                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150?text=Invalid+Link'">
+                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150?text=Check+Link'">
                         <div class="product-info">
-                            <p style="font-weight:bold;">${p.name}</p>
-                            <p style="color:var(--primary-color);">MWK ${Number(p.price).toLocaleString()}</p>
+                            <p style="font-weight:bold; font-size:13px;">${p.name}</p>
+                            <p style="color:var(--primary-color); font-size:12px;">MWK ${Number(p.price).toLocaleString()}</p>
                             <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">
                                 <i class="fas fa-trash"></i> DELETE
                             </button>
@@ -96,12 +101,11 @@
         });
 
         window.deleteProduct = async (id) => {
-            if(confirm("Confirm Delete? This cannot be undone.")) {
+            if(confirm("Are you sure you want to remove this item?")) {
                 try {
                     await deleteDoc(doc(db, "products", id));
-                    alert("Deleted!");
                 } catch (error) {
-                    alert("Error: Make sure Firebase Rules are set to write:true");
+                    alert("Delete failed. Check Firebase Rules.");
                 }
             }
         }
