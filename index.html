@@ -54,6 +54,17 @@
         #detail-panel.active { bottom: 0; }
         .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 3500; }
         .overlay.active { display: block; }
+        
+        .login-logo { 
+         width: 120px;       /* Reduced from full-screen */
+         height: 120px;      /* Matches width for a perfect circle */
+         border-radius: 50%; /* Keeps it circular */
+         object-fit: contain; /* Ensures the logo isn't stretched */
+         margin-bottom: 20px; 
+         border: 2px solid #eee; /* Adds a light professional border */
+         background: white;   /* Ensures background is clean */
+}
+        
     </style>
 </head>
 <body>
