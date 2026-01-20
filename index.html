@@ -2,100 +2,295 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ShopEasy Support</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShopEasy Malawi | Official Store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary: #e42c64; --orange: #f38120; --bg: #f8f9fa; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
-        body { background: var(--bg); color: #333; }
-        
-        /* Header */
-        .support-header { background: white; padding: 15px; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #eee; }
-        .back-btn { font-size: 20px; margin-right: 20px; cursor: pointer; }
-        .header-title { flex: 1; text-align: center; font-weight: bold; font-size: 18px; margin-right: 40px; }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --whatsapp: #25D366; --bg: #f8f9fa; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); padding-bottom: 80px; overflow-x: hidden; }
 
-        /* Banner */
-        .guarantee-banner { background: #008a00; color: white; padding: 8px 15px; font-size: 12px; display: flex; align-items: center; justify-content: space-between; }
+        /* Login Screen */
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .google-btn { border: 1px solid #ddd; padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; background: white; margin-top: 25px; box-shadow: var(--shadow); }
 
-        /* Search Section */
-        .hero-section { padding: 25px 20px; text-align: center; background: white; }
-        .hero-title { color: var(--orange); font-size: 22px; font-weight: bold; margin-bottom: 15px; }
-        .search-container { position: relative; max-width: 500px; margin: 0 auto; }
-        .search-input { width: 100%; padding: 15px 50px 15px 20px; border: 2px solid #000; border-radius: 30px; font-size: 16px; outline: none; }
-        .search-btn { position: absolute; right: 5px; top: 5px; background: var(--orange); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 18px; }
+        /* Header & Timer */
+        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 10px; font-size: 13px; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--secondary); }
 
-        /* Quick Actions */
-        .quick-actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 20px; }
-        .action-card { background: white; padding: 15px 5px; border-radius: 12px; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
-        .action-card i { font-size: 24px; margin-bottom: 10px; display: block; }
-        .action-card.refund { color: #f38120; background: #fff5ee; }
-        .action-card.delivery { color: #28a745; background: #f0fff4; }
-        .action-card.promo { color: #dc3545; background: #fff5f5; }
-        .action-text { font-size: 11px; font-weight: bold; }
+        /* Search & Categories */
+        .search-container { padding: 10px 15px; background: white; }
+        .search-box { background: #f1f1f1; border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 15px; }
+        .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding: 10px 15px; background: white; white-space: nowrap; border-bottom: 1px solid #eee; }
+        .cat-bar::-webkit-scrollbar { display: none; }
+        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-        /* Help Articles */
-        .help-section { padding: 20px; background: white; margin-top: 10px; }
-        .help-title { font-size: 20px; font-weight: bold; margin-bottom: 20px; }
-        .topic-row { border-bottom: 1px solid #eee; padding: 18px 0; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-size: 15px; }
-        .topic-row:last-child { border: none; }
+        /* Product Cards */
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; border: 1px solid #eee; }
+        .flash-badge { position: absolute; top: 8px; left: 8px; background: #ff0000; color: white; font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: bold; z-index: 5; }
+        .product-img { width: 100%; height: 160px; object-fit: cover; }
+        .info { padding: 12px; }
+        .price { color: var(--primary); font-weight: 800; font-size: 17px; }
+        .old-price { text-decoration: line-through; color: #999; font-size: 11px; margin-top: 2px; }
 
-        /* Contact Button */
-        .contact-footer { padding: 30px 20px; text-align: center; }
-        .contact-btn { width: 100%; max-width: 400px; padding: 15px; border: 1px solid #333; border-radius: 30px; background: white; font-weight: bold; font-size: 16px; display: flex; align-items: center; justify-content: center; gap: 10px; cursor: pointer; }
+        /* Views */
+        .view { display: none; min-height: 100vh; }
+        .view.active { display: block; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 12px 0; z-index: 2000; }
+        .nav-item { text-align: center; color: #777; font-size: 10px; flex: 1; position: relative; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 3px; }
+        .badge { position: absolute; top: -5px; right: 28%; background: red; color: white; font-size: 10px; width: 17px; height: 17px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; }
+
+        /* Detail Panel */
+        #detail-panel { position: fixed; bottom: -100%; width: 100%; height: 82vh; background: white; z-index: 4000; transition: 0.4s; border-radius: 25px 25px 0 0; padding: 20px; box-shadow: 0 -5px 25px rgba(0,0,0,0.2); overflow-y: auto; }
+        #detail-panel.active { bottom: 0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 3500; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="support-header">
-        <i class="fas fa-chevron-left back-btn" onclick="history.back()"></i>
-        <div class="header-title">Support</div>
-    </div>
-
-    <div class="guarantee-banner">
-        <span><i class="fas fa-check-circle"></i> Order guarantee</span>
-        <span>Up to 90 days <i class="fas fa-chevron-right"></i></span>
-    </div>
-
-    <div class="hero-section">
-        <h2 class="hero-title">Hi, how can we help you?</h2>
-        <div class="search-container">
-            <input type="text" class="search-input" placeholder="Have any questions? Ask them here!">
-            <button class="search-btn"><i class="fas fa-search"></i></button>
-        </div>
-    </div>
-
-    <div class="quick-actions">
-        <div class="action-card refund">
-            <i class="fas fa-undo"></i>
-            <span class="action-text">Return & Refund</span>
-        </div>
-        <div class="action-card delivery">
-            <i class="fas fa-truck"></i>
-            <span class="action-text">Delivery</span>
-        </div>
-        <div class="action-card promo">
-            <i class="fas fa-tags"></i>
-            <span class="action-text">Promotions</span>
-        </div>
-    </div>
-
-    <div class="help-section">
-        <h2 class="help-title">Help articles</h2>
-        <div class="topic-row">Unknown charges <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-        <div class="topic-row">Report something suspicious <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-        <div class="topic-row">How to return an item <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-        <div class="topic-row">I haven't received my package <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-        <div class="topic-row">How to track my refund <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-        <div class="topic-row">Item damaged or not as described <i class="fas fa-chevron-right" style="color:#ccc"></i></div>
-    </div>
-
-    <div class="contact-footer">
-        <p style="font-weight: bold; margin-bottom: 15px;">Still can't solve the problem?</p>
-        <button class="contact-btn" onclick="window.open('https://wa.me/265899195843')">
-            <i class="far fa-comment-dots"></i> Contact us
+    <div id="auth-screen">
+        <h1 class="logo">Shop<span>Easy</span></h1>
+        <p style="color:#666; margin-top:5px;">Malawi's #1 Online Flash Sale Shop</p>
+        <button class="google-btn" onclick="login()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20">
+            Sign in with Google Account
         </button>
     </div>
 
+    <div id="main-app" style="display:none">
+        <div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown">03:59:59</span></div>
+
+        <div id="home-view" class="view active">
+            <header>
+                <a href="#" class="logo">Shop<span>Easy</span></a>
+                <i class="fas fa-heart" style="color:#ddd"></i>
+            </header>
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#888"></i>
+                    <input type="text" id="search-input" placeholder="Search product name..." onkeyup="searchProducts()">
+                </div>
+            </div>
+            <div class="cat-bar">
+                <button class="cat-btn active" onclick="filterCat('All', this)">All Deals</button>
+                <button class="cat-btn" onclick="filterCat('Electronics', this)">Electronics</button>
+                <button class="cat-btn" onclick="filterCat('Fashion', this)">Fashion</button>
+                <button class="cat-btn" onclick="filterCat('Home', this)">Home</button>
+            </div>
+            <div class="products-grid" id="products-container"></div>
+        </div>
+
+        <div id="cart-view" class="view" style="padding: 20px;">
+            <h2 style="margin-bottom:20px;">Your Cart</h2>
+            <div id="cart-items-list"></div>
+            <div id="checkout-section" style="margin-top:20px; padding:15px; background:white; border-radius:15px; box-shadow: var(--shadow);">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px;">
+                    <span>Order Total:</span>
+                    <span id="cart-total" style="color:var(--primary)">MK 0</span>
+                </div>
+                <button onclick="whatsappCheckout()" style="width:100%; background:var(--whatsapp); color:white; border:none; padding:16px; border-radius:12px; margin-top:15px; font-weight:bold; font-size:16px;"><i class="fab fa-whatsapp"></i> Buy via WhatsApp</button>
+            </div>
+        </div>
+
+        <div id="me-view" class="view" style="padding: 20px;">
+            <div style="text-align:center; padding:30px 0;">
+                <img id="user-photo" src="" style="width:100px; height:100px; border-radius:50%; border:4px solid white; box-shadow: var(--shadow);">
+                <h2 id="user-name" style="margin-top:15px; font-weight: 800;"></h2>
+                <p id="user-email" style="color:#888; font-size:14px;"></p>
+            </div>
+            <div style="background:white; border-radius:15px; overflow:hidden; box-shadow: var(--shadow);">
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-box" style="width:30px; color:var(--secondary)"></i> My Orders</div>
+                <div onclick="alert('Support coming soon!')" style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-headset" style="width:30px; color:var(--secondary)"></i> Support Center</div>
+                <div style="padding:15px; color:red;" onclick="logout()"><i class="fas fa-sign-out-alt" style="width:30px"></i> Sign Out</div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchView('home-view', this)"><i class="fas fa-bolt"></i>Deals</div>
+            <div class="nav-item" onclick="switchView('cart-view', this)">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="badge">0</span>Cart
+            </div>
+            <div class="nav-item" onclick="switchView('me-view', this)"><i class="fas fa-user"></i>Me</div>
+        </div>
+    </div>
+
+    <div class="overlay" id="overlay" onclick="closeDetails()"></div>
+    <div id="detail-panel">
+        <div onclick="closeDetails()" style="float:right; font-size:28px; color:#888;">&times;</div>
+        <img id="d-img" src="" style="width:100%; height:260px; object-fit:cover; border-radius:15px;">
+        <h2 id="d-name" style="margin:15px 0 5px;"></h2>
+        <div id="d-price" class="price" style="font-size:24px;"></div>
+        <p id="d-desc" style="color:#666; font-size:14px; margin:15px 0; line-height:1.5;"></p>
+        <div style="display:flex; gap:10px;">
+            <button onclick="whatsappChat()" style="flex:1; background:var(--whatsapp); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;"><i class="fab fa-whatsapp"></i> Chat</button>
+            <button id="d-add-btn" style="flex:2; background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">Add to Cart</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        // CONFIG (Ensure keys match your Firebase Console)
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+            authDomain: "shopeasy-14890.firebaseapp.com",
+            projectId: "shopeasy-14890",
+            storageBucket: "shopeasy-14890.firebasestorage.app",
+            messagingSenderId: "45827037951",
+            appId: "1:45827037951:web:545d41703780fa51018aca"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
+
+        let cart = JSON.parse(localStorage.getItem('se_cart_persistent')) || [];
+        let allItems = [];
+
+        window.login = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-photo').src = user.photoURL;
+                updateCartUI();
+            }
+        });
+
+        onSnapshot(collection(db, "products"), (snap) => {
+            allItems = [];
+            snap.forEach(doc => allItems.push({...doc.data(), id: doc.id}));
+            renderGrid(allItems);
+        });
+
+        function renderGrid(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = "";
+            products.forEach(p => {
+                const crossedPrice = Math.floor(p.price * 1.3);
+                container.innerHTML += `
+                    <div class="product-card" onclick="showDetails('${p.name}', ${p.price}, '${p.image}', '${p.description || 'Quality Guaranteed'}')">
+                        <div class="flash-badge">⚡ FLASH DEAL</div>
+                        <img src="${p.image}" class="product-img">
+                        <div class="info">
+                            <p style="font-size:13px; font-weight:bold; height:35px; overflow:hidden;">${p.name}</p>
+                            <div class="price">MK ${Number(p.price).toLocaleString()}</div>
+                            <div class="old-price">MK ${crossedPrice.toLocaleString()}</div>
+                        </div>
+                    </div>`;
+            });
+        }
+
+        window.searchProducts = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allItems.filter(p => p.name.toLowerCase().includes(term));
+            renderGrid(filtered);
+        };
+
+        window.filterCat = (cat, btn) => {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filtered = (cat === 'All') ? allItems : allItems.filter(p => p.category === cat);
+            renderGrid(filtered);
+        };
+
+        window.showDetails = (name, price, img, desc) => {
+            document.getElementById('d-name').innerText = name;
+            document.getElementById('d-price').innerText = "MK " + price.toLocaleString();
+            document.getElementById('d-img').src = img;
+            document.getElementById('d-desc').innerText = desc;
+            document.getElementById('d-add-btn').onclick = () => {
+                cart.push({name, price, img});
+                saveCart();
+                alert("Added to Cart!");
+                closeDetails();
+            };
+            document.getElementById('detail-panel').classList.add('active');
+            document.getElementById('overlay').classList.add('active');
+        };
+
+        window.closeDetails = () => {
+            document.getElementById('detail-panel').classList.remove('active');
+            document.getElementById('overlay').classList.remove('active');
+        };
+
+        function saveCart() {
+            localStorage.setItem('se_cart_persistent', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-badge').innerText = cart.length;
+            const list = document.getElementById('cart-items-list');
+            let total = 0;
+            list.innerHTML = cart.length ? "" : "<div style='text-align:center; padding:40px; color:#888;'>Your cart is empty</div>";
+            
+            cart.forEach((item, i) => {
+                total += item.price;
+                list.innerHTML += `
+                    <div style="display:flex; gap:15px; background:white; padding:12px; border-radius:15px; margin-bottom:10px; align-items:center; border:1px solid #eee;">
+                        <img src="${item.img}" width="60" height="60" style="object-fit:cover; border-radius:10px;">
+                        <div style="flex:1">
+                            <div style="font-weight:bold; font-size:14px;">${item.name}</div>
+                            <div style="color:var(--primary); font-weight:800;">MK ${item.price.toLocaleString()}</div>
+                        </div>
+                        <i class="fas fa-trash-alt" style="color:#ff4d4d; padding:10px" onclick="removeItem(${i})"></i>
+                    </div>`;
+            });
+            document.getElementById('cart-total').innerText = "MK " + total.toLocaleString();
+        }
+
+        window.removeItem = (i) => { cart.splice(i,1); saveCart(); };
+
+        window.whatsappCheckout = () => {
+            if(!cart.length) return alert("Cart is empty");
+            let total = 0;
+            let msg = `🛍️ *NEW ORDER FROM ${auth.currentUser.displayName}*%0A`;
+            msg += `--------------------------%0A`;
+            cart.forEach((item, idx) => {
+                msg += `*${idx+1}. ${item.name}*%0APrice: MK ${item.price.toLocaleString()}%0A%0A`;
+                total += item.price;
+            });
+            msg += `--------------------------%0A💰 *GRAND TOTAL: MK ${total.toLocaleString()}*`;
+            window.open(`https://wa.me/265899195843?text=${msg}`);
+        };
+
+        window.whatsappChat = () => {
+            const name = document.getElementById('d-name').innerText;
+            window.open(`https://wa.me/265899195843?text=Hello, is the ${name} currently in stock?`);
+        };
+
+        window.switchView = (id, btn) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        // Timer
+        setInterval(() => {
+            let n = new Date();
+            let h = 23-n.getHours(), m = 59-n.getMinutes(), s = 59-n.getSeconds();
+            document.getElementById('countdown').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+        }, 1000);
+    </script>
 </body>
 </html>
