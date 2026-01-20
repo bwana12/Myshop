@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>ShopEasy Malawi - Official Store</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #e42c64;
+            --secondary-color: #2a9dcc;
+            --whatsapp-color: #25D366;
+            --shadow: 0 4px 12px rgba(0,0,0,0.1);
+            --border-radius: 12px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background-color: #f5f5f5; padding-bottom: 50px; }
+        .container { width: 100%; max-width: 1200px; margin: 0 auto; padding: 0 12px; }
+
+        header { background: white; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow); padding: 12px 0; }
+        .header-content { display: flex; align-items: center; justify-content: space-between; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
+        .logo span { color: var(--secondary-color); }
+        
+        #admin-panel { background: #fff; margin: 15px 0; padding: 20px; border-radius: var(--border-radius); border: 2px solid var(--secondary-color); display: none; }
+        input { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px; outline: none; }
+        .btn-action { background: var(--secondary-color); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
+        .product-card { background: white; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow); }
+        .product-img { width: 100%; height: 160px; object-fit: cover; }
+        .product-info { padding: 12px; }
+        .add-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 8px; }
+
+        .cart-sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.3s; padding: 20px; display: flex; flex-direction: column; }
+        .cart-sidebar.active { right: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1500; }
+        .overlay.active { display: block; }
+        #cart-items { flex-grow: 1; overflow-y: auto; margin: 20px 0; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="container header-content">
+            <a href="#" class="logo">Shop<span>Easy</span></a>
+            <div style="display: flex; gap: 20px; align-items: center;">
+                <i class="fas fa-user-shield" onclick="toggleLogin()" style="font-size: 20px; color: #666;"></i>
+                <div style="position: relative;" onclick="toggleCart()">
+                    <i class="fas fa-shopping-basket" style="font-size: 22px;"></i>
+                    <span id="cart-count" style="position:absolute; top:-8px; right:-8px; background:var(--primary-color); color:white; border-radius:50%; width:20px; height:20px; font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:bold;">0</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="login-section" style="display:none; background:white; padding:20px; margin-top:10px; border-radius:12px; box-shadow: var(--shadow);">
+            <h4>Seller Access</h4>
+            <input type="password" id="admin-pass" placeholder="Enter Admin Password" style="margin-top:10px;">
+            <button onclick="checkLogin()" class="btn-action" style="background:#333;">Login</button>
+        </div>
+
+        <div id="admin-panel">
+            <h3 style="margin-bottom:15px;">Add New Product</h3>
+            <input type="text" id="p-name" placeholder="Item Name">
+            <input type="number" id="p-price" placeholder="Price (MK or $)">
+            <input type="text" id="p-img" placeholder="Image Link (from ImgBB)">
+            <button class="btn-action" onclick="handleUpload()">🚀 Publish to Shop</button>
+        </div>
+
+        <h2 style="margin-top:25px; font-size: 20px;">Products for You</h2>
+        <div class="products-grid" id="products-container"></div>
+    </main>
+
+    <div class="overlay" id="overlay" onclick="toggleCart()"></div>
+    <div class="cart-sidebar" id="cart-sidebar">
+        <h3>My Cart</h3>
+        <div id="cart-items"></div>
+        <div style="padding-top:15px; border-top: 1px solid #eee;">
+            <h3 id="total-price" style="margin-bottom:15px;">Total: $0.00</h3>
+            <button class="btn-action" onclick="sendWhatsAppOrder()" style="background:var(--whatsapp-color);">
+                <i class="fab fa-whatsapp"></i> Order via WhatsApp
+            </button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+
+        // --- YOUR DATA INTEGRATED HERE ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+            authDomain: "shopeasy-14890.firebaseapp.com",
+            projectId: "shopeasy-14890",
+            storageBucket: "shopeasy-14890.firebasestorage.app",
+            messagingSenderId: "45827037951",
+            appId: "1:45827037951:web:545d41703780fa51018aca"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        let cart = [];
+
+        window.toggleLogin = () => {
+            const section = document.getElementById('login-section');
+            section.style.display = section.style.display === 'none' ? 'block' : 'none';
+        }
+
+        window.checkLogin = () => {
+            const pass = document.getElementById('admin-pass').value;
+            if(pass === "admin123") {
+                document.getElementById('admin-panel').style.display = 'block';
+                document.getElementById('login-section').style.display = 'none';
+            } else { alert("Wrong Password"); }
+        }
+
+        window.handleUpload = async () => {
+            const name = document.getElementById('p-name').value;
+            const price = document.getElementById('p-price').value;
+            const image = document.getElementById('p-img').value;
+
+            if(name && price && image) {
+                await addDoc(collection(db, "products"), { name, price: parseFloat(price), image, timestamp: Date.now() });
+                alert("Product Added!");
+                document.getElementById('p-name').value = ''; document.getElementById('p-price').value = ''; document.getElementById('p-img').value = '';
+            }
+        }
+
+        onSnapshot(collection(db, "products"), (snapshot) => {
+            const container = document.getElementById('products-container');
+            container.innerHTML = "";
+            snapshot.forEach((doc) => {
+                const p = doc.data();
+                container.innerHTML += `
+                    <div class="product-card">
+                        <img src="${p.image}" class="product-img">
+                        <div class="product-info">
+                            <p style="font-weight:bold; font-size:14px;">${p.name}</p>
+                            <p style="color:var(--primary-color); font-weight:bold;">$${p.price}</p>
+                            <button class="add-btn" onclick="addToCart('${p.name}', ${p.price})">Add to Cart</button>
+                        </div>
+                    </div>`;
+            });
+        });
+
+        window.addToCart = (name, price) => {
+            cart.push({name, price});
+            updateUI();
+        }
+
+        window.removeFromCart = (index) => {
+            cart.splice(index, 1);
+            updateUI();
+        }
+
+        function updateUI() {
+            document.getElementById('cart-count').innerText = cart.length;
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            document.getElementById('total-price').innerText = `Total: $${total.toFixed(2)}`;
+            document.getElementById('cart-items').innerHTML = cart.map((item, i) => `
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px; padding:8px; background:#f0f0f0; border-radius:5px;">
+                    <span>${item.name}</span>
+                    <i class="fas fa-trash" onclick="removeFromCart(${i})" style="color:red;"></i>
+                </div>`).join('');
+        }
+
+        window.toggleCart = () => {
+            document.getElementById('cart-sidebar').classList.toggle('active');
+            document.getElementById('overlay').classList.toggle('active');
+        }
+
+        window.sendWhatsAppOrder = () => {
+            if(cart.length === 0) return alert("Cart is empty");
+            const myNumber = "265XXXXXXXXX"; // <-- PUT YOUR MALAWI NUMBER HERE
+            let text = "New Order from ShopEasy:\n\n";
+            cart.forEach((item, i) => text += `${i+1}. ${item.name} ($${item.price})\n`);
+            text += `\nTotal: ${document.getElementById('total-price').innerText}`;
+            window.open(`https://wa.me/${myNumber}?text=${encodeURIComponent(text)}`);
+        }
+    </script>
+</body>
+</html>
