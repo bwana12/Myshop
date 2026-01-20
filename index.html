@@ -174,7 +174,7 @@
 
         window.sendWhatsAppOrder = () => {
             if(cart.length === 0) return alert("Cart is empty");
-            const myNumber = "265XXXXXXXXX"; // <-- PUT YOUR MALAWI NUMBER HERE
+            const myNumber = "265899195843"; // <-- PUT YOUR MALAWI NUMBER HERE
             let text = "New Order from ShopEasy:\n\n";
             cart.forEach((item, i) => text += `${i+1}. ${item.name} ($${item.price})\n`);
             text += `\nTotal: ${document.getElementById('total-price').innerText}`;
