@@ -3,102 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShopEasy Malawi | Flash Sale Live!</title>
+    <title>ShopEasy Malawi | Login to Shop</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary-color: #e42c64; --secondary-color: #2a9dcc; --whatsapp-color: #25D366; --star: #ffc107; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        :root { --primary-color: #e42c64; --secondary-color: #2a9dcc; --whatsapp-color: #25D366; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #f8f9fa; padding-bottom: 80px; }
+        body { background-color: #f8f9fa; padding-bottom: 80px; overflow-x: hidden; }
         
-        /* Flash Sale Timer Bar */
-        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 10px; font-size: 13px; font-weight: bold; display: flex; justify-content: center; align-items: center; gap: 10px; position: sticky; top: 0; z-index: 1100; }
-        #countdown { background: rgba(0,0,0,0.2); padding: 2px 8px; border-radius: 5px; letter-spacing: 1px; }
+        /* Auth Screen */
+        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
+        .google-btn { background: white; border: 1px solid #ddd; padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; box-shadow: var(--shadow); }
 
-        header { background: white; position: sticky; top: 40px; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; }
+        /* Views */
+        .view { display: none; padding: 15px; min-height: 100vh; }
+        .view.active { display: block; }
+
+        /* Search Bar */
+        .search-container { padding: 10px 15px; background: white; }
+        .search-box { background: #f0f0f0; border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+
+        /* General UI */
+        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; }
+        header { background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
         .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
         .logo span { color: var(--secondary-color); }
 
-        /* Category Bar */
-        .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding: 15px; background: white; white-space: nowrap; border-bottom: 1px solid #eee; }
-        .cat-bar::-webkit-scrollbar { display: none; }
-        .cat-btn { padding: 8px 20px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: 600; cursor: pointer; }
-        .cat-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
+        .product-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid #eee; }
+        .product-img { width: 100%; height: 160px; object-fit: cover; }
+        .product-info { padding: 10px; }
+        .price { color: var(--primary-color); font-weight: 800; }
 
-        /* Grid */
-        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
-        .product-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); position: relative; border: 1px solid #eee; transition: 0.3s; }
-        .flash-tag { position: absolute; top: 8px; left: 8px; background: #ff0000; color: white; font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: bold; z-index: 5; animation: blink 1s infinite; }
-        @keyframes blink { 0% { opacity: 1; } 50% { opacity: 0.6; } 100% { opacity: 1; } }
-
-        .product-img { width: 100%; height: 170px; object-fit: cover; }
-        .product-info { padding: 12px; }
-        .price { color: var(--primary-color); font-size: 17px; font-weight: 800; }
-        .old-price { font-size: 11px; text-decoration: line-through; color: #888; margin-left: 5px; }
-
-        /* Slide Panel */
-        #detail-panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 85vh; background: white; z-index: 4000; transition: 0.4s cubic-bezier(0.25, 1, 0.5, 1); border-radius: 25px 25px 0 0; box-shadow: 0 -10px 40px rgba(0,0,0,0.3); overflow-y: auto; }
-        #detail-panel.active { bottom: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); display: none; z-index: 3500; }
-        .overlay.active { display: block; }
-        
-        .add-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 15px; border-radius: 12px; font-weight: bold; cursor: pointer; }
-        
         .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 12px 0; z-index: 3000; }
-        .nav-item { text-align: center; color: #777; text-decoration: none; font-size: 10px; }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 2px; }
+        .nav-item { text-align: center; color: #777; font-size: 10px; flex: 1; cursor: pointer; }
+        .nav-item.active { color: var(--primary-color); }
+        .nav-item i { font-size: 20px; display: block; }
+
+        #detail-panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 80vh; background: white; z-index: 4000; transition: 0.4s; border-radius: 25px 25px 0 0; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        #detail-panel.active { bottom: 0; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 3500; }
+        .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
-    <div class="timer-bar">
-        <span>⚡ FLASH SALE ENDS IN: </span>
-        <span id="countdown">00:00:00</span>
+    <div id="auth-screen">
+        <h1 style="color:var(--primary-color); font-size: 32px; margin-bottom: 10px;">Shop<span>Easy</span></h1>
+        <p style="color:#666; margin-bottom: 30px;">Login to see today's flash deals in Malawi</p>
+        <button class="google-btn" onclick="login()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20">
+            Sign in with Google
+        </button>
     </div>
 
-    <header>
-        <a href="#" class="logo">Shop<span>Easy</span></a>
-        <div style="display:flex; gap:15px;"><i class="fas fa-search"></i><i class="fas fa-heart"></i></div>
-    </header>
+    <div id="main-app" style="display:none;">
+        <div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown">04:00:00</span></div>
 
-    <div class="cat-bar" id="category-bar">
-        <button class="cat-btn active" onclick="filterCat('All', this)">All Deals</button>
-        <button class="cat-btn" onclick="filterCat('Electronics', this)">Electronics</button>
-        <button class="cat-btn" onclick="filterCat('Fashion', this)">Fashion</button>
-        <button class="cat-btn" onclick="filterCat('Home', this)">Home</button>
-    </div>
-
-    <div class="products-grid" id="products-container"></div>
-
-    <div id="detail-panel">
-        <div onclick="closeDetails()" style="position:absolute; top:15px; right:20px; font-size:30px;">&times;</div>
-        <img id="d-img" src="" style="width:100%; height:300px; object-fit:cover;">
-        <div style="padding:20px;">
-            <div style="color:#ff0000; font-weight:bold; font-size:12px; margin-bottom:10px;"><i class="fas fa-fire"></i> High Demand: 45 people bought this today</div>
-            <h1 id="d-name" style="font-size:22px;"></h1>
-            <div id="d-price" class="price" style="font-size:26px; margin:10px 0;"></div>
-            <p id="d-desc" style="color:#666; font-size:14px; line-height:1.6;"></p>
-            <div style="display:grid; grid-template-columns: 1fr 2fr; gap:10px; margin-top:30px;">
-                <button onclick="whatsappChat()" class="add-btn" style="background:var(--whatsapp-color);"><i class="fab fa-whatsapp"></i> Chat</button>
-                <button id="d-add-btn" class="add-btn">Add to Cart</button>
+        <div id="home-view" class="view active">
+            <header>
+                <a href="#" class="logo">Shop<span>Easy</span></a>
+                <i class="fas fa-heart" style="color:#ddd;"></i>
+            </header>
+            
+            <div class="search-container">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#888;"></i>
+                    <input type="text" id="search-input" placeholder="Search for electronics, shoes..." onkeyup="searchProducts()">
+                </div>
             </div>
+
+            <div class="products-grid" id="products-container"></div>
+        </div>
+
+        <div id="cart-view" class="view">
+            <h2>Your Cart</h2>
+            <div id="cart-items-list" style="margin-top:20px;"></div>
+            <div id="cart-total-box" style="margin-top:20px; font-weight:bold; font-size:18px;">Total: MK 0</div>
+            <button onclick="whatsappCheckout()" style="width:100%; background:var(--whatsapp-color); color:white; border:none; padding:15px; border-radius:12px; margin-top:15px; font-weight:bold;">Order on WhatsApp</button>
+        </div>
+
+        <div id="me-view" class="view">
+            <div style="text-align:center; padding:30px 0;">
+                <img id="user-photo" src="" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px; border:3px solid var(--secondary-color);">
+                <h3 id="user-name">Loading...</h3>
+                <p id="user-email" style="color:#888; font-size:14px;"></p>
+            </div>
+            <div style="background:white; border-radius:15px; overflow:hidden; box-shadow:var(--shadow);">
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-map-marker-alt"></i> Delivery Address</div>
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-history"></i> Order History</div>
+                <div style="padding:15px; color:red;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchView('home-view', this)"><i class="fas fa-bolt"></i>Deals</div>
+            <div class="nav-item" onclick="switchView('cart-view', this)"><i class="fas fa-shopping-bag"></i>Cart</div>
+            <div class="nav-item" onclick="switchView('me-view', this)"><i class="fas fa-user"></i>Me</div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <a href="#" class="nav-item" style="color:var(--primary-color)"><i class="fas fa-bolt"></i>Deals</a>
-        <a href="javascript:void(0)" onclick="toggleCart()" class="nav-item" style="position:relative;">
-            <i class="fas fa-shopping-bag"></i>
-            <span id="cart-count" style="position:absolute; top:-2px; right:5px; background:red; color:white; border-radius:50%; width:15px; height:15px; font-size:9px; display:flex; align-items:center; justify-content:center;">0</span>
-            Cart
-        </a>
-        <a href="#" class="nav-item"><i class="fas fa-user"></i>Me</a>
-    </div>
-
     <div class="overlay" id="overlay" onclick="closeDetails()"></div>
+    <div id="detail-panel">
+        <img id="d-img" src="" style="width:100%; height:200px; object-fit:cover; border-radius:15px;">
+        <h2 id="d-name" style="margin-top:10px;"></h2>
+        <p id="d-price" class="price" style="font-size:22px;"></p>
+        <p id="d-desc" style="color:#666; margin:10px 0; font-size:14px;"></p>
+        <button id="d-add-btn" style="width:100%; background:var(--primary-color); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">Add to Cart</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
@@ -111,63 +128,61 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        let cart = [];
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-        // --- TIMER LOGIC ---
-        function startTimer(duration) {
-            let timer = duration, hours, minutes, seconds;
-            setInterval(() => {
-                hours = parseInt(timer / 3600, 10);
-                minutes = parseInt((timer % 3600) / 60, 10);
-                seconds = parseInt(timer % 60, 10);
+        // --- AUTH LOGIC ---
+        window.login = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth).then(() => location.reload());
 
-                hours = hours < 10 ? "0" + hours : hours;
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-photo').src = user.photoURL;
+            }
+        });
 
-                document.getElementById('countdown').textContent = hours + ":" + minutes + ":" + seconds;
+        // --- SEARCH LOGIC ---
+        window.searchProducts = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            document.querySelectorAll('.product-card').forEach(card => {
+                const name = card.querySelector('p').innerText.toLowerCase();
+                card.style.display = name.includes(term) ? "block" : "none";
+            });
+        };
 
-                if (--timer < 0) timer = duration;
-            }, 1000);
-        }
-        startTimer(14400); // 4 Hour Flash Sale
-
-        onSnapshot(collection(db, "products"), (snapshot) => {
+        // --- CORE SHOP LOGIC (Cart & Sync) ---
+        let cart = JSON.parse(localStorage.getItem('se_cart')) || [];
+        
+        onSnapshot(collection(db, "products"), (snap) => {
             const container = document.getElementById('products-container');
             container.innerHTML = "";
-            snapshot.forEach((doc) => {
+            snap.forEach(doc => {
                 const p = doc.data();
-                const fakeOldPrice = (p.price * 1.3).toLocaleString(); // Show 30% higher original price
                 container.innerHTML += `
-                    <div class="product-card" data-cat="${p.category}" onclick="showDetails('${p.name}', '${p.price}', '${p.image}', '${p.description || 'Verified Quality.'}')">
-                        <div class="flash-tag">⚡ FLASH DEAL</div>
+                    <div class="product-card" onclick="showDetails('${p.name}', ${p.price}, '${p.image}', '${p.description || ''}')">
                         <img src="${p.image}" class="product-img">
                         <div class="product-info">
                             <p style="font-size:13px; font-weight:bold; height:35px; overflow:hidden;">${p.name}</p>
-                            <div class="price">MK ${Number(p.price).toLocaleString()}<span class="old-price">MK ${fakeOldPrice}</span></div>
+                            <div class="price">MK ${p.price.toLocaleString()}</div>
                         </div>
                     </div>`;
             });
         });
 
-        window.filterCat = (cat, btn) => {
-            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            document.querySelectorAll('.product-card').forEach(card => {
-                card.style.display = (cat === 'All' || card.dataset.cat === cat) ? 'block' : 'none';
-            });
-        };
-
         window.showDetails = (name, price, img, desc) => {
             document.getElementById('d-name').innerText = name;
-            document.getElementById('d-price').innerText = "MK " + Number(price).toLocaleString();
+            document.getElementById('d-price').innerText = "MK " + price.toLocaleString();
             document.getElementById('d-img').src = img;
             document.getElementById('d-desc').innerText = desc;
-            document.getElementById('d-add-btn').onclick = () => { 
-                cart.push({name, price}); 
-                document.getElementById('cart-count').innerText = cart.length;
-                alert('Added to Cart!'); 
-                closeDetails(); 
+            document.getElementById('d-add-btn').onclick = () => {
+                cart.push({name, price, img});
+                localStorage.setItem('se_cart', JSON.stringify(cart));
+                alert("Added!");
+                closeDetails();
             };
             document.getElementById('detail-panel').classList.add('active');
             document.getElementById('overlay').classList.add('active');
@@ -178,10 +193,40 @@
             document.getElementById('overlay').classList.remove('active');
         };
 
-        window.whatsappChat = () => {
-            const name = document.getElementById('d-name').innerText;
-            window.open(`https://wa.me/265899195843?text=Hi ShopEasy, I'm interested in the Flash Sale for the ${name}.`);
+        window.switchView = (id, btn) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            if(id === 'cart-view') renderCart();
         };
+
+        function renderCart() {
+            const list = document.getElementById('cart-items-list');
+            list.innerHTML = "";
+            let total = 0;
+            cart.forEach((item, i) => {
+                total += item.price;
+                list.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:10px; background:white; padding:10px; border-radius:10px;">
+                    <img src="${item.img}" width="50" height="50" style="object-fit:cover; border-radius:5px;">
+                    <div style="flex:1"><b>${item.name}</b><br><span style="color:var(--primary-color)">MK ${item.price.toLocaleString()}</span></div>
+                    <button onclick="cart.splice(${i},1); localStorage.setItem('se_cart', JSON.stringify(cart)); renderCart();" style="border:none; background:none; color:red;">&times;</button>
+                </div>`;
+            });
+            document.getElementById('cart-total-box').innerText = "Total: MK " + total.toLocaleString();
+        }
+
+        window.whatsappCheckout = () => {
+            let msg = "Order from " + auth.currentUser.displayName + ":%0A";
+            cart.forEach(i => msg += `- ${i.name}%0A`);
+            window.open(`https://wa.me/265899195843?text=${msg}`);
+        };
+
+        // Timer
+        setInterval(() => {
+            let d = new Date();
+            document.getElementById('countdown').innerText = `${23-d.getHours()}:${59-d.getMinutes()}:${59-d.getSeconds()}`;
+        }, 1000);
     </script>
 </body>
 </html>
