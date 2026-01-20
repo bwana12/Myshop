@@ -24,11 +24,16 @@
         .logo span { color: var(--secondary-color); }
 
         .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 20px; }
-        .product-card { background: white; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow); }
+        .product-card { background: white; border-radius: var(--border-radius); overflow: hidden; box-shadow: var(--shadow); cursor: pointer; }
         .product-img { width: 100%; height: 160px; object-fit: cover; }
         .product-info { padding: 12px; }
         .add-btn { background: var(--primary-color); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; margin-top: 8px; cursor: pointer; }
 
+        /* Modal / Pop-up Styling */
+        #product-modal { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; padding:20px; align-items:center; justify-content:center; }
+        .modal-content { background:white; width:100%; max-width:400px; border-radius:15px; overflow:hidden; position:relative; animation: slideUp 0.3s ease; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
         .cart-sidebar { position: fixed; top: 0; right: -100%; width: 85%; max-width: 400px; height: 100%; background: white; z-index: 2000; transition: 0.3s; padding: 20px; display: flex; flex-direction: column; }
         .cart-sidebar.active { right: 0; }
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 1500; }
@@ -42,11 +47,9 @@
     <header>
         <div class="container header-content">
             <a href="#" class="logo">Shop<span>Easy</span></a>
-            <div style="display: flex; gap: 20px; align-items: center;">
-                <div style="position: relative; cursor: pointer;" onclick="toggleCart()">
-                    <i class="fas fa-shopping-basket" style="font-size: 22px;"></i>
-                    <span id="cart-count" style="position:absolute; top:-8px; right:-8px; background:var(--primary-color); color:white; border-radius:50%; width:20px; height:20px; font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:bold;">0</span>
-                </div>
+            <div style="position: relative; cursor: pointer;" onclick="toggleCart()">
+                <i class="fas fa-shopping-basket" style="font-size: 22px;"></i>
+                <span id="cart-count" style="position:absolute; top:-8px; right:-8px; background:var(--primary-color); color:white; border-radius:50%; width:20px; height:20px; font-size:11px; display:flex; align-items:center; justify-content:center; font-weight:bold;">0</span>
             </div>
         </div>
     </header>
@@ -55,6 +58,21 @@
         <h2 style="margin-top:25px; font-size: 20px;">Products for You</h2>
         <div class="products-grid" id="products-container"></div>
     </main>
+
+    <div id="product-modal" onclick="if(event.target == this) closeModal()">
+        <div class="modal-content">
+            <span onclick="closeModal()" style="position:absolute; top:10px; right:15px; font-size:30px; cursor:pointer; color:#333; z-index: 10;">&times;</span>
+            <img id="modal-img" src="" style="width:100%; height:250px; object-fit:cover;">
+            <div style="padding:20px;">
+                <h2 id="modal-name"></h2>
+                <p id="modal-price" style="color:var(--primary-color); font-weight:bold; font-size:20px; margin:10px 0;"></p>
+                <div style="background:#f9f9f9; padding:10px; border-radius:8px; margin-bottom:20px;">
+                    <p id="modal-desc" style="color:#555; line-height:1.5; font-size:14px;"></p>
+                </div>
+                <button id="modal-add-btn" class="add-btn">Add to Cart</button>
+            </div>
+        </div>
+    </div>
 
     <div class="overlay" id="overlay" onclick="toggleCart()"></div>
     <div class="cart-sidebar" id="cart-sidebar">
@@ -93,9 +111,11 @@
             container.innerHTML = "";
             snapshot.forEach((doc) => {
                 const p = doc.data();
+                const description = p.description || "No specific details provided. Quality guaranteed!";
+                
                 container.innerHTML += `
                     <div class="product-card">
-                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150?text=ShopEasy'">
+                        <img src="${p.image}" class="product-img" onclick="showDetails('${p.name}', '${p.price}', '${p.image}', '${description}')" onerror="this.src='https://via.placeholder.com/150?text=ShopEasy'">
                         <div class="product-info">
                             <p style="font-weight:bold; font-size:14px;">${p.name}</p>
                             <p style="color:var(--primary-color); font-weight:bold;">MWK ${Number(p.price).toLocaleString()}</p>
@@ -104,6 +124,19 @@
                     </div>`;
             });
         });
+
+        window.showDetails = (name, price, img, desc) => {
+            document.getElementById('modal-name').innerText = name;
+            document.getElementById('modal-price').innerText = "MWK " + Number(price).toLocaleString();
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-desc').innerText = desc;
+            document.getElementById('modal-add-btn').onclick = () => { addToCart(name, price); closeModal(); };
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        window.closeModal = () => {
+            document.getElementById('product-modal').style.display = 'none';
+        }
 
         window.addToCart = (name, price) => {
             cart.push({name, price});
