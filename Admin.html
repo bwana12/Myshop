@@ -2,42 +2,141 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Admin Dashboard - ShopEasy</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ShopEasy Admin | Inventory Manager</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary-color: #e42c64; --secondary-color: #2a9dcc; --shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: sans-serif; }
-        body { background-color: #f5f5f5; padding: 20px; }
-        .admin-card { background: white; padding: 20px; border-radius: 12px; box-shadow: var(--shadow); margin-bottom: 20px; border: 2px solid var(--secondary-color); }
-        input, textarea { width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 10px; font-size: 16px; outline: none; }
-        textarea { height: 80px; resize: none; }
-        .btn-add { background: var(--secondary-color); color: white; border: none; width: 100%; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-        .product-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); position: relative; }
-        .product-img { width: 100%; height: 140px; object-fit: cover; }
+        :root { 
+            --primary-color: #e42c64; 
+            --secondary-color: #2a9dcc; 
+            --shadow: 0 4px 15px rgba(0,0,0,0.1); 
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: #f0f2f5; padding: 20px; }
+        
+        .admin-card { 
+            background: white; 
+            padding: 25px; 
+            border-radius: 16px; 
+            box-shadow: var(--shadow); 
+            max-width: 500px; 
+            margin: 0 auto 30px; 
+            border-top: 5px solid var(--secondary-color); 
+        }
+        
+        h2 { margin-bottom: 20px; color: #333; font-size: 20px; text-align: center; }
+        label { font-size: 12px; font-weight: bold; color: #666; display: block; margin-bottom: 5px; margin-left: 5px; }
+        
+        input, textarea, select { 
+            width: 100%; 
+            padding: 12px; 
+            border: 1px solid #ddd; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            font-size: 16px; 
+            outline: none; 
+            background: #fafafa;
+        }
+        
+        textarea { height: 100px; resize: none; }
+        
+        .btn-add { 
+            background: var(--secondary-color); 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 16px; 
+            border-radius: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: 0.3s;
+        }
+        .btn-add:hover { background: #238bb8; }
+
+        .live-title { 
+            max-width: 800px; 
+            margin: 0 auto 15px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+
+        .products-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); 
+            gap: 15px; 
+            max-width: 800px; 
+            margin: 0 auto; 
+        }
+
+        .product-card { 
+            background: white; 
+            border-radius: 12px; 
+            overflow: hidden; 
+            box-shadow: var(--shadow); 
+            position: relative; 
+            border: 1px solid #eee; 
+        }
+
+        .product-img { width: 100%; height: 130px; object-fit: cover; }
         .product-info { padding: 10px; }
-        .btn-delete { background: #ff4d4d; color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; margin-top: 10px; font-weight: bold; cursor: pointer; }
+        
+        .btn-delete { 
+            background: #ff4d4d; 
+            color: white; 
+            border: none; 
+            width: 100%; 
+            padding: 8px; 
+            border-radius: 6px; 
+            margin-top: 8px; 
+            font-weight: bold; 
+            cursor: pointer; 
+            font-size: 12px; 
+        }
     </style>
 </head>
 <body>
 
     <div class="admin-card">
-        <h2 style="margin-bottom:15px; color:var(--secondary-color);">Manage Shop Inventory</h2>
-        <input type="text" id="p-name" placeholder="Item Name (e.g., Samsung S21)">
-        <input type="number" id="p-price" placeholder="Price (Numbers only, e.g. 450000)">
-        <input type="text" id="p-img" placeholder="Direct Image Link (from ImgBB)">
-        <textarea id="p-desc" placeholder="Product Details (e.g. 128GB Storage, Blue Color, Slightly Used)"></textarea>
-        <button class="btn-add" onclick="handleUpload()">🚀 Publish to Shop</button>
+        <h2>🚀 Post New Product</h2>
+        
+        <label>Product Name</label>
+        <input type="text" id="p-name" placeholder="e.g. iPhone 13 Pro">
+        
+        <label>Price (MWK)</label>
+        <input type="number" id="p-price" placeholder="e.g. 950000">
+        
+        <label>Image Link (ImgBB Direct Link)</label>
+        <input type="text" id="p-img" placeholder="https://i.ibb.co/...">
+        
+        <label>Category</label>
+        <select id="p-category">
+            <option value="General">Select Category</option>
+            <option value="Electronics">Electronics</option>
+            <option value="Fashion">Fashion & Shoes</option>
+            <option value="Home">Home & Kitchen</option>
+            <option value="Beauty">Beauty & Health</option>
+        </select>
+
+        <label>Full Details / Specs</label>
+        <textarea id="p-desc" placeholder="Write specs, size, color, condition, etc."></textarea>
+        
+        <button class="btn-add" onclick="handleUpload()">Publish to ShopEasy</button>
     </div>
 
-    <h3>Live Products</h3>
+    <div class="live-title">
+        <h3>Live Inventory</h3>
+        <span id="inv-count" style="background:#ddd; padding:2px 10px; border-radius:20px; font-size:12px; font-weight: bold;">0 Items</span>
+    </div>
+    
     <div class="products-grid" id="admin-container"></div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // --- DATABASE CONNECTION ---
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
             authDomain: "shopeasy-14890.firebaseapp.com",
@@ -50,49 +149,60 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Security check
-        const pass = prompt("Enter Admin Password:");
-        if (pass !== "admin123") {
-            alert("Unauthorized!");
-            window.location.href = "index.html";
+        // --- SECURITY ---
+        const pass = prompt("Admin Password:");
+        if (pass !== "admin123") { 
+            alert("Wrong Password!");
+            window.location.href = "index.html"; 
         }
 
+        // --- UPLOAD FUNCTION ---
         window.handleUpload = async () => {
             const name = document.getElementById('p-name').value;
             const price = document.getElementById('p-price').value;
             const image = document.getElementById('p-img').value;
-            const description = document.getElementById('p-desc').value;
+            const desc = document.getElementById('p-desc').value;
+            const cat = document.getElementById('p-category').value;
 
             if(name && price && image) {
-                await addDoc(collection(db, "products"), { 
-                    name, 
-                    price: parseFloat(price), 
-                    image, 
-                    description: description || "Quality product from ShopEasy Malawi",
-                    timestamp: Date.now() 
-                });
-                alert("Success! Item added to shop.");
-                document.getElementById('p-name').value = ''; 
-                document.getElementById('p-price').value = ''; 
-                document.getElementById('p-img').value = '';
-                document.getElementById('p-desc').value = '';
+                try {
+                    await addDoc(collection(db, "products"), { 
+                        name, 
+                        price: parseFloat(price), 
+                        image, 
+                        description: desc || "Premium Quality Item", 
+                        category: cat, 
+                        timestamp: Date.now() 
+                    });
+                    alert("Success! Product is now live.");
+                    // Reset fields
+                    document.getElementById('p-name').value = '';
+                    document.getElementById('p-price').value = '';
+                    document.getElementById('p-img').value = '';
+                    document.getElementById('p-desc').value = '';
+                    document.getElementById('p-category').value = 'General';
+                } catch (e) {
+                    alert("Error: " + e.message);
+                }
             } else {
-                alert("Please fill in Name, Price, and Image link.");
+                alert("Please fill in Name, Price, and Image link!");
             }
-        }
+        };
 
+        // --- LIVE SYNC ---
         onSnapshot(collection(db, "products"), (snapshot) => {
             const container = document.getElementById('admin-container');
+            document.getElementById('inv-count').innerText = snapshot.size + " Items";
             container.innerHTML = "";
             snapshot.forEach((docSnap) => {
                 const p = docSnap.data();
                 container.innerHTML += `
                     <div class="product-card">
-                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150?text=Check+Link'">
+                        <img src="${p.image}" class="product-img" onerror="this.src='https://via.placeholder.com/150'">
                         <div class="product-info">
-                            <p style="font-weight:bold; font-size:13px;">${p.name}</p>
-                            <p style="color:var(--primary-color); font-size:12px;">MWK ${Number(p.price).toLocaleString()}</p>
-                            <button class="btn-delete" onclick="deleteProduct('${docSnap.id}')">
+                            <p style="font-weight:bold; font-size:12px; height:30px; overflow:hidden;">${p.name}</p>
+                            <p style="color:var(--primary-color); font-size:11px; font-weight:bold;">MK ${Number(p.price).toLocaleString()}</p>
+                            <button class="btn-delete" onclick="deleteItem('${docSnap.id}')">
                                 <i class="fas fa-trash"></i> DELETE
                             </button>
                         </div>
@@ -100,15 +210,12 @@
             });
         });
 
-        window.deleteProduct = async (id) => {
-            if(confirm("Are you sure you want to remove this item?")) {
-                try {
-                    await deleteDoc(doc(db, "products", id));
-                } catch (error) {
-                    alert("Delete failed. Check Firebase Rules.");
-                }
+        // --- DELETE FUNCTION ---
+        window.deleteItem = async (id) => {
+            if(confirm("Are you sure you want to remove this product from the shop?")) {
+                await deleteDoc(doc(db, "products", id));
             }
-        }
+        };
     </script>
 </body>
 </html>
