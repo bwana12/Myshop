@@ -3,113 +3,138 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShopEasy Malawi | Login to Shop</title>
+    <title>ShopEasy Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --primary-color: #e42c64; --secondary-color: #2a9dcc; --whatsapp-color: #25D366; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background-color: #f8f9fa; padding-bottom: 80px; overflow-x: hidden; }
-        
-        /* Auth Screen */
-        #auth-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; text-align: center; }
-        .google-btn { background: white; border: 1px solid #ddd; padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; box-shadow: var(--shadow); }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --whatsapp: #25D366; --bg: #f8f9fa; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); padding-bottom: 80px; }
 
-        /* Views */
-        .view { display: none; padding: 15px; min-height: 100vh; }
-        .view.active { display: block; }
+        /* Auth/Login */
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+        .google-btn { border: 1px solid #ddd; padding: 12px 24px; border-radius: 30px; display: flex; align-items: center; gap: 10px; font-weight: bold; cursor: pointer; background: white; margin-top: 20px; }
 
-        /* Search Bar */
+        /* Header & Timer */
+        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; position: sticky; top: 0; z-index: 1000; }
+        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 24px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { color: var(--secondary); }
+
+        /* Categories */
+        .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding: 10px 15px; background: white; white-space: nowrap; border-bottom: 1px solid #eee; }
+        .cat-bar::-webkit-scrollbar { display: none; }
+        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: 600; cursor: pointer; }
+        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Search */
         .search-container { padding: 10px 15px; background: white; }
-        .search-box { background: #f0f0f0; border-radius: 20px; padding: 8px 15px; display: flex; align-items: center; gap: 10px; }
-        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 14px; }
+        .search-box { background: #f1f1f1; border-radius: 10px; padding: 10px; display: flex; align-items: center; gap: 10px; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 15px; }
 
-        /* General UI */
-        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; }
-        header { background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; }
-        .logo { font-size: 22px; font-weight: 800; color: var(--primary-color); text-decoration: none; }
-        .logo span { color: var(--secondary-color); }
-
-        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 15px; }
-        .product-card { background: white; border-radius: 16px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid #eee; }
+        /* Product Grid */
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+        .product-card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); position: relative; border: 1px solid #eee; }
+        .flash-badge { position: absolute; top: 8px; left: 8px; background: #ff0000; color: white; font-size: 9px; padding: 3px 8px; border-radius: 4px; font-weight: bold; }
         .product-img { width: 100%; height: 160px; object-fit: cover; }
-        .product-info { padding: 10px; }
-        .price { color: var(--primary-color); font-weight: 800; }
+        .info { padding: 10px; }
+        .price { color: var(--primary); font-weight: 800; font-size: 16px; }
 
-        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 12px 0; z-index: 3000; }
-        .nav-item { text-align: center; color: #777; font-size: 10px; flex: 1; cursor: pointer; }
-        .nav-item.active { color: var(--primary-color); }
-        .nav-item i { font-size: 20px; display: block; }
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 10px 0; z-index: 2000; }
+        .nav-item { text-align: center; color: #777; font-size: 10px; flex: 1; position: relative; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+        .badge { position: absolute; top: -5px; right: 25%; background: red; color: white; font-size: 10px; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        #detail-panel { position: fixed; bottom: -100%; left: 0; width: 100%; height: 80vh; background: white; z-index: 4000; transition: 0.4s; border-radius: 25px 25px 0 0; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); }
+        /* Panel UI */
+        .view { display: none; min-height: 100vh; padding-top: 10px; }
+        .view.active { display: block; }
+        #detail-panel { position: fixed; bottom: -100%; width: 100%; height: 80vh; background: white; z-index: 4000; transition: 0.4s; border-radius: 25px 25px 0 0; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.2); overflow-y: auto; }
         #detail-panel.active { bottom: 0; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; z-index: 3500; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.5); display: none; z-index: 3500; }
         .overlay.active { display: block; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <h1 style="color:var(--primary-color); font-size: 32px; margin-bottom: 10px;">Shop<span>Easy</span></h1>
-        <p style="color:#666; margin-bottom: 30px;">Login to see today's flash deals in Malawi</p>
-        <button class="google-btn" onclick="login()">
-            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20">
-            Sign in with Google
-        </button>
+        <h1 class="logo">Shop<span>Easy</span></h1>
+        <p>Your local delivery partner in Malawi</p>
+        <button class="google-btn" onclick="login()"><img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20"> Sign in with Google</button>
     </div>
 
-    <div id="main-app" style="display:none;">
-        <div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown">04:00:00</span></div>
+    <div id="main-app" style="display:none">
+        <div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown">03:59:59</span></div>
 
         <div id="home-view" class="view active">
             <header>
                 <a href="#" class="logo">Shop<span>Easy</span></a>
-                <i class="fas fa-heart" style="color:#ddd;"></i>
+                <i class="fas fa-heart"></i>
             </header>
             
             <div class="search-container">
                 <div class="search-box">
-                    <i class="fas fa-search" style="color:#888;"></i>
-                    <input type="text" id="search-input" placeholder="Search for electronics, shoes..." onkeyup="searchProducts()">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="search-input" placeholder="Search iPhone, Shoes..." onkeyup="searchProducts()">
                 </div>
+            </div>
+
+            <div class="cat-bar">
+                <button class="cat-btn active" onclick="filterCat('All', this)">All Deals</button>
+                <button class="cat-btn" onclick="filterCat('Electronics', this)">Electronics</button>
+                <button class="cat-btn" onclick="filterCat('Fashion', this)">Fashion</button>
+                <button class="cat-btn" onclick="filterCat('Home', this)">Home</button>
             </div>
 
             <div class="products-grid" id="products-container"></div>
         </div>
 
-        <div id="cart-view" class="view">
-            <h2>Your Cart</h2>
-            <div id="cart-items-list" style="margin-top:20px;"></div>
-            <div id="cart-total-box" style="margin-top:20px; font-weight:bold; font-size:18px;">Total: MK 0</div>
-            <button onclick="whatsappCheckout()" style="width:100%; background:var(--whatsapp-color); color:white; border:none; padding:15px; border-radius:12px; margin-top:15px; font-weight:bold;">Order on WhatsApp</button>
+        <div id="cart-view" class="view" style="padding: 20px;">
+            <h2 style="margin-bottom:20px;">Shopping Cart</h2>
+            <div id="cart-items-list"></div>
+            <div style="margin-top:20px; padding:15px; background:white; border-radius:15px;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px;">
+                    <span>Total Amount:</span>
+                    <span id="cart-total">MK 0</span>
+                </div>
+                <button onclick="whatsappCheckout()" style="width:100%; background:var(--whatsapp); color:white; border:none; padding:16px; border-radius:12px; margin-top:15px; font-weight:bold; font-size:16px;"><i class="fab fa-whatsapp"></i> Checkout via WhatsApp</button>
+            </div>
         </div>
 
-        <div id="me-view" class="view">
+        <div id="me-view" class="view" style="padding: 20px;">
             <div style="text-align:center; padding:30px 0;">
-                <img id="user-photo" src="" style="width:80px; height:80px; border-radius:50%; margin-bottom:10px; border:3px solid var(--secondary-color);">
-                <h3 id="user-name">Loading...</h3>
-                <p id="user-email" style="color:#888; font-size:14px;"></p>
+                <img id="user-photo" src="" style="width:100px; height:100px; border-radius:50%; border:4px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <h2 id="user-name" style="margin-top:15px;"></h2>
+                <p id="user-email" style="color:#888;"></p>
             </div>
-            <div style="background:white; border-radius:15px; overflow:hidden; box-shadow:var(--shadow);">
-                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-map-marker-alt"></i> Delivery Address</div>
-                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-history"></i> Order History</div>
-                <div style="padding:15px; color:red;" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</div>
+            <div style="background:white; border-radius:15px; overflow:hidden;">
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-box" style="width:30px"></i> My Orders</div>
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-headset" style="width:30px"></i> Support</div>
+                <div style="padding:15px; color:red;" onclick="logout()"><i class="fas fa-sign-out-alt" style="width:30px"></i> Logout</div>
             </div>
         </div>
 
         <div class="bottom-nav">
             <div class="nav-item active" onclick="switchView('home-view', this)"><i class="fas fa-bolt"></i>Deals</div>
-            <div class="nav-item" onclick="switchView('cart-view', this)"><i class="fas fa-shopping-bag"></i>Cart</div>
+            <div class="nav-item" onclick="switchView('cart-view', this)">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="badge">0</span>Cart
+            </div>
             <div class="nav-item" onclick="switchView('me-view', this)"><i class="fas fa-user"></i>Me</div>
         </div>
     </div>
 
     <div class="overlay" id="overlay" onclick="closeDetails()"></div>
     <div id="detail-panel">
-        <img id="d-img" src="" style="width:100%; height:200px; object-fit:cover; border-radius:15px;">
-        <h2 id="d-name" style="margin-top:10px;"></h2>
-        <p id="d-price" class="price" style="font-size:22px;"></p>
-        <p id="d-desc" style="color:#666; margin:10px 0; font-size:14px;"></p>
-        <button id="d-add-btn" style="width:100%; background:var(--primary-color); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">Add to Cart</button>
+        <div onclick="closeDetails()" style="float:right; font-size:24px;">&times;</div>
+        <img id="d-img" src="" style="width:100%; height:250px; object-fit:cover; border-radius:15px;">
+        <h2 id="d-name" style="margin:15px 0 5px;"></h2>
+        <div id="d-price" class="price" style="font-size:24px;"></div>
+        <p id="d-desc" style="color:#666; font-size:14px; margin:15px 0;"></p>
+        <div style="display:flex; gap:10px;">
+            <button onclick="whatsappChat()" style="flex:1; background:var(--whatsapp); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;"><i class="fab fa-whatsapp"></i> Chat</button>
+            <button id="d-add-btn" style="flex:2; background:var(--primary); color:white; border:none; padding:15px; border-radius:12px; font-weight:bold;">Add to Cart</button>
+        </div>
     </div>
 
     <script type="module">
@@ -117,6 +142,7 @@
         import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+        // REPLACE WITH YOUR CONFIG
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
             authDomain: "shopeasy-14890.firebaseapp.com",
@@ -131,47 +157,57 @@
         const auth = getAuth(app);
         const provider = new GoogleAuthProvider();
 
-        // --- AUTH LOGIC ---
+        let cart = JSON.parse(localStorage.getItem('cart_data')) || [];
+        let allProducts = [];
+
         window.login = () => signInWithPopup(auth, provider);
         window.logout = () => signOut(auth).then(() => location.reload());
 
-        onAuthStateChanged(auth, (user) => {
+        onAuthStateChanged(auth, user => {
             if (user) {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('main-app').style.display = 'block';
                 document.getElementById('user-name').innerText = user.displayName;
                 document.getElementById('user-email').innerText = user.email;
                 document.getElementById('user-photo').src = user.photoURL;
+                updateCartUI();
             }
         });
 
-        // --- SEARCH LOGIC ---
-        window.searchProducts = () => {
-            const term = document.getElementById('search-input').value.toLowerCase();
-            document.querySelectorAll('.product-card').forEach(card => {
-                const name = card.querySelector('p').innerText.toLowerCase();
-                card.style.display = name.includes(term) ? "block" : "none";
-            });
-        };
-
-        // --- CORE SHOP LOGIC (Cart & Sync) ---
-        let cart = JSON.parse(localStorage.getItem('se_cart')) || [];
-        
         onSnapshot(collection(db, "products"), (snap) => {
+            allProducts = [];
+            snap.forEach(doc => allProducts.push({...doc.data(), id: doc.id}));
+            renderProducts(allProducts);
+        });
+
+        function renderProducts(products) {
             const container = document.getElementById('products-container');
             container.innerHTML = "";
-            snap.forEach(doc => {
-                const p = doc.data();
+            products.forEach(p => {
                 container.innerHTML += `
                     <div class="product-card" onclick="showDetails('${p.name}', ${p.price}, '${p.image}', '${p.description || ''}')">
+                        <div class="flash-badge">⚡ FLASH DEAL</div>
                         <img src="${p.image}" class="product-img">
-                        <div class="product-info">
+                        <div class="info">
                             <p style="font-size:13px; font-weight:bold; height:35px; overflow:hidden;">${p.name}</p>
-                            <div class="price">MK ${p.price.toLocaleString()}</div>
+                            <div class="price">MK ${Number(p.price).toLocaleString()}</div>
                         </div>
                     </div>`;
             });
-        });
+        }
+
+        window.searchProducts = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(filtered);
+        };
+
+        window.filterCat = (cat, btn) => {
+            document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
+            renderProducts(filtered);
+        };
 
         window.showDetails = (name, price, img, desc) => {
             document.getElementById('d-name').innerText = name;
@@ -180,8 +216,8 @@
             document.getElementById('d-desc').innerText = desc;
             document.getElementById('d-add-btn').onclick = () => {
                 cart.push({name, price, img});
-                localStorage.setItem('se_cart', JSON.stringify(cart));
-                alert("Added!");
+                saveCart();
+                alert("Added to Cart!");
                 closeDetails();
             };
             document.getElementById('detail-panel').classList.add('active');
@@ -193,39 +229,65 @@
             document.getElementById('overlay').classList.remove('active');
         };
 
+        function saveCart() {
+            localStorage.setItem('cart_data', JSON.stringify(cart));
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            document.getElementById('cart-badge').innerText = cart.length;
+            const list = document.getElementById('cart-items-list');
+            let total = 0;
+            list.innerHTML = cart.length ? "" : "<p style='text-align:center;color:#888;'>Cart is empty</p>";
+            
+            cart.forEach((item, i) => {
+                total += item.price;
+                list.innerHTML += `
+                    <div style="display:flex; gap:10px; background:white; padding:10px; border-radius:12px; margin-bottom:10px; align-items:center;">
+                        <img src="${item.img}" width="50" height="50" style="object-fit:cover; border-radius:8px;">
+                        <div style="flex:1">
+                            <div style="font-weight:bold; font-size:13px;">${item.name}</div>
+                            <div style="color:var(--primary); font-weight:bold;">MK ${item.price.toLocaleString()}</div>
+                        </div>
+                        <i class="fas fa-trash" style="color:#ccc" onclick="removeItem(${i})"></i>
+                    </div>`;
+            });
+            document.getElementById('cart-total').innerText = "MK " + total.toLocaleString();
+        }
+
+        window.removeItem = (i) => { cart.splice(i,1); saveCart(); };
+
+        window.whatsappCheckout = () => {
+            if(!cart.length) return alert("Cart is empty");
+            let total = 0;
+            let msg = `🛍️ *NEW ORDER FROM SHOPEASY*%0A👤 *Customer:* ${auth.currentUser.displayName}%0A--------------------------%0A`;
+            cart.forEach(item => {
+                msg += `📌 ${item.name} - *MK ${item.price.toLocaleString()}*%0A`;
+                total += item.price;
+            });
+            msg += `--------------------------%0A💰 *TOTAL AMOUNT: MK ${total.toLocaleString()}*`;
+            window.open(`https://wa.me/265899195843?text=${msg}`);
+        };
+
+        window.whatsappChat = () => {
+            const name = document.getElementById('d-name').innerText;
+            window.open(`https://wa.me/265899195843?text=Hi, I am interested in ${name}. Is it available?`);
+        };
+
         window.switchView = (id, btn) => {
             document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
             document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
             document.getElementById(id).classList.add('active');
             btn.classList.add('active');
-            if(id === 'cart-view') renderCart();
         };
 
-        function renderCart() {
-            const list = document.getElementById('cart-items-list');
-            list.innerHTML = "";
-            let total = 0;
-            cart.forEach((item, i) => {
-                total += item.price;
-                list.innerHTML += `<div style="display:flex; gap:10px; margin-bottom:10px; background:white; padding:10px; border-radius:10px;">
-                    <img src="${item.img}" width="50" height="50" style="object-fit:cover; border-radius:5px;">
-                    <div style="flex:1"><b>${item.name}</b><br><span style="color:var(--primary-color)">MK ${item.price.toLocaleString()}</span></div>
-                    <button onclick="cart.splice(${i},1); localStorage.setItem('se_cart', JSON.stringify(cart)); renderCart();" style="border:none; background:none; color:red;">&times;</button>
-                </div>`;
-            });
-            document.getElementById('cart-total-box').innerText = "Total: MK " + total.toLocaleString();
-        }
-
-        window.whatsappCheckout = () => {
-            let msg = "Order from " + auth.currentUser.displayName + ":%0A";
-            cart.forEach(i => msg += `- ${i.name}%0A`);
-            window.open(`https://wa.me/265899195843?text=${msg}`);
-        };
-
-        // Timer
+        // Timer Logic
         setInterval(() => {
             let d = new Date();
-            document.getElementById('countdown').innerText = `${23-d.getHours()}:${59-d.getMinutes()}:${59-d.getSeconds()}`;
+            let h = 23 - d.getHours();
+            let m = 59 - d.getMinutes();
+            let s = 59 - d.getSeconds();
+            document.getElementById('countdown').innerText = `${h < 10 ? '0'+h : h}:${m < 10 ? '0'+m : m}:${s < 10 ? '0'+s : s}`;
         }, 1000);
     </script>
 </body>
