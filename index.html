@@ -3,123 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ShopEasy Malawi | #1 Online Flash Sale Shop</title>
-
-    <meta name="description" content="ShopEasy Malawi - Get the best flash deals on iPhones, electronics, and fashion in Malawi. Fast delivery and secure WhatsApp ordering.">
-
-    <meta name="keywords" content="ShopEasy, Shop Easy Malawi, online shopping Malawi, flash deals Malawi, electronics Malawi, iPhone 13 Malawi">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <meta property="og:title" content="ShopEasy Malawi | Flash Sale">
-    <meta property="og:description" content="Big discounts on top brands. Order now via WhatsApp!">
-    <meta property="og:image" content="logo.png"> 
-    <meta name="google-site-verification" content="NbMEv4Ctfg0aWMeKTg5zLhuU0qF0RaH_qRnuBlPMv-U" />
-    
+    <title>ShopEasy Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-  /* Hide the whole page initially */
-  #main-content { display: none; }
-  
-  /* Show a simple loading text or spinner */
-  #loader { 
-    display: flex; 
-    justify-content: center; 
-    align-items: center; 
-    height: 100vh; 
-    font-family: Arial; 
-  }
-    </style>
-    
-    <style>
-        :root { --primary: #e42c64; --secondary: #2a9dcc; --whatsapp: #25D366; --bg: #f8f9fa; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
+        :root { --primary: #e42c64; --secondary: #2a9dcc; --whatsapp: #25D366; --bg: #f8f9fa; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        body { background: var(--bg); padding-bottom: 80px; }
 
-This is the full code so write the onload function        .spinner {
-            width: 40px; height: 40px;
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        /* Auth Screen - Matched to Screenshot */
+        #auth-screen { position: fixed; inset: 0; background: white; z-index: 5000; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; }
+        .login-logo { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; margin-bottom: 20px; border: 1px solid #eee; }
+        .login-tagline { color: #888; font-size: 16px; margin-bottom: 30px; }
+        .google-btn { border: 1px solid #ddd; padding: 12px 30px; border-radius: 30px; display: flex; align-items: center; gap: 12px; font-weight: bold; cursor: pointer; background: white; font-size: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+
+        /* Header & Timer */
+        .timer-bar { background: linear-gradient(90deg, #ff0000, #e42c64); color: white; text-align: center; padding: 8px; font-size: 12px; font-weight: bold; position: sticky; top: 0; z-index: 1000; display: flex; justify-content: center; gap: 10px; }
+        header { background: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .header-logo { height: 32px; width: auto; }
+
+        /* Search - Matched to Screenshot */
+        .search-container { padding: 10px 15px; background: white; }
+        .search-box { background: #f1f1f1; border-radius: 25px; padding: 10px 20px; display: flex; align-items: center; gap: 10px; border: 1px solid #eee; }
+        .search-box input { border: none; background: transparent; outline: none; width: 100%; font-size: 15px; }
+
+        /* Category Bar */
+        .cat-bar { display: flex; overflow-x: auto; gap: 10px; padding: 10px 15px; background: white; white-space: nowrap; border-bottom: 1px solid #eee; }
+        .cat-bar::-webkit-scrollbar { display: none; }
+        .cat-btn { padding: 8px 18px; border-radius: 20px; border: 1px solid #ddd; background: white; font-size: 13px; font-weight: 600; }
+        .cat-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+        /* Product Card - Matched to Screenshot */
+        .products-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 15px; }
+        .product-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; }
+        .flash-tag { position: absolute; top: 10px; left: 10px; background: rgba(228, 44, 100, 0.9); color: white; font-size: 9px; padding: 4px 8px; border-radius: 5px; font-weight: bold; z-index: 5; }
+        .product-img { width: 100%; height: 170px; object-fit: cover; }
+        .info { padding: 12px; }
+        .item-name { font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #333; }
+        .price-row { display: flex; flex-direction: column; }
+        .current-price { color: var(--primary); font-weight: 800; font-size: 16px; margin-bottom: 2px; }
+        .old-price { color: #999; font-size: 11px; text-decoration: line-through; }
+
+        /* Navigation */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; padding: 10px 0; z-index: 2000; }
+        .nav-item { text-align: center; color: #777; font-size: 10px; flex: 1; position: relative; cursor: pointer; }
+        .nav-item.active { color: var(--primary); }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 3px; }
+        .cart-badge { position: absolute; top: -5px; right: 28%; background: red; color: white; font-size: 10px; width: 18px; height: 18px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; border: 2px solid white; }
+
+        .view { display: none; min-height: 100vh; }
+        .view.active { display: block; }
     </style>
 </head>
-
 <body>
-    <div id="loader">
-        <div class="spinner"></div>
-        <p style="margin-top: 15px; color: #666; font-weight: bold;">ShopEasy Malawi...</p>
+
+    <div id="auth-screen">
+        <img src="logo.png" class="login-logo" alt="ShopEasy Logo"> <p class="login-tagline">Malawi's #1 Online Flash Sale Shop</p> <button class="google-btn" onclick="login()">
+            <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="18">
+            Sign in with Google Account
+        </button>
     </div>
 
-    <div id="main-content">
-        
-        <nav style="padding: 20px; background: white; box-shadow: var(--shadow); display: flex; justify-content: space-between; align-items: center;">
-            <h2 style="color: var(--primary);">ShopEasy</h2>
-            <button onclick="logOut()" style="background: none; border: 1px solid #ccc; padding: 5px 10px; border-radius: 5px; cursor: pointer;">Logout</button>
-        </nav>
-
-        <div style="padding: 20px; text-align: center;">
-            <h1>Today's Flash Sales</h1>
-            <p>Welcome back! New deals are added daily.</p>
+    <div id="main-app" style="display:none">
+        <div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown">03:59:41</span></div> <div id="home-view" class="view active">
+            <header>
+                <img src="logo_text.png" class="header-logo" alt="ShopEasy"> <div style="display:flex; gap:15px; color:#333; font-size:20px;">
+                    <i class="fas fa-search" onclick="switchSearchView()"></i>
+                    <i class="fas fa-heart"></i>
+                </div>
+            </header>
+            
+            <div class="search-container" id="search-bar">
+                <div class="search-box">
+                    <i class="fas fa-search" style="color:#888"></i>
+                    <input type="text" id="search-input" placeholder="iPhone 13" onkeyup="searchProducts()"> </div>
             </div>
 
-        <footer style="background-color: #f8f9fa; padding: 20px; text-align: center; border-top: 2px solid #ffcc00; margin-top: 50px;">
-            <div style="margin-bottom: 15px;">
-                <h3 style="color: #d32f2f;">ShopEasy Malawi 🇲🇼</h3>
+            <div class="cat-bar">
+                <button class="cat-btn active" onclick="filterCat('All', this)">All Deals</button>
+                <button class="cat-btn" onclick="filterCat('Electronics', this)">Electronics</button>
+                <button class="cat-btn" onclick="filterCat('Fashion', this)">Fashion</button>
             </div>
-            <div>
-                <a href="blog/index.html" style="text-decoration: none; color: #333; font-weight: bold; margin: 0 10px;">Shopping Guides</a> |
-                <a href="privacy.html" style="text-decoration: none; color: #333; font-weight: bold; margin: 0 10px;">Privacy Policy</a> |
-                <a href="https://wa.me/265xxxxxxxxx" style="text-decoration: none; color: #333; font-weight: bold; margin: 0 10px;">Contact Us</a>
+
+            <div class="products-grid" id="products-container"></div>
+        </div>
+
+        <div id="cart-view" class="view">
+            <h2 style="padding:20px;">Your Cart</h2>
+            <div id="cart-items-list" style="padding: 0 20px;"></div>
+            <div style="padding: 20px; position: fixed; bottom: 70px; width: 100%; background: white;">
+                <div style="display:flex; justify-content:space-between; font-weight:bold; font-size:18px;">
+                    <span>Total:</span>
+                    <span id="cart-total">MK 0</span>
+                </div>
+                <button onclick="whatsappCheckout()" style="width:100%; background:var(--whatsapp); color:white; border:none; padding:15px; border-radius:12px; margin-top:10px; font-weight:bold;">Order on WhatsApp</button>
             </div>
-            <p style="font-size: 12px; color: #999; margin-top: 10px;">&copy; 2026 ShopEasy Malawi. All rights reserved.</p>
-        </footer>
+        </div>
+
+        <div id="me-view" class="view">
+            <div style="text-align:center; padding:40px 0;">
+                <img id="user-photo" src="" style="width:90px; height:90px; border-radius:50%; border:3px solid white; box-shadow: 0 4px 10px rgba(0,0,0,0.1);">
+                <h3 id="user-name" style="margin-top:10px;"></h3>
+                <p id="user-email" style="color:#888; font-size:14px;"></p>
+            </div>
+            <div style="background:white; margin:0 20px; border-radius:15px; overflow:hidden;">
+                <div style="padding:15px; border-bottom:1px solid #eee;"><i class="fas fa-box" style="margin-right:10px;"></i> My Orders</div>
+                <div style="padding:15px; color:red;" onclick="logout()"><i class="fas fa-sign-out-alt" style="margin-right:10px;"></i> Logout</div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <div class="nav-item active" onclick="switchView('home-view', this)"><i class="fas fa-bolt"></i>Deals</div>
+            <div class="nav-item" onclick="switchView('cart-view', this)">
+                <i class="fas fa-shopping-bag"></i>
+                <span id="cart-badge" class="cart-badge">0</span>Cart
+            </div>
+            <div class="nav-item" onclick="switchView('me-view', this)"><i class="fas fa-user"></i>Me</div>
+        </div>
     </div>
 
-    <script>
-        // --- STEP 1: THE REFRESH CHECK ---
-        window.onload = function() {
-            // Check if the user successfully logged in before
-            const userLoggedIn = localStorage.getItem("isLoggedIn");
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-            if (userLoggedIn === "true") {
-                // If they are logged in, hide loader and show shop INSTANTLY
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("main-content").style.display = "block";
-            } else {
-                // If NOT logged in, show your login trigger (pop-up or redirect)
-                // For now, we hide loader to show the login button on your page
-                document.getElementById("loader").style.display = "none";
-                console.log("Waiting for user to login...");
-            }
+        const firebaseConfig = {
+            apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+            authDomain: "shopeasy-14890.firebaseapp.com",
+            projectId: "shopeasy-14890",
+            storageBucket: "shopeasy-14890.firebasestorage.app",
+            messagingSenderId: "45827037951",
+            appId: "1:45827037951:web:545d41703780fa51018aca"
         };
 
-        // --- STEP 2: YOUR ORIGINAL GOOGLE FUNCTION ---
-        function onSignIn(googleUser) {
-            // A. ADDED: Save login status to memory
-            localStorage.setItem("isLoggedIn", "true");
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const provider = new GoogleAuthProvider();
 
-            // B. YOUR ORIGINAL CODE STARTS HERE (Don't change this part)
-            var profile = googleUser.getBasicProfile();
-            console.log('ID: ' + profile.getId()); 
-            console.log('Name: ' + profile.getName());
-            console.log('Image URL: ' + profile.getImageUrl());
-            console.log('Email: ' + profile.getEmail());
-            // --- END OF YOUR ORIGINAL CODE ---
+        let cart = JSON.parse(localStorage.getItem('se_cart_persistent')) || [];
+        let allItems = [];
 
-            // C. ADDED: Show the shop now that login is done
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("main-content").style.display = "block";
+        window.login = () => signInWithPopup(auth, provider);
+        window.logout = () => signOut(auth).then(() => location.reload());
+
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('main-app').style.display = 'block';
+                document.getElementById('user-name').innerText = user.displayName;
+                document.getElementById('user-email').innerText = user.email;
+                document.getElementById('user-photo').src = user.photoURL;
+                updateCartUI();
+            }
+        });
+
+        onSnapshot(collection(db, "products"), (snap) => {
+            allItems = [];
+            snap.forEach(doc => allItems.push({...doc.data(), id: doc.id}));
+            renderGrid(allItems);
+        });
+
+        function renderGrid(products) {
+            const container = document.getElementById('products-container');
+            container.innerHTML = "";
+            products.forEach(p => {
+                const fakePrice = Math.floor(p.price * 1.32); // Calculate crossed price
+                container.innerHTML += `
+                    <div class="product-card" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">
+                        <div class="flash-tag">⚡ FLASH DEAL</div>
+                        <img src="${p.image}" class="product-img">
+                        <div class="info">
+                            <div class="item-name">${p.name}</div>
+                            <div class="price-row">
+                                <span class="current-price">MK ${p.price.toLocaleString()}</span>
+                                <span class="old-price">MK ${fakePrice.toLocaleString()}</span> </div>
+                        </div>
+                    </div>`;
+            });
         }
 
-        // --- STEP 3: LOGOUT FUNCTION ---
-        function logOut() {
-            // Clear memory so the site locks again
-            localStorage.removeItem("isLoggedIn");
-            // Refresh the page
-            location.reload();
+        window.searchProducts = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allItems.filter(p => p.name.toLowerCase().includes(term));
+            renderGrid(filtered);
+        };
+
+        window.addToCart = (name, price, img) => {
+            cart.push({name, price, img});
+            localStorage.setItem('se_cart_persistent', JSON.stringify(cart));
+            updateCartUI();
+            alert("Added to Cart!");
+        };
+
+        function updateCartUI() {
+            document.getElementById('cart-badge').innerText = cart.length;
+            const list = document.getElementById('cart-items-list');
+            let total = 0;
+            list.innerHTML = "";
+            cart.forEach((item, i) => {
+                total += item.price;
+                list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+                    <span>${item.name}</span>
+                    <b>MK ${item.price.toLocaleString()}</b>
+                </div>`;
+            });
+            document.getElementById('cart-total').innerText = "MK " + total.toLocaleString();
         }
+
+        window.whatsappCheckout = () => {
+            let msg = `🛍️ Order from ${auth.currentUser.displayName}:%0A`;
+            cart.forEach(i => msg += `- ${i.name} (MK ${i.price.toLocaleString()})%0A`);
+            window.open(`https://wa.me/265899195843?text=${msg}`);
+        };
+
+        window.switchView = (id, btn) => {
+            document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+        };
+
+        // Timer Matched to cite: 239286.png
+        setInterval(() => {
+            let n = new Date();
+            let h = 23-n.getHours(), m = 59-n.getMinutes(), s = 59-n.getSeconds();
+            document.getElementById('countdown').innerText = `${h<10?'0'+h:h}:${m<10?'0'+m:m}:${s<10?'0'+s:s}`;
+        }, 1000);
     </script>
 </body>
 </html>
