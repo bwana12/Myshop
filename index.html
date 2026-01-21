@@ -18,6 +18,20 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+  /* Hide the whole page initially */
+  #main-content { display: none; }
+  
+  /* Show a simple loading text or spinner */
+  #loader { 
+    display: flex; 
+    justify-content: center; 
+    align-items: center; 
+    height: 100vh; 
+    font-family: Arial; 
+  }
+    </style>
+    
+    <style>
         :root { --primary: #e42c64; --secondary: #2a9dcc; --whatsapp: #25D366; --bg: #f8f9fa; --shadow: 0 10px 25px rgba(0,0,0,0.08); }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
         body { background: var(--bg); padding-bottom: 80px; overflow-x: hidden; }
@@ -100,6 +114,8 @@
     
 </head>
 <body>
+    <div id="loader">Loading ShopEasy....</div>
+    <div id="main-content">
 
     <div id="auth-screen">
         
@@ -110,7 +126,6 @@
             <img src="https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg" width="20">
             Sign in with Google Account
         </button>
-        <a href="blog/index.html" style="margin-left: 15px; text-decoration: none; color: black; font-weight: bold;">Reviews</a>
         
     </div>
 
@@ -353,7 +368,7 @@
             <a href="privacy.html" style="margin: 0 10px; text-decoration: none; color: #333; font-weight: bold;">Privacy Policy</a>
             <div style="margin-top: 10px;">
                 <a href="https://wa.me/265899195843" style="color: #25D366; font-weight: bold; text-decoration: none;">Contact Us</a></p>
-            </div>  |
+            </div>  
             
             
             
@@ -362,6 +377,6 @@
         <p style="font-size: 12px; color: #999;">&copy; 2026 ShopEasy Malawi. All rights reserved.</p>
     </footer>
 
-    
+</div>
 </body>
 </html>
