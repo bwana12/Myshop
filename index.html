@@ -1,85 +1,16 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>ShopEasy Malawi | Best Flash Deals</title>
-
-<!-- Google Verification -->
-<meta name="google-site-verification" content="NbMEv4Ctfg0aWMeKTg5zLhuU0qF0RaH_qRnuBlPMv-U">
-
-<!-- SEO -->
-<meta name="description" content="ShopEasy Malawi: The #1 shop for electronics & fashion deals in Blantyre, Lilongwe, and Mzuzu. Save thousands of MK with daily flash sales.">
-<meta name="keywords" content="ShopEasy Malawi, online shopping Malawi, buy iPhone Malawi, electronics Blantyre">
-<meta name="robots" content="index, follow">
-
-<!-- IMPORTANT: GitHub Pages canonical URL -->
-<link rel="canonical" href="https://USERNAME.github.io/REPO/">
-
-<!-- Geo -->
-<meta name="geo.region" content="MW">
-<meta name="geo.placename" content="Blantyre, Lilongwe, Zomba, Mzuzu">
-
-<!-- Open Graph -->
-<meta property="og:type" content="website">
-<meta property="og:title" content="ShopEasy Malawi - Official Flash Sale Shop">
-<meta property="og:description" content="Daily flash deals in Malawi Kwacha. Order online.">
-<meta property="og:image" content="logo.png">
-
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-<style>
-/* --- YOUR ORIGINAL CSS (UNCHANGED) --- */
-:root { --primary:#e42c64; --secondary:#2a9dcc; --whatsapp:#25D366; --bg:#f8f9fa; }
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',sans-serif}
-body{background:var(--bg);padding-bottom:80px}
-#auth-screen{position:fixed;inset:0;background:white;z-index:5000;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px}
-.login-logo{width:200px;height:200px;border-radius:50%;object-fit:contain;border:2px solid #eee}
-.timer-bar{background:linear-gradient(90deg,#ff0000,#e42c64);color:white;text-align:center;padding:8px;font-size:12px;font-weight:bold;position:sticky;top:0}
-.products-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:15px}
-.product-card{background:white;border-radius:20px;overflow:hidden;box-shadow:0 4px 15px rgba(0,0,0,0.05)}
-.product-img{width:100%;height:170px;object-fit:cover}
-.bottom-nav{position:fixed;bottom:0;width:100%;background:white;border-top:1px solid #eee;display:flex;justify-content:space-around}
-.view{display:none;min-height:100vh}
-.view.active{display:block}
-</style>
-</head>
-
-<body>
-
-<!-- REQUIRED SEO H1 (Invisible to users, visible to Google) -->
-<h1 style="position:absolute;left:-9999px;">
-ShopEasy Malawi – Online Flash Deals in Electronics & Fashion
-</h1>
-
-<!-- Login Overlay -->
-<div id="auth-screen">
-<img src="logo.png" alt="ShopEasy Malawi logo" class="login-logo">
-<p>Malawi's #1 Online Flash Sale Shop</p>
-<button onclick="login()">Sign in with Google</button>
-</div>
-
-<!-- MAIN APP (PUBLIC FOR GOOGLE) -->
-<div id="main-app">
-
-<div class="timer-bar">⚡ FLASH SALE ENDS IN: <span id="countdown"></span></div>
-
-<div id="home-view" class="view active">
-<div class="products-grid" id="products-container"></div>
-</div>
-
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
+// --- FIREBASE CONFIG ---
 const firebaseConfig = {
-apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
-authDomain: "shopeasy-14890.firebaseapp.com",
-projectId: "shopeasy-14890"
+    apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
+    authDomain: "shopeasy-14890.firebaseapp.com",
+    projectId: "shopeasy-14890",
+    storageBucket: "shopeasy-14890.firebasestorage.app",
+    messagingSenderId: "45827037951",
+    appId: "1:45827037951:web:545d41703780fa51018aca"
 };
 
 const app = initializeApp(firebaseConfig);
@@ -87,39 +18,111 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+let cart = JSON.parse(localStorage.getItem('se_cart_persistent')) || [];
+let allItems = [];
+
 window.login = () => signInWithPopup(auth, provider);
+window.logout = () => signOut(auth).then(() => location.reload());
 
+// --- AUTH ---
 onAuthStateChanged(auth, user => {
-document.getElementById('auth-screen').style.display = user ? 'none' : 'flex';
+    if (user) {
+        document.getElementById('auth-screen').style.display = 'none';
+        document.getElementById('main-app').style.display = 'block';
+        document.getElementById('user-name').innerText = user.displayName;
+        document.getElementById('user-email').innerText = user.email;
+        document.getElementById('user-photo').src = user.photoURL;
+        updateCartUI();
+    }
 });
 
-onSnapshot(collection(db, "products"), snap => {
-const container = document.getElementById("products-container");
-container.innerHTML = "";
-snap.forEach(doc => {
-const p = doc.data();
-container.innerHTML += `
-<div class="product-card">
-<img src="${p.image}" class="product-img" alt="${p.name} for sale in Malawi">
-<div style="padding:10px">
-<b>${p.name}</b><br>
-<span>MK ${p.price}</span>
-</div>
-</div>`;
-});
+// --- PRODUCTS GRID ---
+onSnapshot(collection(db, "products"), (snap) => {
+    allItems = [];
+    snap.forEach(doc => allItems.push({...doc.data(), id: doc.id}));
+    renderGrid(allItems);
 });
 
-setInterval(() => {
-let n = new Date();
-document.getElementById("countdown").innerText =
-`${23-n.getHours()}:${59-n.getMinutes()}:${59-n.getSeconds()}`;
-},1000);
+function renderGrid(products) {
+    const container = document.getElementById('products-container');
+    container.innerHTML = "";
+    products.forEach(p => {
+        const fakePrice = Math.floor(p.price * 1.32);
+        container.innerHTML += `
+            <div class="product-card" onclick="addToCart('${p.name}', ${p.price}, '${p.image}')">
+                <div class="flash-tag">⚡ FLASH DEAL</div>
+                <img src="${p.image}" class="product-img">
+                <div class="info">
+                    <div class="item-name">${p.name}</div>
+                    <div class="price-row">
+                        <span class="current-price">MK ${p.price.toLocaleString()}</span>
+                        <span class="old-price">MK ${fakePrice.toLocaleString()}</span>
+                    </div>
+                </div>
+            </div>`;
+    });
+}
+
+window.searchProducts = () => {
+    const term = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allItems.filter(p => p.name.toLowerCase().includes(term));
+    renderGrid(filtered);
+};
+
+window.addToCart = (name, price, img) => {
+    cart.push({name, price, img});
+    localStorage.setItem('se_cart_persistent', JSON.stringify(cart));
+    updateCartUI();
+    alert("Added to Cart!");
+};
+
+function updateCartUI() {
+    document.getElementById('cart-badge').innerText = cart.length;
+    const list = document.getElementById('cart-items-list');
+    let total = 0;
+    list.innerHTML = "";
+    cart.forEach((item) => {
+        total += item.price;
+        list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;">
+            <span>${item.name}</span>
+            <b>MK ${item.price.toLocaleString()}</b>
+        </div>`;
+    });
+    document.getElementById('cart-total').innerText = "MK " + total.toLocaleString();
+}
+
+// --- WHATSAPP CHECKOUT + FIRESTORE LOGGING ---
+window.whatsappCheckout = async () => {
+    if (!auth.currentUser) return alert("Please login first!");
+
+    const userName = auth.currentUser.displayName;
+    const userEmail = auth.currentUser.email;
+
+    // Build WhatsApp message
+    let msg = `🛍️ Order from ${userName}:%0A`;
+    cart.forEach(i => msg += `- ${i.name} (MK ${i.price.toLocaleString()})%0A`);
+
+    // Save order to Firestore
+    try {
+        const total = cart.reduce((sum, i) => sum + i.price, 0);
+        await addDoc(collection(db, "orders"), {
+            customerName: userName,
+            customerEmail: userEmail,
+            items: cart,
+            total,
+            timestamp: Date.now(),
+            status: "pending"
+        });
+    } catch(e) {
+        console.error("Failed to save order:", e);
+    }
+
+    // Open WhatsApp
+    window.open(`https://wa.me/265899195843?text=${msg}`);
+    
+    // Clear cart
+    cart = [];
+    localStorage.setItem('se_cart_persistent', JSON.stringify(cart));
+    updateCartUI();
+};
 </script>
-
-<noscript>
-<h2>ShopEasy Malawi</h2>
-<p>Buy electronics and fashion online in Malawi.</p>
-</noscript>
-
-</body>
-</html>
