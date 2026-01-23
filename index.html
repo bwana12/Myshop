@@ -178,6 +178,15 @@
 
         /* Back to Top */
         #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
+
+        /* NEW PAGE STYLES */
+        .page-content { display: none; padding: 40px 5%; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        .page-content h2 { color: var(--primary); margin-bottom: 20px; }
+        .page-content h3 { margin-top: 20px; color: var(--secondary); }
+        .page-content p { margin-bottom: 15px; }
+        .return-btn { display: inline-block; margin-bottom: 20px; padding: 8px 15px; background: var(--secondary); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
+        .about-link { cursor: pointer; font-weight: bold; color: var(--secondary); margin-left: 15px; font-size: 14px; }
+        .policy-link-footer { display: block; text-align: center; margin-top: 40px; color: var(--secondary); cursor: pointer; text-decoration: underline; font-size: 13px; }
     </style>
 </head>
 <body id="top">
@@ -194,6 +203,7 @@
     <nav>
         <div class="logo">
             <img src="logo.png" alt="ShopEasy" onclick="popLogo()">
+            <span class="about-link" onclick="showPage('about-page')">About Us</span>
         </div>
         <div class="nav-icons">
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
@@ -202,65 +212,105 @@
         </div>
     </nav>
 
-    <div class="search-section">
-        <div class="search-box">
-            <input type="text" id="search-input" placeholder="Search..." onkeyup="handleSearch()"><i class="fas fa-search"></i>
+    <div id="home-page">
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" id="search-input" placeholder="Search..." onkeyup="handleSearch()"><i class="fas fa-search"></i>
+            </div>
+        </div>
+
+        <div id="featured-section-ui">
+            <h3 class="featured-title">🔥 New Arrivals</h3>
+            <div class="featured-container" id="featured-list"></div>
+        </div>
+
+        <div class="filter-container">
+            <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
+            <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
+            <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
+            <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
+            <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
+        </div>
+
+        <div class="container">
+            <div class="products-grid" id="store-container"></div>
+        </div>
+
+        <div class="testimonials">
+            <h3>What Our Customers Say</h3>
+            <div class="test-grid">
+                <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
+                <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
+                <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
+            </div>
+        </div>
+
+        <div class="newsletter">
+            <h3>Join the ShopEasy Club!</h3>
+            <p>Get exclusive deals and first access to new stock in Malawi.</p>
+            <div class="news-box">
+                <input type="email" id="news-email" placeholder="Your email address">
+                <button id="news-btn" onclick="subscribeNews()">Join</button>
+            </div>
         </div>
     </div>
 
-    <div id="featured-section-ui">
-        <h3 class="featured-title">🔥 New Arrivals</h3>
-        <div class="featured-container" id="featured-list"></div>
+    <div id="about-page" class="page-content">
+        <button class="return-btn" onclick="showPage('home-page')"><i class="fas fa-arrow-left"></i> Back to Shopping</button>
+        <h2>About ShopEasy Malawi</h2>
+        <p>Welcome to <strong>ShopEasy</strong>, Malawi's premier destination for high-quality electronics, fashion, and home essentials. Founded with a vision to bridge the gap between premium global products and Malawian doorsteps, we pride ourselves on being reliable, fast, and affordable.</p>
+        
+        <h3>Why Choose Us?</h3>
+        <ul>
+            <li><strong>Nationwide Delivery:</strong> We deliver to Blantyre, Lilongwe, Mzuzu, and Zomba within 24-48 hours.</li>
+            <li><strong>Quality Guaranteed:</strong> Every product is inspected by our team to ensure it meets international standards.</li>
+            <li><strong>Customer First:</strong> Our WhatsApp support is available 7 days a week to assist with your orders.</li>
+            <li><strong>Fair Pricing:</strong> We strive to provide the most competitive prices in the Malawian market.</li>
+        </ul>
+
+        <h3>Our Mission</h3>
+        <p>To empower Malawian consumers by providing a seamless, secure, and modern shopping experience. We believe everyone deserves access to the best products without the hassle of long shipping times from abroad.</p>
+        
+        <span class="policy-link-footer" onclick="showPage('policy-page')">View Privacy Policy</span>
     </div>
 
-    <div class="filter-container">
-        <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
-        <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
-        <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
-        <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
-        <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
-    </div>
+    <div id="policy-page" class="page-content">
+        <button class="return-btn" onclick="showPage('about-page')"><i class="fas fa-arrow-left"></i> Return</button>
+        <h2>Privacy Policy</h2>
+        <p>At ShopEasy, we respect your privacy and are committed to protecting your personal data.</p>
+        
+        <h3>1. Information We Collect</h3>
+        <p>When you place an order, we collect your name and WhatsApp contact details solely for the purpose of fulfilling your order and communicating delivery status.</p>
 
-    <div class="container">
-        <div class="products-grid" id="store-container"></div>
-    </div>
+        <h3>2. How We Use Your Data</h3>
+        <p>Your data is used to process orders, improve our services, and send you exclusive offers if you have subscribed to our newsletter.</p>
 
-    <div class="testimonials">
-        <h3>What Our Customers Say</h3>
-        <div class="test-grid">
-            <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
-            <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
-            <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
-        </div>
-    </div>
+        <h3>3. Data Security</h3>
+        <p>We use secure Firebase databases to store your information. We never sell your personal data to third parties.</p>
 
-    <div class="newsletter">
-        <h3>Join the ShopEasy Club!</h3>
-        <p>Get exclusive deals and first access to new stock in Malawi.</p>
-        <div class="news-box">
-            <input type="email" id="news-email" placeholder="Your email address">
-            <button id="news-btn" onclick="subscribeNews()">Join</button>
-        </div>
+        <h3>4. Order History</h3>
+        <p>Order history is stored locally on your device (browser storage) to help you track your purchases. You can clear this at any time using the "Clear History" button in the cart.</p>
+
+        <h3>5. Contact Us</h3>
+        <p>If you have any questions regarding these policies, please contact us via our WhatsApp support button.</p>
+        <br>
+        <button class="return-btn" onclick="showPage('home-page')">Back to Home</button>
     </div>
 
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            
             <div class="zoom-container" id="zoom-area">
                 <img id="modal-img" src="" onerror="this.src='https://via.placeholder.com/400'">
             </div>
-            
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <div id="modal-stock-div"></div>
                 <button onclick="shareProductLink()" style="background:none; border:none; color:var(--secondary); cursor:pointer; font-size:14px;"><i class="fas fa-share-nodes"></i> Share</button>
             </div>
-
             <div id="modal-rating" class="rating" style="margin-top: 5px; font-size: 14px;"></div>
             <h3 id="modal-name"></h3>
             <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
             <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:15px;"></p>
-
             <div id="modal-qty-container" style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <span style="font-size: 13px; font-weight: bold;">Select Quantity:</span>
@@ -275,7 +325,6 @@
                     <span id="modal-subtotal" style="font-weight: bold; color: var(--text); font-size: 14px;">MK 0</span>
                 </div>
             </div>
-
             <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">Add to Cart</button>
         </div>
     </div>
@@ -295,29 +344,21 @@
         </div>
         <hr><br>
         <div id="cart-items-list"></div>
-        
         <div class="promo-box">
             <input type="text" id="promo-input" placeholder="Promo Code (e.g. SAVE10)">
             <button class="promo-btn" onclick="applyPromo()">Apply</button>
         </div>
-
         <div style="margin-top: 20px;">
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
-            
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
-
             <div id="final-fields" style="display:none;">
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" 
-                oninput="if(/[0-9]/.test(this.value)){ this.style.borderColor='red'; this.placeholder='Only letters allowed'; this.value=this.value.replace(/[0-9]/g,''); setTimeout(()=>{this.style.borderColor='var(--border)'; this.placeholder='Enter Your Full Name';}, 1500); }" 
-                style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); transition: 0.3s;">
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
-            
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
         </div>
-
         <div class="history-section" id="history-container">
             <div class="history-header">
                 <h4>📜 Order History</h4>
@@ -344,7 +385,16 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Loader control - Removed
+        // Navigation Logic
+        window.showPage = (pageId) => {
+            document.getElementById('home-page').style.display = 'none';
+            document.getElementById('about-page').style.display = 'none';
+            document.getElementById('policy-page').style.display = 'none';
+            document.getElementById(pageId).style.display = 'block';
+            window.scrollTo(0, 0);
+        };
+
+        // Loader control
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             if(loader) loader.style.display = 'none';
