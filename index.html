@@ -228,9 +228,9 @@
     <div class="testimonials">
         <h3>What Our Customers Say</h3>
         <div class="test-grid">
-            <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Kondwani M.</h4></div>
-            <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Sarah P.</h4></div>
-            <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Isaac T.</h4></div>
+            <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
+            <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
+            <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
         </div>
     </div>
 
@@ -309,7 +309,9 @@
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
 
             <div id="final-fields" style="display:none;">
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" 
+                oninput="if(/[0-9]/.test(this.value)){ this.style.borderColor='red'; this.placeholder='Only letters allowed'; this.value=this.value.replace(/[0-9]/g,''); setTimeout(()=>{this.style.borderColor='var(--border)'; this.placeholder='Enter Your Full Name';}, 1500); }" 
+                style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text); transition: 0.3s;">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
             
