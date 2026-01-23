@@ -354,8 +354,23 @@
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
+            
             <div id="final-fields" style="display:none;">
                 <input type="text" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
+                
+                <div style="margin-bottom: 15px; background: var(--bg); padding: 10px; border-radius: 8px;">
+                    <label style="font-size: 11px; font-weight: bold; color: var(--secondary);">PAYMENT METHOD:</label>
+                    <select id="pay-method" onchange="togglePayDetails()" style="width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid var(--border); background:var(--card); color:var(--text);">
+                        <option value="Cash">Cash on Delivery</option>
+                        <option value="Mpamba">TNM Mpamba</option>
+                        <option value="Airtel">Airtel Money</option>
+                    </select>
+                    <div id="pay-instructions" style="display:none; margin-top:10px; font-size:12px; border-top:1px solid var(--border); pt:8px;">
+                        <p id="pay-text" style="color:var(--primary); font-weight:bold;"></p>
+                        <input type="text" id="trans-id" placeholder="Paste Transaction ID here" style="width:100%; padding:8px; margin-top:5px; border:1px solid var(--border); border-radius:5px; background:var(--card); color:var(--text);">
+                    </div>
+                </div>
+
                 <div style="display: flex; justify-content: space-between;">
                     <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px;">Letters only please</label>
                     <span id="char-count" style="font-size: 10px; color: #888;">0/50</span>
@@ -412,6 +427,21 @@
         let currentModalQty = 1; 
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
+
+        // Payment Details Helper
+        window.togglePayDetails = () => {
+            const method = document.getElementById('pay-method').value;
+            const ins = document.getElementById('pay-instructions');
+            const txt = document.getElementById('pay-text');
+            if(method === "Cash") {
+                ins.style.display = 'none';
+            } else {
+                ins.style.display = 'block';
+                txt.innerText = method === "Mpamba" ? 
+                    "Send to Mpamba Merchant: [YOUR_CODE_HERE]" : 
+                    "Send to Airtel Till: [YOUR_TILL_HERE]";
+            }
+        };
 
         window.toggleTheme = () => {
             const body = document.body;
@@ -570,6 +600,8 @@
 
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim();
+            const method = document.getElementById('pay-method').value;
+            const transId = document.getElementById('trans-id')?.value || "N/A";
             const botCheck = document.getElementById('hp_field').value;
             const lastOrder = localStorage.getItem('last_order_time');
             if(botCheck) return;
@@ -586,8 +618,16 @@
             localStorage.setItem('orderHistory', JSON.stringify(history));
             localStorage.setItem('last_order_time', Date.now());
             try {
-                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, timestamp: Date.now() });
-                window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}`, '_blank');
+                await addDoc(collection(db, "orders"), { 
+                    customerName: name, 
+                    items: cart, 
+                    total: finalTotal, 
+                    paymentMethod: method,
+                    transactionID: transId,
+                    timestamp: Date.now() 
+                });
+                const waMsg = `*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A*Payment:* ${method}%0A*ID:* ${transId}`;
+                window.open(`https://wa.me/${MY_PHONE}?text=${waMsg}`, '_blank');
                 cart = []; discountPercent = 0; updateCartUI(); updateHistoryUI();
             } catch (e) { alert(e.message); }
         };
