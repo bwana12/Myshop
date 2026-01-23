@@ -70,6 +70,7 @@
 
         /* Navigation */
         nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
+        .logo { flex: 1; display: flex; align-items: center; }
         .logo img { 
             height: 45px; width: 45px; 
             object-fit: cover;
@@ -81,7 +82,7 @@
         }
         .logo img:hover { transform: scale(1.1); border-color: var(--secondary); }
 
-        .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .nav-icons { display: flex; align-items: center; gap: 20px; flex: 1; justify-content: flex-end; }
         .cart-icon, .share-icon, .theme-icon { font-size: 20px; cursor: pointer; position: relative; color: var(--text); }
         .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
@@ -185,7 +186,7 @@
         .page-content h3 { margin-top: 20px; color: var(--secondary); }
         .page-content p { margin-bottom: 15px; }
         .return-btn { display: inline-block; margin-bottom: 20px; padding: 8px 15px; background: var(--secondary); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
-        .about-link { cursor: pointer; font-weight: bold; color: var(--secondary); margin-left: 15px; font-size: 14px; }
+        .about-link { cursor: pointer; font-weight: bold; color: var(--secondary); font-size: 14px; text-align: center; flex: 2; }
         .policy-link-footer { display: block; text-align: center; margin-top: 40px; color: var(--secondary); cursor: pointer; text-decoration: underline; font-size: 13px; }
     </style>
 </head>
@@ -203,8 +204,8 @@
     <nav>
         <div class="logo">
             <img src="logo.png" alt="ShopEasy" onclick="popLogo()">
-            <span class="about-link" onclick="showPage('about-page')">About Us</span>
         </div>
+        <span class="about-link" onclick="showPage('about-page')">About Us</span>
         <div class="nav-icons">
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
             <div class="share-icon" onclick="shareStore()" title="Share Website"><i class="fas fa-share-nodes"></i></div>
@@ -354,7 +355,8 @@
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
             <div id="final-fields" style="display:none;">
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">Letters only please</label>
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
