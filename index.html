@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -37,1153 +36,88 @@
             --light: #2a2a2a;
         }
 
-        * { 
-            margin: 0; 
-            padding: 0; 
-            box-sizing: border-box; 
-            font-family: 'Segoe UI', system-ui, sans-serif; 
-            scroll-behavior: smooth; 
-        }
-        
-        body { 
-            background: var(--bg); 
-            color: var(--text); 
-            padding-bottom: 50px; 
-            overflow-x: hidden; 
-            transition: var(--transition); 
-            line-height: 1.6;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', system-ui, sans-serif; scroll-behavior: smooth; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: var(--transition); line-height: 1.6; }
 
         /* ===== LOADING SCREEN ===== */
         #loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--gradient);
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            transition: opacity 0.5s ease;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--gradient);
+            display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s ease;
         }
+        .loader { width: 50px; height: 50px; border: 3px solid rgba(255,255,255,0.3); border-radius: 50%; border-top-color: white; animation: spin 1s ease-in-out infinite; margin-bottom: 20px; }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
-        .loader {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-bottom: 20px;
-        }
+        /* ===== NAVIGATION ===== */
+        .top-bar { background: var(--dark); color: white; padding: 8px 5%; font-size: 12px; display: flex; justify-content: space-between; align-items: center; }
+        .top-links a { color: white; margin-left: 20px; text-decoration: none; font-size: 11px; opacity: 0.8; transition: var(--transition); }
+        nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow); border-bottom: 3px solid var(--primary); }
+        .logo-container { display: flex; align-items: center; gap: 10px; cursor: pointer; }
+        .logo-icon { width: 40px; height: 40px; background: var(--gradient); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 20px; }
+        .logo-text { font-size: 24px; font-weight: 800; background: var(--gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .logo-text span { color: var(--primary); }
+        .nav-links { display: flex; gap: 30px; align-items: center; }
+        .nav-link { text-decoration: none; color: var(--text); font-weight: 600; font-size: 14px; padding: 8px 16px; border-radius: 25px; transition: var(--transition); }
+        .nav-link.active { background: var(--primary); color: white; }
+        .nav-icons { display: flex; align-items: center; gap: 20px; }
+        .cart-icon { position: relative; cursor: pointer; font-size: 18px; }
+        .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; font-weight: bold; }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* ===== ENHANCED NAVIGATION ===== */
-        .top-bar {
-            background: var(--dark);
-            color: white;
-            padding: 8px 5%;
-            font-size: 12px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .top-links a {
-            color: white;
-            margin-left: 20px;
-            text-decoration: none;
-            font-size: 11px;
-            opacity: 0.8;
-            transition: var(--transition);
-        }
-
-        .top-links a:hover {
-            opacity: 1;
-            color: var(--secondary);
-        }
-
-        nav { 
-            background: var(--card); 
-            padding: 15px 5%; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 1000; 
-            box-shadow: var(--shadow);
-            border-bottom: 3px solid var(--primary);
-        }
-        
-        .logo-container {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
-        }
-        
-        .logo-icon {
-            width: 40px;
-            height: 40px;
-            background: var(--gradient);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: bold;
-            font-size: 20px;
-            box-shadow: var(--shadow);
-        }
-        
-        .logo-text {
-            font-size: 24px;
-            font-weight: 800;
-            background: var(--gradient);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.5px;
-        }
-
-        .logo-text span {
-            color: var(--primary);
-        }
-        
-        .nav-links {
-            display: flex;
-            gap: 30px;
-            align-items: center;
-        }
-        
-        .nav-link {
-            text-decoration: none;
-            color: var(--text);
-            font-weight: 600;
-            font-size: 14px;
-            padding: 8px 16px;
-            border-radius: 25px;
-            transition: var(--transition);
-            position: relative;
-        }
-        
-        .nav-link:hover {
-            background: var(--bg);
-            color: var(--primary);
-        }
-        
-        .nav-link.active {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .nav-icons { 
-            display: flex; 
-            align-items: center; 
-            gap: 20px; 
-        }
-        
-        .cart-icon, .share-icon, .theme-icon, .user-icon { 
-            font-size: 18px; 
-            cursor: pointer; 
-            position: relative; 
-            color: var(--text); 
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        
-        .nav-icons i:hover {
-            background: var(--bg);
-            transform: translateY(-2px);
-        }
-        
-        .cart-count { 
-            position: absolute; 
-            top: -5px; 
-            right: -5px; 
-            background: var(--primary); 
-            color: white; 
-            font-size: 10px; 
-            padding: 3px 7px; 
-            border-radius: 50%; 
-            font-weight: bold;
-            min-width: 18px;
-            height: 18px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        /* ===== HERO SECTION ===== */
+        /* ===== SECTIONS ===== */
         .hero-section {
-            padding: 60px 5%;
-            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
-            background-size: cover;
-            background-position: center;
-            color: white;
-            text-align: center;
-            border-radius: 0 0 30px 30px;
-            margin-bottom: 30px;
+            padding: 80px 5%; background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), url('https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=1600&q=80');
+            background-size: cover; background-position: center; color: white; text-align: center; border-radius: 0 0 30px 30px; margin-bottom: 30px;
         }
-        
-        .hero-title {
-            font-size: 3rem;
-            font-weight: 800;
-            margin-bottom: 15px;
-            background: linear-gradient(to right, #ff6b35, #e42c64);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .hero-subtitle {
-            font-size: 1.2rem;
-            opacity: 0.9;
-            max-width: 600px;
-            margin: 0 auto 30px;
-        }
-        
-        .hero-stats {
-            display: flex;
-            justify-content: center;
-            gap: 40px;
-            margin-top: 40px;
-        }
-        
-        .stat-item {
-            text-align: center;
-        }
-        
-        .stat-number {
-            font-size: 2rem;
-            font-weight: bold;
-            color: var(--secondary);
-        }
-        
-        .stat-label {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
+        .hero-title { font-size: 3rem; font-weight: 800; margin-bottom: 15px; }
+        .page-section { display: none; padding: 40px 5%; animation: fadeIn 0.5s ease; }
+        .page-section.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* ===== PAGE SECTIONS ===== */
-        .page-section {
-            display: none;
-            padding: 40px 5%;
-            animation: fadeIn 0.5s ease;
-        }
-        
-        .page-section.active {
-            display: block;
-        }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        .section-title {
-            font-size: 2rem;
-            font-weight: 800;
-            margin-bottom: 30px;
-            position: relative;
-            display: inline-block;
-        }
-        
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: -10px;
-            left: 0;
-            width: 60px;
-            height: 4px;
-            background: var(--gradient);
-            border-radius: 2px;
-        }
+        /* ===== PRODUCTS ===== */
+        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 25px; margin-top: 20px; }
+        .product-card { background: var(--card); border-radius: 15px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); transition: var(--transition); cursor: pointer; }
+        .product-card:hover { transform: translateY(-10px); }
+        .p-img { width: 100%; height: 200px; object-fit: cover; }
+        .p-info { padding: 20px; }
+        .p-name { font-weight: bold; margin-bottom: 10px; height: 40px; overflow: hidden; }
+        .p-price { color: var(--primary); font-weight: bold; font-size: 1.2rem; }
+        .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
-        /* ===== WELCOME PAGE ===== */
-        .welcome-features {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin: 40px 0;
-        }
-        
-        .feature-card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 15px;
-            box-shadow: var(--shadow);
-            text-align: center;
-            transition: var(--transition);
-            border: 1px solid var(--border);
-        }
-        
-        .feature-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .feature-icon {
-            width: 70px;
-            height: 70px;
-            background: var(--gradient);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            color: white;
-            font-size: 24px;
-        }
-        
-        .feature-card h3 {
-            margin-bottom: 10px;
-            color: var(--text);
-        }
-        
-        .feature-card p {
-            color: #666;
-            font-size: 14px;
-        }
-        
-        .app-badges {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 30px;
-        }
-        
-        .app-badge {
-            background: var(--dark);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .app-badge:hover {
-            background: var(--primary);
-            transform: scale(1.05);
-        }
+        /* ===== POLICIES ===== */
+        .policy-categories { display: flex; gap: 10px; margin-bottom: 30px; overflow-x: auto; padding: 10px 0; }
+        .policy-category { padding: 12px 25px; background: var(--card); border: 1px solid var(--border); border-radius: 25px; cursor: pointer; white-space: nowrap; }
+        .policy-category.active { background: var(--primary); color: white; }
+        .policy-content { background: var(--card); padding: 40px; border-radius: 20px; box-shadow: var(--shadow); }
 
-        /* ===== ABOUT PAGE ===== */
-        .about-content {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 50px;
-            align-items: center;
-        }
-        
-        .about-image {
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .about-image img {
-            width: 100%;
-            height: 400px;
-            object-fit: cover;
-        }
-        
-        .mission-vision {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 30px;
-            margin: 50px 0;
-        }
-        
-        .mv-card {
-            background: var(--card);
-            padding: 30px;
-            border-radius: 15px;
-            border-top: 4px solid var(--primary);
-        }
-        
-        .team-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 30px;
-            margin-top: 40px;
-        }
-        
-        .team-member {
-            text-align: center;
-        }
-        
-        .team-avatar {
-            width: 120px;
-            height: 120px;
-            border-radius: 50%;
-            background: var(--gradient);
-            margin: 0 auto 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 40px;
-        }
+        /* ===== CART SIDEBAR ===== */
+        #cart-sidebar { position: fixed; right: -100%; top: 0; width: 350px; height: 100%; background: var(--card); box-shadow: -5px 0 15px rgba(0,0,0,0.1); transition: 0.4s; z-index: 2000; padding: 20px; overflow-y: auto; }
+        #cart-sidebar.active { right: 0; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border); padding-bottom: 10px; }
+        .qty-box { display: flex; align-items: center; gap: 10px; }
+        .qty-btn { width: 25px; height: 25px; background: var(--light); border: none; cursor: pointer; }
 
-        /* ===== POLICIES PAGE ===== */
-        .policy-categories {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
-            overflow-x: auto;
-            padding: 10px 0;
-        }
-        
-        .policy-category {
-            padding: 12px 25px;
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: 25px;
-            cursor: pointer;
-            white-space: nowrap;
-            transition: var(--transition);
-        }
-        
-        .policy-category.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .policy-content {
-            background: var(--card);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            margin-top: 20px;
-        }
-        
-        .policy-section {
-            margin-bottom: 30px;
-        }
-        
-        .policy-section h3 {
-            color: var(--primary);
-            margin-bottom: 15px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border);
-        }
+        /* ===== MODAL ===== */
+        .modal { display: none; position: fixed; z-index: 3000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; }
+        .modal-content { background: var(--card); padding: 30px; border-radius: 20px; max-width: 500px; width: 90%; position: relative; }
+        .close-modal { position: absolute; right: 20px; top: 10px; font-size: 30px; cursor: pointer; }
 
-        /* ===== ENHANCED PRODUCT GRID ===== */
-        .products-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
-            gap: 20px;
-        }
-        
-        .sort-options {
-            display: flex;
-            gap: 15px;
-        }
-        
-        .sort-btn {
-            padding: 8px 20px;
-            border: 1px solid var(--border);
-            background: var(--card);
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 14px;
-            transition: var(--transition);
-        }
-        
-        .sort-btn.active {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-        }
-        
-        .products-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); 
-            gap: 25px; 
-            margin-top: 20px;
-        }
-        
-        .product-card { 
-            background: var(--card); 
-            border-radius: 15px; 
-            overflow: hidden; 
-            box-shadow: var(--shadow); 
-            border: 1px solid var(--border); 
-            cursor: pointer; 
-            position: relative;
-            transition: var(--transition);
-        }
-        
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        .p-img { 
-            width: 100%; 
-            height: 180px; 
-            object-fit: cover; 
-            transition: transform 0.5s ease;
-        }
-        
-        .product-card:hover .p-img {
-            transform: scale(1.05);
-        }
-        
-        .p-badges {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        
-        .badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 10px;
-            font-weight: bold;
-            color: white;
-            text-transform: uppercase;
-        }
-        
-        .badge.sale {
-            background: var(--sale);
-        }
-        
-        .badge.new {
-            background: var(--accent);
-        }
-        
-        .badge.fast {
-            background: var(--success);
-        }
-        
-        .p-info { 
-            padding: 20px; 
-        }
-        
-        .p-name { 
-            font-weight: bold; 
-            font-size: 16px; 
-            height: 44px; 
-            overflow: hidden; 
-            display: -webkit-box; 
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical; 
-            color: var(--text); 
-            margin-bottom: 10px;
-        }
-        
-        .p-price { 
-            color: var(--primary); 
-            font-weight: bold; 
-            font-size: 18px; 
-            margin: 10px 0; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .original-price {
-            text-decoration: line-through;
-            color: #999;
-            font-size: 14px;
-            font-weight: normal;
-        }
-        
-        .p-meta {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            color: #666;
-            margin-bottom: 15px;
-        }
-        
-        .btn-buy { 
-            background: var(--secondary); 
-            color: white; 
-            border: none; 
-            width: 100%; 
-            padding: 12px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 14px; 
-            transition: var(--transition);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        .btn-buy:hover {
-            background: var(--primary);
-            transform: translateY(-2px);
-        }
-
-        /* ===== CATEGORY ICONS ENHANCED ===== */
-        .cat-icons-grid { 
-            display: flex; 
-            gap: 25px; 
-            padding: 25px 5%; 
-            overflow-x: auto; 
-            scrollbar-width: none; 
-            background: var(--card); 
-            justify-content: space-between;
-            border-bottom: 1px solid var(--border);
-        }
-        
-        .cat-icons-grid::-webkit-scrollbar { 
-            display: none; 
-        }
-        
-        .cat-item-icon { 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            gap: 10px; 
-            cursor: pointer; 
-            min-width: 80px; 
-            transition: var(--transition);
-        }
-        
-        .cat-item-icon i { 
-            width: 60px; 
-            height: 60px; 
-            background: var(--bg); 
-            border: 2px solid var(--border); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            color: var(--secondary); 
-            font-size: 24px; 
-            transition: var(--transition);
-        }
-        
-        .cat-item-icon:hover i { 
-            background: var(--gradient); 
-            color: white; 
-            border-color: transparent;
-            transform: scale(1.1);
-        }
-        
-        .cat-item-icon span { 
-            font-size: 12px; 
-            font-weight: 600; 
-            color: var(--text); 
-            text-transform: uppercase; 
-        }
-
-        /* ===== FEATURED SECTION ENHANCED ===== */
-        .featured-container { 
-            display: flex; 
-            gap: 20px; 
-            padding: 20px 5%; 
-            overflow-x: auto; 
-            scrollbar-width: none; 
-        }
-        
-        .featured-item { 
-            min-width: 300px; 
-            height: 180px; 
-            border-radius: 20px; 
-            overflow: hidden; 
-            position: relative; 
-            cursor: pointer; 
-            flex-shrink: 0;
-            box-shadow: var(--shadow);
-        }
-        
-        .featured-overlay {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
-        }
-        
-        .featured-info { 
-            position: absolute; 
-            bottom: 20px; 
-            left: 20px; 
-            color: white; 
-            z-index: 2;
-        }
-        
-        .featured-badge {
-            background: var(--accent);
-            padding: 5px 15px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            display: inline-block;
-        }
-
-        /* ===== ENHANCED TESTIMONIALS ===== */
-        .testimonials { 
-            padding: 60px 5%; 
-            background: var(--light); 
-            text-align: center; 
-            margin-top: 50px;
-        }
-        
-        .test-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
-            gap: 30px; 
-            padding: 40px 0; 
-        }
-        
-        .test-card { 
-            background: var(--card); 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: var(--shadow); 
-            border: 1px solid var(--border); 
-            text-align: left;
-            position: relative;
-        }
-        
-        .test-card::before {
-            content: '"';
-            position: absolute;
-            top: 20px;
-            left: 20px;
-            font-size: 60px;
-            color: var(--primary);
-            opacity: 0.2;
-            font-family: serif;
-        }
-        
-        .test-card p { 
-            font-style: italic; 
-            font-size: 16px; 
-            margin-bottom: 20px; 
-            color: var(--text); 
-            position: relative;
-            z-index: 1;
-        }
-        
-        .test-card h4 { 
-            color: var(--primary); 
-            font-size: 16px; 
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .test-rating {
-            color: var(--star);
-            margin: 10px 0;
-        }
-
-        /* ===== ENHANCED FOOTER ===== */
-        footer {
-            background: var(--dark);
-            color: white;
-            padding: 60px 5% 30px;
-            margin-top: 50px;
-        }
-        
-        .footer-content {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-        
-        .footer-section h3 {
-            color: white;
-            margin-bottom: 20px;
-            font-size: 18px;
-        }
-        
-        .footer-links {
-            list-style: none;
-        }
-        
-        .footer-links li {
-            margin-bottom: 10px;
-        }
-        
-        .footer-links a {
-            color: #ccc;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .footer-links a:hover {
-            color: var(--secondary);
-            padding-left: 5px;
-        }
-        
-        .social-links {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        
-        .social-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            text-decoration: none;
-            transition: var(--transition);
-        }
-        
-        .social-icon:hover {
-            background: var(--primary);
-            transform: translateY(-5px);
-        }
-        
-        .footer-bottom {
-            text-align: center;
-            padding-top: 30px;
-            border-top: 1px solid rgba(255,255,255,0.1);
-            font-size: 14px;
-            color: #999;
-        }
-        
-        .payment-methods {
-            display: flex;
-            gap: 15px;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        
-        .payment-icon {
-            width: 40px;
-            height: 25px;
-            background: white;
-            border-radius: 4px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--dark);
-            font-size: 12px;
-            font-weight: bold;
-        }
-
-        /* ===== ENHANCED MODAL ===== */
-        .modal { 
-            display: none; 
-            position: fixed; 
-            z-index: 2000; 
-            left: 0; 
-            top: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.8); 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px; 
-        }
-        
-        .modal-content { 
-            background: var(--card); 
-            color: var(--text); 
-            padding: 30px; 
-            border-radius: 20px; 
-            max-width: 500px; 
-            width: 100%; 
-            position: relative; 
-            animation: modalSlide 0.3s ease;
-        }
-        
-        @keyframes modalSlide {
-            from { transform: translateY(-50px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        
-        .close-modal { 
-            position: absolute; 
-            top: 15px; 
-            right: 20px; 
-            font-size: 28px; 
-            cursor: pointer; 
-            z-index: 10; 
-            width: 40px;
-            height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            transition: var(--transition);
-        }
-        
-        .close-modal:hover {
-            background: var(--bg);
-        }
-
-        /* ===== RESPONSIVE DESIGN ===== */
-        @media (max-width: 768px) {
-            .nav-links {
-                display: none;
-            }
-            
-            .hero-title {
-                font-size: 2rem;
-            }
-            
-            .about-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-            }
-            
-            .footer-content {
-                grid-template-columns: 1fr;
-            }
-            
-            .hero-stats {
-                flex-wrap: wrap;
-                gap: 20px;
-            }
-        }
-
-        /* ===== UTILITY CLASSES ===== */
-        .btn {
-            padding: 12px 30px;
-            border-radius: 25px;
-            border: none;
-            font-weight: bold;
-            cursor: pointer;
-            transition: var(--transition);
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-        }
-        
-        .btn-secondary {
-            background: var(--secondary);
-            color: white;
-        }
-        
-        .btn-gradient {
-            background: var(--gradient);
-            color: white;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow);
-        }
-        
-        .chip {
-            padding: 5px 15px;
-            background: var(--bg);
-            border-radius: 20px;
-            font-size: 12px;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-        }
-        
-        .divider {
-            height: 1px;
-            background: var(--border);
-            margin: 30px 0;
-        }
-
-        /* ===== EXISTING STYLES (Preserved) ===== */
-        .search-section { padding: 15px 5%; background: var(--card); border-bottom: 1px solid var(--border); }
-        .search-box { position: relative; max-width: 600px; margin: 0 auto; }
-        .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid var(--border); outline: none; font-size: 16px; background: var(--bg); color: var(--text); }
-        .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
-        .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
-        .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: var(--card); color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; }
-        .filter-btn.active { background: var(--secondary); color: white; }
-        .rating { color: var(--star); font-size: 11px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
-        .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
-        .in-stock { background: #e8f5e9; color: var(--success); }
-        .zoom-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; position: relative; cursor: zoom-in; background: #eee; }
-        #modal-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.1s ease-out; transform-origin: center center; }
-        .contact-fab { position: fixed; bottom: 20px; left: 20px; z-index: 999; }
-        .fab-btn { width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); position: relative; }
-        .fab-options { position: absolute; bottom: 60px; left: 0; display: none; flex-direction: column; gap: 10px; transition: 0.3s; }
-        .contact-fab:hover .fab-options { display: flex; }
-        .opt { width: 45px; height: 45px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; text-decoration: none; box-shadow: var(--shadow); }
-        .opt.wa { background: #25D366; }
-        .opt.ph { background: var(--secondary); }
-        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
-        
-        /* ===== CART SIDEBAR (Enhanced) ===== */
-        #cart-sidebar { 
-            position: fixed; 
-            right: -100%; 
-            top: 0; 
-            width: 380px; 
-            height: 100%; 
-            background: var(--card); 
-            color: var(--text); 
-            box-shadow: -5px 0 25px rgba(0,0,0,0.2); 
-            transition: 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            z-index: 1000; 
-            padding: 25px; 
-            overflow-y: auto; 
-        }
-        
-        #cart-sidebar.active { 
-            right: 0; 
-        }
-        
-        .cart-header { 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            margin-bottom: 20px; 
-        }
-        
-        .back-shopping-btn { 
-            background: none; 
-            border: none; 
-            color: var(--text); 
-            font-size: 18px; 
-            cursor: pointer; 
-            padding: 5px; 
-            transition: 0.3s; 
-        }
-        
-        .back-shopping-btn:hover { 
-            color: var(--primary); 
-            transform: translateX(-3px); 
-        }
-        
-        .cart-item { 
-            display: flex; 
-            align-items: center; 
-            justify-content: space-between; 
-            margin-bottom: 15px; 
-            padding-bottom: 10px; 
-            border-bottom: 1px solid var(--border); 
-        }
-        
-        .qty-box { 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            margin-top: 5px; 
-        }
-        
-        .qty-btn { 
-            background: var(--bg); 
-            color: var(--text); 
-            border: none; 
-            width: 24px; 
-            height: 24px; 
-            border-radius: 4px; 
-            cursor: pointer; 
-        }
-        
-        .history-section { 
-            margin-top: 30px; 
-            border-top: 2px dashed var(--border); 
-            padding-top: 20px; 
-        }
-        
-        .history-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 10px; 
-        }
-        
-        .clear-history-btn { 
-            font-size: 10px; 
-            color: var(--primary); 
-            cursor: pointer; 
-            font-weight: bold; 
-            border: none; 
-            background: none; 
-        }
-        
-        .history-item { 
-            font-size: 11px; 
-            background: var(--bg); 
-            padding: 8px; 
-            border-radius: 6px; 
-            margin-bottom: 8px; 
-            border-left: 3px solid var(--secondary); 
-        }
-        
-        .promo-box { 
-            display: flex; 
-            gap: 8px; 
-            margin-top: 15px; 
-        }
-        
-        .promo-box input { 
-            flex: 1; 
-            padding: 10px; 
-            border-radius: 8px; 
-            border: 1px solid var(--border); 
-            background: var(--bg); 
-            color: var(--text); 
-            font-size: 12px; 
-        }
-        
-        .promo-btn { 
-            padding: 8px 15px; 
-            background: var(--dark); 
-            color: white; 
-            border-radius: 8px; 
-            border: none; 
-            font-size: 12px; 
-            cursor: pointer; 
-        }
+        /* ===== UTILS ===== */
+        .btn-gradient { background: var(--gradient); color: white; border: none; padding: 15px 30px; border-radius: 30px; font-weight: bold; cursor: pointer; }
+        .search-box { position: relative; max-width: 600px; margin: 20px auto; }
+        .search-box input { width: 100%; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--card); color: var(--text); }
     </style>
 </head>
-<body id="top">
+<body>
 
     <div id="loading-screen">
         <div class="loader"></div>
-        <div class="logo-container" style="flex-direction: column; gap: 15px;">
-            <div class="logo-icon">SE</div>
-            <h1 class="logo-text">Shop<span>Easy</span></h1>
-            <p style="color: white; opacity: 0.8;">Loading Premium Shopping Experience...</p>
-        </div>
+        <h2 style="color: white;">ShopEasy</h2>
     </div>
 
     <div class="top-bar">
-        <div>📍 Free delivery in Blantyre & Lilongwe for orders above MK50,000</div>
+        <div>📍 Nationwide Delivery in Malawi</div>
         <div class="top-links">
-            <a href="#track-order">Track Order</a>
-            <a href="#help">Help Center</a>
-            <a href="#stores">Find Stores</a>
+            <a href="#">Track Order</a>
+            <a href="#">Help Center</a>
         </div>
     </div>
 
@@ -1192,491 +126,102 @@
             <div class="logo-icon">SE</div>
             <h1 class="logo-text">Shop<span>Easy</span></h1>
         </div>
-        
         <div class="nav-links">
-            <a href="#home" class="nav-link active" onclick="showPage('home')">Home</a>
-            <a href="#welcome" class="nav-link" onclick="showPage('welcome')">Welcome</a>
-            <a href="#shop" class="nav-link" onclick="showPage('shop')">Shop</a>
-            <a href="#about" class="nav-link" onclick="showPage('about')">About Us</a>
-            <a href="#policies" class="nav-link" onclick="showPage('policies')">Policies</a>
-            <a href="#contact" class="nav-link" onclick="showPage('contact')">Contact</a>
+            <a href="javascript:void(0)" class="nav-link active" onclick="showPage('home')">Home</a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('welcome')">Welcome</a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('about')">About</a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('policies')">Policies</a>
+            <a href="javascript:void(0)" class="nav-link" onclick="showPage('contact')">Contact</a>
         </div>
-        
         <div class="nav-icons">
-            <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
-            <div class="user-icon" onclick="toggleUserMenu()" title="Account"><i class="fas fa-user"></i></div>
-            <div class="share-icon" onclick="shareStore()" title="Share Website"><i class="fas fa-share-nodes"></i></div>
-            <div class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cart-count">0</span></div>
+            <div onclick="toggleTheme()" style="cursor:pointer"><i class="fas fa-moon" id="theme-icon"></i></div>
+            <div class="cart-icon" onclick="toggleCart()">
+                <i class="fas fa-shopping-cart"></i>
+                <span class="cart-count" id="cart-count">0</span>
+            </div>
         </div>
     </nav>
 
     <section id="home-section" class="page-section active">
         <div class="hero-section">
             <h1 class="hero-title">Premium Shopping in Malawi</h1>
-            <p class="hero-subtitle">Discover the best deals on electronics, fashion, home goods, and more. Fast delivery nationwide.</p>
-            <button class="btn btn-gradient" onclick="showPage('shop')">
-                <i class="fas fa-bolt"></i> Start Shopping
-            </button>
-            
-            <div class="hero-stats">
-                <div class="stat-item">
-                    <div class="stat-number">5,000+</div>
-                    <div class="stat-label">Products</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">98%</div>
-                    <div class="stat-label">Happy Customers</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">24h</div>
-                    <div class="stat-label">Delivery</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number">50+</div>
-                    <div class="stat-label">Brands</div>
-                </div>
-            </div>
+            <p style="margin-bottom: 25px;">Electronics, Fashion, and Home Essentials delivered to your door.</p>
+            <button class="btn-gradient" onclick="document.getElementById('shop-anchor').scrollIntoView()">Start Shopping</button>
         </div>
 
-        <div class="cat-icons-grid">
-            <div class="cat-item-icon" onclick="filterProducts('All', document.querySelector('.filter-btn'))">
-                <i class="fas fa-th-large"></i><span>All</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Electronics', document.querySelectorAll('.filter-btn')[1])">
-                <i class="fas fa-laptop"></i><span>Tech</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Fashion', document.querySelectorAll('.filter-btn')[2])">
-                <i class="fas fa-shirt"></i><span>Style</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Home', document.querySelectorAll('.filter-btn')[3])">
-                <i class="fas fa-house"></i><span>Home</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Beauty', document.querySelectorAll('.filter-btn')[4])">
-                <i class="fas fa-sparkles"></i><span>Beauty</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Phones', this)">
-                <i class="fas fa-mobile-alt"></i><span>Phones</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Appliances', this)">
-                <i class="fas fa-blender"></i><span>Appliances</span>
-            </div>
-            <div class="cat-item-icon" onclick="filterProducts('Sports', this)">
-                <i class="fas fa-dumbbell"></i><span>Sports</span>
-            </div>
+        <div class="search-box">
+            <input type="text" id="search-input" placeholder="Search for products..." onkeyup="handleSearch()">
         </div>
 
-        <div class="search-section">
-            <div class="search-box">
-                <input type="text" id="search-input" placeholder="Search products, brands, or categories..." onkeyup="handleSearch()">
-                <i class="fas fa-search"></i>
-            </div>
-        </div>
-
-        <h3 class="featured-title" style="padding: 30px 5% 10px;">🔥 New Arrivals</h3>
-        <div class="featured-container" id="featured-list"></div>
-
-        <div class="filter-container">
-            <button class="filter-btn active" onclick="filterProducts('All', this)">All Items</button>
-            <button class="filter-btn" onclick="filterProducts('Electronics', this)">Electronics</button>
-            <button class="filter-btn" onclick="filterProducts('Fashion', this)">Fashion</button>
-            <button class="filter-btn" onclick="filterProducts('Home', this)">Home</button>
-            <button class="filter-btn" onclick="filterProducts('Beauty', this)">Beauty</button>
-            <button class="filter-btn" onclick="filterProducts('On Sale', this)">On Sale</button>
-            <button class="filter-btn" onclick="filterProducts('Best Sellers', this)">Best Sellers</button>
-        </div>
-
-        <div class="container" id="shop-anchor">
-            <div class="products-grid" id="store-container"></div>
-        </div>
-
-        <div class="testimonials">
-            <h2 class="section-title">What Our Customers Say</h2>
-            <div class="test-grid">
-                <div class="test-card">
-                    <p>"Fast delivery in Blantyre! The quality exceeded my expectations. Will definitely shop again."</p>
-                    <div class="test-rating">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <h4><i class="fas fa-user-circle"></i> Kondwani M.</h4>
+        <div id="shop-anchor">
+            <h2 style="margin-bottom: 20px;">Our Products</h2>
+            <div class="products-grid" id="store-container">
                 </div>
-                <div class="test-card">
-                    <p>"Best prices for electronics in Malawi. Customer service is responsive and helpful. Highly recommend!"</p>
-                    <div class="test-rating">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star-half-alt"></i>
-                    </div>
-                    <h4><i class="fas fa-user-circle"></i> Sarah P.</h4>
-                </div>
-                <div class="test-card">
-                    <p>"Got my order the next day in Lilongwe. Packaging was excellent and products were authentic."</p>
-                    <div class="test-rating">
-                        <i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i><i class="fas fa-star"></i>
-                    </div>
-                    <h4><i class="fas fa-user-circle"></i> Isaac T.</h4>
-                </div>
-            </div>
-        </div>
-
-        <div class="newsletter" style="padding: 60px 5%; text-align: center; background: var(--card);">
-            <h3>Join the ShopEasy Club!</h3>
-            <p>Get exclusive deals and first access to new stock in Malawi.</p>
-            <div class="news-box" style="max-width: 500px; margin: 20px auto; display: flex; gap: 10px;">
-                <input type="email" id="news-email" placeholder="Your email address" style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px;">
-                <button onclick="subscribeNews()" class="btn btn-primary">Join</button>
-            </div>
         </div>
     </section>
 
     <section id="welcome-section" class="page-section">
-        <div class="container">
-            <h2 class="section-title">Welcome to ShopEasy</h2>
-            <p style="font-size: 18px; margin-bottom: 30px; color: #666;">
-                Your premier destination for online shopping in Malawi. We bring you the best products from around the world with local convenience.
-            </p>
-            
-            <div class="welcome-features">
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shipping-fast"></i>
-                    </div>
-                    <h3>Fast Delivery</h3>
-                    <p>Same-day delivery in major cities, nationwide shipping within 48 hours.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <h3>Secure Shopping</h3>
-                    <p>100% secure payments with buyer protection and encrypted transactions.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <h3>24/7 Support</h3>
-                    <p>Round-the-clock customer support via WhatsApp, phone, and email.</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">
-                        <i class="fas fa-undo"></i>
-                    </div>
-                    <h3>Easy Returns</h3>
-                    <p>30-day return policy with free returns for defective products.</p>
-                </div>
-            </div>
-            
-            <div style="text-align: center; margin-top: 50px;">
-                <h3 style="margin-bottom: 20px;">Download Our App</h3>
-                <div class="app-badges">
-                    <a href="#" class="app-badge">
-                        <i class="fab fa-google-play"></i>
-                        <div>
-                            <div style="font-size: 10px;">GET IT ON</div>
-                            <div style="font-weight: bold;">Google Play</div>
-                        </div>
-                    </a>
-                    <a href="#" class="app-badge">
-                        <i class="fab fa-app-store"></i>
-                        <div>
-                            <div style="font-size: 10px;">Download on the</div>
-                            <div style="font-weight: bold;">App Store</div>
-                        </div>
-                    </a>
-                </div>
-            </div>
-        </div>
+        <h2>Welcome to ShopEasy</h2>
+        <p>Your one-stop shop for everything premium in Malawi. We pride ourselves on fast delivery and high-quality products.</p>
     </section>
 
     <section id="about-section" class="page-section">
-        <div class="container">
-            <h2 class="section-title">About ShopEasy</h2>
-            
-            <div class="about-content">
-                <div class="about-image">
-                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="ShopEasy Team">
-                </div>
-                
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">Our Story</h3>
-                    <p style="margin-bottom: 20px;">
-                        Founded in 2023, ShopEasy emerged from a simple idea: to make premium shopping accessible to every Malawian. 
-                        What started as a small online store has grown into Malawi's leading e-commerce platform.
-                    </p>
-                    <p>
-                        We partner with trusted brands and local suppliers to bring you authentic products at competitive prices. 
-                        Our mission is to transform the shopping experience in Malawi through technology, convenience, and exceptional service.
-                    </p>
-                    
-                    <div class="divider"></div>
-                    
-                    <div class="mission-vision">
-                        <div class="mv-card">
-                            <h4><i class="fas fa-bullseye" style="color: var(--primary); margin-right: 10px;"></i> Our Mission</h4>
-                            <p>To provide seamless access to quality products while supporting local businesses and creating employment opportunities.</p>
-                        </div>
-                        
-                        <div class="mv-card">
-                            <h4><i class="fas fa-eye" style="color: var(--secondary); margin-right: 10px;"></i> Our Vision</h4>
-                            <p>To become Malawi's most trusted online marketplace, recognized for innovation, reliability, and customer satisfaction.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h2>About Us</h2>
+        <p>Founded in 2023, ShopEasy aims to bridge the gap between international quality and local accessibility.</p>
     </section>
 
     <section id="policies-section" class="page-section">
-        <div class="container">
-            <h2 class="section-title">Our Policies</h2>
-            
-            <div class="policy-categories">
-                <div class="policy-category active" onclick="showPolicy('shipping')">Shipping & Delivery</div>
-                <div class="policy-category" onclick="showPolicy('returns')">Returns & Refunds</div>
-                <div class="policy-category" onclick="showPolicy('privacy')">Privacy Policy</div>
-                <div class="policy-category" onclick="showPolicy('terms')">Terms of Service</div>
-                <div class="policy-category" onclick="showPolicy('payment')">Payment Security</div>
-            </div>
-            
-            <div class="policy-content" id="policy-content">
-                </div>
+        <div class="policy-categories">
+            <div class="policy-category active" onclick="showPolicy('shipping', this)">Shipping</div>
+            <div class="policy-category" onclick="showPolicy('returns', this)">Returns</div>
+            <div class="policy-category" onclick="showPolicy('privacy', this)">Privacy</div>
         </div>
+        <div class="policy-content" id="policy-text">
+            </div>
     </section>
 
     <section id="contact-section" class="page-section">
-        <div class="container">
-            <h2 class="section-title">Contact Us</h2>
-            
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; margin-top: 30px;">
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">Get in Touch</h3>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 20px;">
-                        <div class="feature-card" style="text-align: left;">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="width: 50px; height: 50px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="fas fa-phone"></i>
-                                </div>
-                                <div>
-                                    <h4>Phone</h4>
-                                    <p>+265 899 195 843</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-card" style="text-align: left;">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="width: 50px; height: 50px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="fab fa-whatsapp"></i>
-                                </div>
-                                <div>
-                                    <h4>WhatsApp</h4>
-                                    <p>+265 899 195 843</p>
-                                </div>
-                            </div>
-                        </div>
-                        
-                        <div class="feature-card" style="text-align: left;">
-                            <div style="display: flex; align-items: center; gap: 15px;">
-                                <div style="width: 50px; height: 50px; background: var(--gradient); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white;">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div>
-                                    <h4>Email</h4>
-                                    <p>support@shopeasy.mw</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <div>
-                    <h3 style="margin-bottom: 20px; color: var(--primary);">Send Message</h3>
-                    <div class="feature-card">
-                        <form id="contact-form">
-                            <div style="display: flex; gap: 15px; margin-bottom: 15px;">
-                                <input type="text" placeholder="Your Name" required style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
-                                <input type="email" placeholder="Your Email" required style="flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text);">
-                            </div>
-                            <input type="text" placeholder="Subject" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); margin-bottom: 15px;">
-                            <textarea placeholder="Your Message" rows="5" required style="width: 100%; padding: 12px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg); color: var(--text); margin-bottom: 15px;"></textarea>
-                            <button type="submit" class="btn btn-primary" style="width: 100%;">
-                                <i class="fas fa-paper-plane"></i> Send Message
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <h2>Contact Us</h2>
+        <p>WhatsApp: +265 899 195 843</p>
+        <p>Email: support@shopeasy.mw</p>
     </section>
 
-    <footer>
-        <div class="footer-content">
-            <div class="footer-section">
-                <div class="logo-container" style="margin-bottom: 20px;">
-                    <div class="logo-icon">SE</div>
-                    <h1 class="logo-text" style="font-size: 20px;">Shop<span>Easy</span></h1>
-                </div>
-                <p style="color: #ccc; margin-bottom: 20px; font-size: 14px;">
-                    Malawi's premier online shopping destination. Quality products, fast delivery, exceptional service.
-                </p>
-                <div class="social-links">
-                    <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-                    <a href="#" class="social-icon"><i class="fab fa-linkedin-in"></i></a>
-                </div>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Quick Links</h3>
-                <ul class="footer-links">
-                    <li><a href="#home" onclick="showPage('home')">Home</a></li>
-                    <li><a href="#shop" onclick="showPage('shop')">Shop</a></li>
-                    <li><a href="#about" onclick="showPage('about')">About Us</a></li>
-                    <li><a href="#policies" onclick="showPage('policies')">Policies</a></li>
-                    <li><a href="#contact" onclick="showPage('contact')">Contact</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Customer Service</h3>
-                <ul class="footer-links">
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Track Order</a></li>
-                    <li><a href="#">Returns & Refunds</a></li>
-                    <li><a href="#">Shipping Info</a></li>
-                </ul>
-            </div>
-            
-            <div class="footer-section">
-                <h3>Stay Updated</h3>
-                <p style="color: #ccc; margin-bottom: 15px; font-size: 14px;">Subscribe for exclusive deals.</p>
-                <div style="display: flex; gap: 10px;">
-                    <input type="email" placeholder="Your email" style="flex: 1; padding: 10px; border-radius: 5px; border: none; background: rgba(255,255,255,0.1); color: white;">
-                    <button class="btn" style="padding: 10px 15px; background: var(--primary); color: white; border: none; border-radius: 5px; cursor: pointer;">
-                        <i class="fas fa-paper-plane"></i>
-                    </button>
-                </div>
-            </div>
+    <div id="cart-sidebar">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+            <h3>Your Cart</h3>
+            <button onclick="toggleCart()" style="border:none; background:none; font-size:20px; cursor:pointer;">&times;</button>
         </div>
-        
-        <div class="footer-bottom">
-            <p>&copy; 2024 ShopEasy Malawi. All rights reserved.</p>
-            <div class="payment-methods">
-                <div class="payment-icon">VISA</div>
-                <div class="payment-icon">MC</div>
-                <div class="payment-icon">Airtel</div>
-                <div class="payment-icon">TNM</div>
-                <div class="payment-icon">MPamba</div>
-            </div>
+        <hr style="margin: 15px 0;">
+        <div id="cart-items-list"></div>
+        <div style="margin-top: 20px;">
+            <h4>Total: MK <span id="cart-total">0</span></h4>
+            <input type="text" id="cust-name" placeholder="Your Full Name" style="width:100%; padding:10px; margin: 10px 0; border:1px solid #ddd; border-radius:5px;">
+            <button class="btn-buy" style="background:#25D366;" onclick="checkout()">Order via WhatsApp</button>
+            <button class="btn-buy" style="background:#f44336; margin-top:5px;" onclick="clearCart()">Clear Cart</button>
         </div>
-    </footer>
+    </div>
 
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            
-            <div class="zoom-container" id="zoom-area">
-                <img id="modal-img" src="" onerror="this.src='https://via.placeholder.com/400'">
+            <img id="modal-img" src="" style="width:100%; height:250px; object-fit:cover; border-radius:10px;">
+            <h3 id="modal-name" style="margin-top:15px;"></h3>
+            <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem;"></p>
+            <p id="modal-desc" style="margin: 15px 0; font-size: 0.9rem; color: #666;"></p>
+            <div class="qty-box">
+                <button class="qty-btn" onclick="updateModalQty(-1)">-</button>
+                <span id="modal-qty-val">1</span>
+                <button class="qty-btn" onclick="updateModalQty(1)">+</button>
             </div>
-            
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
-                <div id="modal-stock-div"></div>
-                <button onclick="shareProductLink()" style="background:none; border:none; color:var(--secondary); cursor:pointer; font-size:14px;">
-                    <i class="fas fa-share-nodes"></i> Share
-                </button>
-            </div>
-
-            <div id="modal-rating" class="rating" style="margin-top: 5px; font-size: 14px;"></div>
-            <h3 id="modal-name"></h3>
-            <p id="modal-price" style="color:var(--primary); font-weight:bold; font-size:1.2rem; margin:10px 0;"></p>
-            <p id="modal-desc" style="color:#666; font-size:14px; line-height:1.5; margin-bottom:15px;"></p>
-
-            <div style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
-                    <span style="font-size: 13px; font-weight: bold;">Select Quantity:</span>
-                    <div class="qty-box">
-                        <button class="qty-btn" onclick="updateModalQty(-1)">-</button>
-                        <span id="modal-qty-val" style="font-weight: bold; min-width: 20px; text-align: center;">1</span>
-                        <button class="qty-btn" onclick="updateModalQty(1)">+</button>
-                    </div>
-                </div>
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px;">
-                    <span style="font-size: 12px; opacity: 0.8;">Subtotal:</span>
-                    <span id="modal-subtotal" style="font-weight: bold; color: var(--text); font-size: 14px;">MK 0</span>
-                </div>
-            </div>
-
-            <button id="modal-add-btn" class="btn-buy" style="padding:12px; font-size:16px;">
-                <i class="fas fa-cart-plus"></i> Add to Cart
-            </button>
+            <button id="modal-add-btn" class="btn-buy">Add to Cart</button>
         </div>
     </div>
-
-    <div class="contact-fab">
-        <div class="fab-options">
-            <a href="https://wa.me/265899195843" class="opt wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
-            <a href="tel:265899195843" class="opt ph"><i class="fas fa-phone"></i></a>
-            <a href="mailto:support@shopeasy.mw" class="opt" style="background: var(--primary);"><i class="fas fa-envelope"></i></a>
-        </div>
-        <div class="fab-btn"><i class="fas fa-comments"></i></div>
-    </div>
-
-    <div id="cart-sidebar">
-        <div class="cart-header">
-            <button class="back-shopping-btn" onclick="toggleCart()" title="Continue Shopping">
-                <i class="fas fa-arrow-left"></i>
-            </button>
-            <h3 style="margin:0;">🛒 Your Order</h3>
-        </div>
-        <hr><br>
-        <div id="cart-items-list"></div>
-        
-        <div class="promo-box">
-            <input type="text" id="promo-input" placeholder="Promo Code (e.g. SAVE10)">
-            <button class="promo-btn" onclick="applyPromo()">Apply</button>
-        </div>
-
-        <div style="margin-top: 20px;">
-            <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
-            <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
-            <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
-            
-            <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">
-                Proceed to Checkout
-            </button>
-
-            <div id="final-fields" style="display:none;">
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" style="width:100%; padding:12px; margin-top:15px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
-                <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()">
-                    <i class="fab fa-whatsapp"></i> Order on WhatsApp
-                </button>
-            </div>
-            
-            <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">
-                <i class="fas fa-trash"></i> Clear Cart
-            </button>
-        </div>
-
-        <div class="history-section" id="history-container">
-            <div class="history-header">
-                <h4>📜 Order History</h4>
-                <button class="clear-history-btn" onclick="clearHistory()">Clear History</button>
-            </div>
-            <div id="history-list"></div>
-        </div>
-    </div>
-
-    <button id="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-        <i class="fas fa-arrow-up"></i>
-    </button>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
+        // Firebase Configuration (Using your provided keys)
         const firebaseConfig = {
             apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
             authDomain: "shopeasy-14890.firebaseapp.com",
@@ -1685,43 +230,23 @@
             messagingSenderId: "45827037951",
             appId: "1:45827037951:web:545d41703780fa51018aca"
         };
+
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
         let allProducts = [];
         let cart = [];
-        let discountPercent = 0;
         let currentModalQty = 1;
-        let currentActivePrice = 0;
         const MY_PHONE = "265899195843";
 
-        // Loading Screen Fade
+        // Loading Screen Logic
         window.addEventListener('load', () => {
             setTimeout(() => {
-                const ls = document.getElementById('loading-screen');
-                ls.style.opacity = '0';
-                setTimeout(() => ls.style.display = 'none', 500);
+                document.getElementById('loading-screen').style.opacity = '0';
+                setTimeout(() => document.getElementById('loading-screen').style.display = 'none', 500);
             }, 1000);
+            showPolicy('shipping');
         });
-
-        // Navigation Control
-        window.showPage = (pageId) => {
-            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            
-            // "Shop" link handling
-            if (pageId === 'shop') {
-                document.getElementById('home-section').classList.add('active');
-                document.querySelector('.nav-link[href="#shop"]').classList.add('active');
-                document.getElementById('shop-anchor').scrollIntoView({ behavior: 'smooth' });
-                return;
-            }
-
-            document.getElementById(`${pageId}-section`).classList.add('active');
-            const link = document.querySelector(`.nav-link[href="#${pageId}"]`);
-            if (link) link.classList.add('active');
-            window.scrollTo(0, 0);
-        };
 
         // Theme Toggle
         window.toggleTheme = () => {
@@ -1730,184 +255,161 @@
             icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
         };
 
-        // Zoom Logic Fix
-        const zoomArea = document.getElementById('zoom-area');
-        const zoomImg = document.getElementById('modal-img');
-        zoomArea.addEventListener('mousemove', (e) => {
-            const { left, top, width, height } = zoomArea.getBoundingClientRect();
-            const x = ((e.clientX - left) / width) * 100;
-            const y = ((e.clientY - top) / height) * 100;
-            zoomImg.style.transformOrigin = `${x}% ${y}%`;
-            zoomImg.style.transform = "scale(2)";
-        });
-        zoomArea.addEventListener('mouseleave', () => {
-            zoomImg.style.transform = "scale(1)";
-        });
+        // Page Navigation
+        window.showPage = (pageId) => {
+            document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            document.getElementById(`${pageId}-section`).classList.add('active');
+            
+            // Highlight link
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                if(link.innerText.toLowerCase() === pageId) link.classList.add('active');
+            });
+            window.scrollTo(0, 0);
+        };
 
-        // Firebase Sync
+        // Load Products from Firestore
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
-            allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            allProducts = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderProducts(allProducts);
-            renderFeatured(allProducts);
-            updateHistoryUI();
         });
 
-        // Rendering Functions
-        function renderProducts(list) {
-            const cont = document.getElementById('store-container');
-            cont.innerHTML = list.map(p => `
-                <div class="product-card" onclick="showDetailsByID('${p.id}')">
-                    <div class="p-badges">
-                        ${p.bulkPrice && p.bulkPrice < p.price ? '<div class="badge sale">SALE</div>' : ''}
-                        <div class="badge fast">FAST</div>
-                    </div>
-                    <img src="${p.image}" class="p-img">
+        function renderProducts(products) {
+            const container = document.getElementById('store-container');
+            container.innerHTML = products.map(p => `
+                <div class="product-card" onclick="openModal('${p.id}')">
+                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/300'">
                     <div class="p-info">
-                        <div class="rating"><i class="fas fa-star"></i> 4.8</div>
                         <p class="p-name">${p.name}</p>
                         <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
-                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${p.id}')">
-                            <i class="fas fa-cart-plus"></i> Add
-                        </button>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${p.id}', 1)">Add to Cart</button>
                     </div>
-                </div>`).join('');
+                </div>
+            `).join('');
         }
 
-        function renderFeatured(list) {
-            document.getElementById('featured-list').innerHTML = list.slice(0, 5).map(p => `
-                <div class="featured-item" onclick="showDetailsByID('${p.id}')">
-                    <img src="${p.image}">
-                    <div class="featured-overlay"></div>
-                    <div class="featured-info"><h4>${p.name}</h4></div>
-                </div>`).join('');
-        }
+        // Search
+        window.handleSearch = () => {
+            const term = document.getElementById('search-input').value.toLowerCase();
+            const filtered = allProducts.filter(p => p.name.toLowerCase().includes(term));
+            renderProducts(filtered);
+        };
 
-        // Details Modal
-        window.showDetailsByID = (id) => {
+        // Modal Logic
+        window.openModal = (id) => {
             const p = allProducts.find(item => item.id === id);
-            if (!p) return;
-            currentActivePrice = p.price;
             currentModalQty = 1;
             document.getElementById('modal-img').src = p.image;
             document.getElementById('modal-name').innerText = p.name;
-            document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
-            document.getElementById('modal-desc').innerText = p.description || "Premium Quality Product.";
+            document.getElementById('modal-price').innerText = `MK ${Number(p.price).toLocaleString()}`;
+            document.getElementById('modal-desc').innerText = p.description || "Premium quality product available for nationwide delivery.";
             document.getElementById('modal-qty-val').innerText = "1";
-            document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
             document.getElementById('modal-add-btn').onclick = () => { addToCart(p.id, currentModalQty); closeModal(); };
             document.getElementById('productModal').style.display = 'flex';
         };
 
-        window.updateModalQty = (delta) => {
-            currentModalQty = Math.max(1, currentModalQty + delta);
-            document.getElementById('modal-qty-val').innerText = currentModalQty;
-            document.getElementById('modal-subtotal').innerText = "MK " + (currentActivePrice * currentModalQty).toLocaleString();
-        };
-
         window.closeModal = () => document.getElementById('productModal').style.display = 'none';
 
+        window.updateModalQty = (val) => {
+            currentModalQty = Math.max(1, currentModalQty + val);
+            document.getElementById('modal-qty-val').innerText = currentModalQty;
+        };
+
         // Cart Logic
-        window.addToCart = (id, qty = 1) => {
+        window.toggleCart = () => document.getElementById('cart-sidebar').classList.toggle('active');
+
+        window.addToCart = (id, qty) => {
             const p = allProducts.find(item => item.id === id);
-            const exists = cart.find(i => i.id === id);
-            if (exists) exists.qty += qty;
-            else cart.push({ ...p, qty });
+            const existing = cart.find(item => item.id === id);
+            if(existing) {
+                existing.qty += qty;
+            } else {
+                cart.push({ ...p, qty });
+            }
+            updateCartUI();
+        };
+
+        window.changeQty = (id, val) => {
+            const item = cart.find(i => i.id === id);
+            if(item) {
+                item.qty += val;
+                if(item.qty < 1) cart = cart.filter(i => i.id !== id);
+            }
             updateCartUI();
         };
 
         window.updateCartUI = () => {
-            let subtotal = 0;
-            document.getElementById('cart-count').innerText = cart.reduce((s, i) => s + i.qty, 0);
-            document.getElementById('cart-items-list').innerHTML = cart.map(i => {
-                subtotal += (i.price * i.qty);
-                return `<div class="cart-item">
-                    <div><b>${i.name}</b><br><small>MK ${(i.price * i.qty).toLocaleString()}</small></div>
-                    <div class="qty-box">
-                        <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
-                        <span>${i.qty}</span>
-                        <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
+            const list = document.getElementById('cart-items-list');
+            let total = 0;
+            let count = 0;
+
+            list.innerHTML = cart.map(item => {
+                total += (item.price * item.qty);
+                count += item.qty;
+                return `
+                    <div class="cart-item">
+                        <div>
+                            <p style="font-weight:bold; font-size:0.9rem;">${item.name}</p>
+                            <small>MK ${Number(item.price).toLocaleString()}</small>
+                        </div>
+                        <div class="qty-box">
+                            <button class="qty-btn" onclick="changeQty('${item.id}', -1)">-</button>
+                            <span>${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty('${item.id}', 1)">+</button>
+                        </div>
                     </div>
-                </div>`;
-            }).join("");
-            const disc = subtotal * (discountPercent / 100);
-            document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString();
-            document.getElementById('cart-total').innerText = (subtotal - disc).toLocaleString();
-            document.getElementById('proceed-btn').style.display = cart.length ? 'block' : 'none';
+                `;
+            }).join('');
+
+            document.getElementById('cart-total').innerText = total.toLocaleString();
+            document.getElementById('cart-count').innerText = count;
         };
 
-        window.changeQty = (id, delta) => {
-            const item = cart.find(i => i.id === id);
-            if (item) {
-                item.qty += delta;
-                if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
-                updateCartUI();
-            }
-        };
+        window.clearCart = () => { cart = []; updateCartUI(); };
 
-        window.toggleCart = () => document.getElementById('cart-sidebar').classList.toggle('active');
-
-        window.showCheckoutFields = () => {
-            document.getElementById('proceed-btn').style.display = 'none';
-            document.getElementById('final-fields').style.display = 'block';
-        };
-
-        // Checkout & WhatsApp (Fixed String)
+        // Checkout & WhatsApp
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.trim();
-            if(!name || !cart.length) return alert("Enter Name!");
-            
+            if(!name || cart.length === 0) {
+                alert("Please add items to cart and enter your name.");
+                return;
+            }
+
             let total = 0;
-            let itemsText = cart.map(i => {
+            let itemString = cart.map(i => {
                 total += (i.price * i.qty);
-                return `• ${i.name} (x${i.qty}) - MK ${(i.price * i.qty).toLocaleString()}`;
+                return `- ${i.name} (x${i.qty}): MK ${(i.price * i.qty).toLocaleString()}`;
             }).join("%0A");
 
-            const final = total * (1 - discountPercent/100);
+            const message = `*NEW ORDER - ShopEasy*%0A*Customer:* ${name}%0A%0A*Items:*%0A${itemString}%0A%0A*Total:* MK ${total.toLocaleString()}`;
             
-            try {
-                await addDoc(collection(db, "orders"), { name, items: cart, total: final, timestamp: Date.now() });
-                const msg = `*NEW ORDER - ShopEasy*%0A*Customer:* ${name}%0A%0A*Items:*%0A${itemsText}%0A%0A*Total:* MK ${final.toLocaleString()}`;
-                window.open(`https://wa.me/${MY_PHONE}?text=${msg}`, '_blank');
-                cart = [];
-                updateCartUI();
-                toggleCart();
-            } catch (e) { alert("Error placing order."); }
+            // Store order in Firebase
+            await addDoc(collection(db, "orders"), {
+                customer: name,
+                items: cart,
+                total: total,
+                timestamp: Date.now()
+            });
+
+            window.open(`https://wa.me/${MY_PHONE}?text=${message}`, '_blank');
+            clearCart();
+            toggleCart();
         };
 
-        // Filter & Search
-        window.filterProducts = (cat, btn) => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
-            renderProducts(filtered);
-        };
-
-        window.handleSearch = () => {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q)));
-        };
-
-        // Policies Injection
-        window.showPolicy = (p) => {
-            const content = {
-                shipping: "<h3>Shipping</h3><p>Nationwide delivery within 24-48 hours.</p>",
-                returns: "<h3>Returns</h3><p>30-day easy return policy.</p>",
-                privacy: "<h3>Privacy</h3><p>Your data is encrypted and secure.</p>",
-                terms: "<h3>Terms</h3><p>Standard e-commerce terms apply.</p>",
-                payment: "<h3>Payment</h3><p>Secure Airtel/TNM/Bank payments.</p>"
+        // Policy Logic
+        window.showPolicy = (type, btn) => {
+            const policies = {
+                shipping: "<h3>Shipping</h3><p>We deliver nationwide via AXA and MyBucks. Blantyre/Lilongwe delivery: 24hrs.</p>",
+                returns: "<h3>Returns</h3><p>7-day return policy for manufacturing defects. Items must be in original packaging.</p>",
+                privacy: "<h3>Privacy</h3><p>Your data is encrypted and never shared with third parties.</p>"
             };
-            document.getElementById('policy-content').innerHTML = content[p];
-            document.querySelectorAll('.policy-category').forEach(c => c.classList.remove('active'));
-            event.target.classList.add('active');
+            document.getElementById('policy-text').innerHTML = policies[type];
+            if(btn) {
+                document.querySelectorAll('.policy-category').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+            }
         };
-
-        // Initialize
-        showPolicy('shipping');
-
-        // Scroll Logic
-        window.addEventListener('scroll', () => {
-            document.getElementById('back-to-top').style.display = window.scrollY > 300 ? 'flex' : 'none';
-        });
 
     </script>
 </body>
