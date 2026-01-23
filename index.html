@@ -346,7 +346,6 @@
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             if(loader) loader.style.display = 'none';
-            // Animation logic removed
         });
 
         let allProducts = [];
@@ -379,11 +378,9 @@
             if(!email.includes('@')) return alert("Enter valid email.");
             try {
                 await addDoc(collection(db, "newsletter"), { email: email, timestamp: Date.now() });
-                
                 document.getElementById('sound-success').play();
                 btn.style.background = 'var(--success)';
                 btn.innerHTML = '<i class="fas fa-check"></i>';
-                
                 setTimeout(() => {
                     btn.style.background = 'var(--primary)';
                     btn.innerHTML = 'Join';
@@ -393,15 +390,19 @@
         };
 
         window.shareStore = () => {
-            if (navigator.share) navigator.share({ title: 'ShopEasy', url: window.location.href });
-            else { navigator.clipboard.writeText(window.location.href); alert("Link copied!"); }
+            const text = encodeURIComponent("Check out ShopEasy Malawi for amazing deals! 🛍️");
+            if (navigator.share) navigator.share({ title: 'ShopEasy', text: text, url: window.location.href });
+            else { navigator.clipboard.writeText(window.location.href); alert("Store link copied!"); }
         };
 
         function renderFeatured(list) {
-            document.getElementById('featured-list').innerHTML = list.slice(0, 4).map(p => `
+            const cutoff = Date.now() - (24 * 60 * 60 * 1000); 
+            const recent = list.filter(p => p.timestamp >= cutoff);
+            document.getElementById('featured-section-ui').style.display = recent.length ? 'block' : 'none';
+            document.getElementById('featured-list').innerHTML = recent.map(p => `
                 <div class="featured-item" onclick="showDetailsByID('${p.id}')">
                     <img src="${p.image}" onerror="this.src='https://via.placeholder.com/200'">
-                    <div class="featured-info"><p>${p.name}</p><small>MK ${Number(p.price).toLocaleString()}</small></div>
+                    <div class="featured-info"><p>${p.name}</p><small>🆕 Just Landed</small></div>
                 </div>`).join('');
         }
 
@@ -410,35 +411,21 @@
             cont.innerHTML = "";
             list.forEach(p => {
                 const stockLevel = Number(p.stock);
-                const isSale = (p.bulkPrice && p.bulkPrice < p.price);
-                
-                // Stock UI Logic
+                const isHot = stockLevel < 10 && stockLevel > 0;
                 let stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
-                let btnAttr = `onclick="event.stopPropagation(); addToCart('${p.id}')"`;
-                let btnClass = "btn-buy";
-                let btnText = "Add to Cart";
-
+                let btnAttr = `onclick="event.stopPropagation(); addToCart('${p.id}')"`, btnClass = "btn-buy", btnText = "Add to Cart";
                 if (stockLevel <= 0) {
                     stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>';
-                    btnAttr = "disabled";
-                    btnClass = "btn-buy btn-disabled";
-                    btnText = "Unavailable";
-                } else if (stockLevel <= 5) {
-                    stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`;
-                }
-
+                    btnAttr = "disabled"; btnClass = "btn-buy btn-disabled"; btnText = "Unavailable";
+                } else if (stockLevel <= 5) { stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; }
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.innerHTML = `
-                    ${isSale ? '<div class="sale-badge">SALE</div>' : ''}
+                card.innerHTML = `${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
                     <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
-                    <div class="p-info">
-                        <div class="rating"><i class="fas fa-star"></i> 4.8</div>
-                        ${stockBadge}
-                        <p class="p-name">${p.name}</p>
+                    <div class="p-info"><div class="rating"><i class="fas fa-star"></i> 4.8</div>
+                        ${stockBadge}<p class="p-name">${p.name}</p>
                         <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
-                        <button class="${btnClass}" ${btnAttr}>${btnText}</button>
-                    </div>`;
+                        <button class="${btnClass}" ${btnAttr}>${btnText}</button></div>`;
                 card.onclick = () => showDetails(p, "4.8");
                 cont.appendChild(card);
             });
@@ -448,13 +435,10 @@
             const existing = cart.find(i => i.id === id);
             if(existing) existing.qty += specificQty;
             else cart.push({ ...allProducts.find(p => p.id === id), qty: specificQty });
-            
-            // Cart Feedback (Sound + Shake)
             document.getElementById('sound-cart').play();
             const navCart = document.getElementById('cart-nav-icon');
             navCart.classList.add('shake-now');
             setTimeout(() => navCart.classList.remove('shake-now'), 400);
-            
             updateCartUI();
         };
 
@@ -475,25 +459,18 @@
 
         window.shareProductLink = () => {
             const name = document.getElementById('modal-name').innerText;
-            if (navigator.share) {
-                navigator.share({ title: name, url: window.location.href });
-            } else {
-                navigator.clipboard.writeText(window.location.href);
-                alert("Link copied!");
-            }
+            const price = document.getElementById('modal-price').innerText;
+            const text = `Look at this: ${name} for ${price} at ShopEasy Malawi! 🇲🇼`;
+            if (navigator.share) navigator.share({ title: name, text: text, url: window.location.href });
+            else { navigator.clipboard.writeText(`${text} ${window.location.href}`); alert("Product link & info copied!"); }
         };
 
         window.clearCart = () => { cart = []; discountPercent = 0; updateCartUI(); };
 
         window.applyPromo = () => {
             const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if (code === "SAVE10") {
-                discountPercent = 10;
-                alert("Promo applied! 10% discount.");
-            } else {
-                discountPercent = 0;
-                alert("Invalid promo code.");
-            }
+            if (code === "SAVE10") { discountPercent = 10; alert("Promo applied! 10% discount."); }
+            else { discountPercent = 0; alert("Invalid promo code."); }
             updateCartUI();
         };
 
@@ -508,33 +485,17 @@
             document.getElementById('cart-items-list').innerHTML = cart.map(i => {
                 const currentPrice = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
                 subtotal += currentPrice * i.qty;
-                return `<div class="cart-item">
-                    <div><b>${i.name}</b><br><small>MK ${(currentPrice * i.qty).toLocaleString()}</small></div>
-                    <div class="qty-box">
-                        <button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
-                        <span>${i.qty}</span>
-                        <button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button>
-                    </div>
-                </div>`;
+                return `<div class="cart-item"><div><b>${i.name}</b><br><small>MK ${(currentPrice * i.qty).toLocaleString()}</small></div>
+                    <div class="qty-box"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
+                        <span>${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
             }).join("");
-
-            const discountVal = (subtotal * (discountPercent / 100));
-            const finalTotal = subtotal - discountVal;
+            const discountVal = (subtotal * (discountPercent / 100)), finalTotal = subtotal - discountVal;
             document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString();
-            if (discountPercent > 0) {
-                document.getElementById('discount-row').style.display = 'block';
-                document.getElementById('cart-discount').innerText = discountVal.toLocaleString();
-            } else {
-                document.getElementById('discount-row').style.display = 'none';
-            }
+            if (discountPercent > 0) { document.getElementById('discount-row').style.display = 'block'; document.getElementById('cart-discount').innerText = discountVal.toLocaleString(); }
+            else { document.getElementById('discount-row').style.display = 'none'; }
             document.getElementById('cart-total').innerText = finalTotal.toLocaleString();
             const proceedBtn = document.getElementById('proceed-btn');
-            if(cart.length > 0) {
-                proceedBtn.style.display = 'block';
-            } else {
-                proceedBtn.style.display = 'none';
-                document.getElementById('final-fields').style.display = 'none';
-            }
+            if(cart.length > 0) { proceedBtn.style.display = 'block'; } else { proceedBtn.style.display = 'none'; document.getElementById('final-fields').style.display = 'none'; }
         }
 
         function updateHistoryUI() {
@@ -544,9 +505,7 @@
                 "<p style='font-size:11px; opacity:0.6;'>No previous orders found.</p>";
         }
 
-        window.clearHistory = () => {
-            if(confirm("Delete history?")) { localStorage.removeItem('orderHistory'); updateHistoryUI(); }
-        };
+        window.clearHistory = () => { if(confirm("Delete history?")) { localStorage.removeItem('orderHistory'); updateHistoryUI(); } };
 
         window.checkout = async () => {
             const name = document.getElementById('cust-name').value.trim();
@@ -554,15 +513,12 @@
             let subtotal = 0;
             let itemsText = cart.map(i => {
                 const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
-                subtotal += (p * i.qty);
-                return `- ${i.name} (x${i.qty})`;
+                subtotal += (p * i.qty); return `- ${i.name} (x${i.qty})`;
             }).join("%0A");
-
             const finalTotal = subtotal * (1 - discountPercent/100);
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
             localStorage.setItem('orderHistory', JSON.stringify(history));
-
             try {
                 await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, timestamp: Date.now() });
                 window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}`, '_blank');
@@ -575,73 +531,45 @@
             renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q)));
         };
 
-        const zoomArea = document.getElementById('zoom-area');
-        const zoomImg = document.getElementById('modal-img');
-
+        const zoomArea = document.getElementById('zoom-area'), zoomImg = document.getElementById('modal-img');
         zoomArea.addEventListener('mousemove', (e) => {
             const { left, top, width, height } = zoomArea.getBoundingClientRect();
-            const x = ((e.pageX - left - window.scrollX) / width) * 100;
-            const y = ((e.pageY - top - window.scrollY) / height) * 100;
-            zoomImg.style.transformOrigin = `${x}% ${y}%`;
-            zoomImg.style.transform = "scale(2)";
+            const x = ((e.pageX - left - window.scrollX) / width) * 100, y = ((e.pageY - top - window.scrollY) / height) * 100;
+            zoomImg.style.transformOrigin = `${x}% ${y}%`; zoomImg.style.transform = "scale(2)";
         });
-
-        zoomArea.addEventListener('mouseleave', () => {
-            zoomImg.style.transform = "scale(1)";
-            zoomImg.style.transformOrigin = "center center";
-        });
+        zoomArea.addEventListener('mouseleave', () => { zoomImg.style.transform = "scale(1)"; zoomImg.style.transformOrigin = "center center"; });
 
         window.showDetails = (p, rating) => {
-            currentModalQty = 1; 
-            currentActivePrice = p.price;
-            const stockLevel = Number(p.stock);
-            const modalBtn = document.getElementById('modal-add-btn');
-            
+            currentModalQty = 1; currentActivePrice = p.price;
+            const stockLevel = Number(p.stock), modalBtn = document.getElementById('modal-add-btn');
             document.getElementById('modal-qty-val').innerText = "1";
             document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
-            
-            zoomImg.src = p.image;
-            zoomImg.style.transform = "scale(1)";
-            
+            zoomImg.src = p.image; zoomImg.style.transform = "scale(1)";
             document.getElementById('modal-name').innerText = p.name;
             document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
             document.getElementById('modal-desc').innerText = p.description || "";
             document.getElementById('modal-rating').innerHTML = `<i class="fas fa-star"></i> ${rating} Rating`;
-            
-            // Modal Stock UI
             if (stockLevel <= 0) {
                 document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge out-of-stock-badge">Out of Stock</span>`;
-                modalBtn.innerText = "Unavailable";
-                modalBtn.disabled = true;
-                modalBtn.className = "btn-buy btn-disabled";
+                modalBtn.innerText = "Unavailable"; modalBtn.disabled = true; modalBtn.className = "btn-buy btn-disabled";
                 document.getElementById('modal-qty-container').style.display = 'none';
             } else {
                 let badgeClass = stockLevel <= 5 ? 'low-stock-badge' : 'in-stock';
-                let badgeText = stockLevel <= 5 ? `Low Stock: ${stockLevel} left` : 'In Stock';
-                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${badgeClass}">${badgeText}</span>`;
-                modalBtn.innerText = "Add to Cart";
-                modalBtn.disabled = false;
-                modalBtn.className = "btn-buy";
+                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${badgeClass}">${stockLevel <= 5 ? `Low Stock: ${stockLevel} left` : 'In Stock'}</span>`;
+                modalBtn.innerText = "Add to Cart"; modalBtn.disabled = false; modalBtn.className = "btn-buy";
                 document.getElementById('modal-qty-container').style.display = 'block';
             }
-            
-            modalBtn.onclick = () => { 
-                addToCart(p.id, currentModalQty);
-                closeModal(); 
-            };
+            modalBtn.onclick = () => { addToCart(p.id, currentModalQty); closeModal(); };
             document.getElementById('productModal').style.display = 'flex';
         };
 
         window.popLogo = () => {
-            document.getElementById('sound-pop').play();
-            zoomImg.src = "logo.png";
+            document.getElementById('sound-pop').play(); zoomImg.src = "logo.png";
             document.getElementById('modal-name').innerText = "ShopEasy Official Logo";
             document.getElementById('modal-price').innerText = "Mwase's Online Store";
             document.getElementById('modal-desc').innerText = "Established in Malawi. Providing premium products with fast delivery.";
-            document.getElementById('modal-rating').innerHTML = "";
-            document.getElementById('modal-stock-div').innerHTML = "";
-            document.getElementById('modal-qty-container').style.display = 'none';
-            document.getElementById('modal-add-btn').style.display = 'none';
+            document.getElementById('modal-rating').innerHTML = ""; document.getElementById('modal-stock-div').innerHTML = "";
+            document.getElementById('modal-qty-container').style.display = 'none'; document.getElementById('modal-add-btn').style.display = 'none';
             document.getElementById('productModal').style.display = 'flex';
         };
 
