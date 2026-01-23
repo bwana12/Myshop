@@ -355,8 +355,12 @@
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
             <div id="final-fields" style="display:none;">
-                <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px; display: block;">Letters only please</label>
-                <input type="text" id="cust-name" placeholder="Enter Your Full Name" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, '')" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
+                <input type="text" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
+                <div style="display: flex; justify-content: space-between;">
+                    <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px;">Letters only please</label>
+                    <span id="char-count" style="font-size: 10px; color: #888;">0/50</span>
+                </div>
+                <input type="text" id="cust-name" placeholder="Enter Your Full Name" maxlength="50" oninput="this.value = this.value.replace(/[^a-zA-Z ]/g, ''); document.getElementById('char-count').innerText = this.value.length + '/50';" style="width:100%; padding:12px; border:1px solid var(--border); border-radius:8px; background:var(--bg); color:var(--text);">
                 <button class="btn-buy" style="margin-top: 15px; background: #25D366;" onclick="checkout()"><i class="fab fa-whatsapp"></i> Order on WhatsApp</button>
             </div>
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
@@ -429,9 +433,12 @@
         window.subscribeNews = async () => {
             const email = document.getElementById('news-email').value.trim();
             const btn = document.getElementById('news-btn');
+            const lastSub = localStorage.getItem('last_sub_time');
+            if(lastSub && Date.now() - lastSub < 60000) return alert("Please wait a minute.");
             if(!email.includes('@')) return alert("Enter valid email.");
             try {
                 await addDoc(collection(db, "newsletter"), { email: email, timestamp: Date.now() });
+                localStorage.setItem('last_sub_time', Date.now());
                 document.getElementById('sound-success').play();
                 btn.style.background = 'var(--success)';
                 btn.innerHTML = '<i class="fas fa-check"></i>';
@@ -562,7 +569,11 @@
         window.clearHistory = () => { if(confirm("Delete history?")) { localStorage.removeItem('orderHistory'); updateHistoryUI(); } };
 
         window.checkout = async () => {
-            const name = document.getElementById('cust-name').value.trim();
+            const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim();
+            const botCheck = document.getElementById('hp_field').value;
+            const lastOrder = localStorage.getItem('last_order_time');
+            if(botCheck) return;
+            if(lastOrder && Date.now() - lastOrder < 30000) return alert("Please wait 30 seconds.");
             if(!name || !cart.length) return alert("Enter name and add items!");
             let subtotal = 0;
             let itemsText = cart.map(i => {
@@ -573,6 +584,7 @@
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
             localStorage.setItem('orderHistory', JSON.stringify(history));
+            localStorage.setItem('last_order_time', Date.now());
             try {
                 await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, timestamp: Date.now() });
                 window.open(`https://wa.me/${MY_PHONE}?text=*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}`, '_blank');
