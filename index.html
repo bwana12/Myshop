@@ -32,12 +32,12 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: background 0.3s; }
 
-        /* Loading Animation Styles */
+        /* Loading Animation Styles - DISABLED */
         #loader {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: var(--card);
-            display: flex; flex-direction: column;
+            display: none; flex-direction: column;
             justify-content: center; align-items: center;
             z-index: 9999;
             transition: opacity 0.5s ease;
@@ -54,6 +54,19 @@
             50% { transform: scale(1.1); opacity: 1; }
             100% { transform: scale(0.9); opacity: 0.7; }
         }
+
+        /* NEW ANIMATIONS AND STATUS STYLES */
+        @keyframes shake {
+            0% { transform: rotate(0); }
+            25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); }
+            75% { transform: rotate(10deg); }
+            100% { transform: rotate(0); }
+        }
+        .shake-now { animation: shake 0.4s ease-in-out; }
+        .out-of-stock-badge { background: #ff4444 !important; color: white !important; }
+        .low-stock-badge { background: #ff9800 !important; color: white !important; }
+        .btn-disabled { background: #999 !important; cursor: not-allowed !important; opacity: 0.7; }
 
         /* Navigation */
         nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
@@ -185,7 +198,7 @@
         <div class="nav-icons">
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
             <div class="share-icon" onclick="shareStore()" title="Share Website"><i class="fas fa-share-nodes"></i></div>
-            <div class="cart-icon" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cart-count">0</span></div>
+            <div class="cart-icon" id="cart-nav-icon" onclick="toggleCart()"><i class="fas fa-shopping-cart"></i><span class="cart-count" id="cart-count">0</span></div>
         </div>
     </nav>
 
@@ -329,13 +342,11 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // Loader control
+        // Loader control - Removed
         window.addEventListener('load', () => {
-            setTimeout(() => {
-                const loader = document.getElementById('loader');
-                loader.style.opacity = '0';
-                setTimeout(() => loader.style.display = 'none', 500);
-            }, 2000);
+            const loader = document.getElementById('loader');
+            if(loader) loader.style.display = 'none';
+            // Animation logic removed
         });
 
         let allProducts = [];
@@ -398,7 +409,24 @@
             const cont = document.getElementById('store-container');
             cont.innerHTML = "";
             list.forEach(p => {
+                const stockLevel = Number(p.stock);
                 const isSale = (p.bulkPrice && p.bulkPrice < p.price);
+                
+                // Stock UI Logic
+                let stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
+                let btnAttr = `onclick="event.stopPropagation(); addToCart('${p.id}')"`;
+                let btnClass = "btn-buy";
+                let btnText = "Add to Cart";
+
+                if (stockLevel <= 0) {
+                    stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>';
+                    btnAttr = "disabled";
+                    btnClass = "btn-buy btn-disabled";
+                    btnText = "Unavailable";
+                } else if (stockLevel <= 5) {
+                    stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`;
+                }
+
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `
@@ -406,10 +434,10 @@
                     <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
                     <div class="p-info">
                         <div class="rating"><i class="fas fa-star"></i> 4.8</div>
-                        <span class="stock-badge in-stock">In Stock</span>
+                        ${stockBadge}
                         <p class="p-name">${p.name}</p>
                         <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
-                        <button class="btn-buy" onclick="event.stopPropagation(); addToCart('${p.id}')">Add to Cart</button>
+                        <button class="${btnClass}" ${btnAttr}>${btnText}</button>
                     </div>`;
                 card.onclick = () => showDetails(p, "4.8");
                 cont.appendChild(card);
@@ -421,8 +449,11 @@
             if(existing) existing.qty += specificQty;
             else cart.push({ ...allProducts.find(p => p.id === id), qty: specificQty });
             
-            // Cart Sound Trigger
+            // Cart Feedback (Sound + Shake)
             document.getElementById('sound-cart').play();
+            const navCart = document.getElementById('cart-nav-icon');
+            navCart.classList.add('shake-now');
+            setTimeout(() => navCart.classList.remove('shake-now'), 400);
             
             updateCartUI();
         };
@@ -563,10 +594,11 @@
         window.showDetails = (p, rating) => {
             currentModalQty = 1; 
             currentActivePrice = p.price;
+            const stockLevel = Number(p.stock);
+            const modalBtn = document.getElementById('modal-add-btn');
+            
             document.getElementById('modal-qty-val').innerText = "1";
             document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
-            document.getElementById('modal-qty-container').style.display = 'block';
-            document.getElementById('modal-add-btn').style.display = 'block';
             
             zoomImg.src = p.image;
             zoomImg.style.transform = "scale(1)";
@@ -575,9 +607,25 @@
             document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
             document.getElementById('modal-desc').innerText = p.description || "";
             document.getElementById('modal-rating').innerHTML = `<i class="fas fa-star"></i> ${rating} Rating`;
-            document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge in-stock">In Stock</span>`;
             
-            document.getElementById('modal-add-btn').onclick = () => { 
+            // Modal Stock UI
+            if (stockLevel <= 0) {
+                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge out-of-stock-badge">Out of Stock</span>`;
+                modalBtn.innerText = "Unavailable";
+                modalBtn.disabled = true;
+                modalBtn.className = "btn-buy btn-disabled";
+                document.getElementById('modal-qty-container').style.display = 'none';
+            } else {
+                let badgeClass = stockLevel <= 5 ? 'low-stock-badge' : 'in-stock';
+                let badgeText = stockLevel <= 5 ? `Low Stock: ${stockLevel} left` : 'In Stock';
+                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${badgeClass}">${badgeText}</span>`;
+                modalBtn.innerText = "Add to Cart";
+                modalBtn.disabled = false;
+                modalBtn.className = "btn-buy";
+                document.getElementById('modal-qty-container').style.display = 'block';
+            }
+            
+            modalBtn.onclick = () => { 
                 addToCart(p.id, currentModalQty);
                 closeModal(); 
             };
