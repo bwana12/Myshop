@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ShopEasy | Premium Shopping Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="manifest" href="manifest.json">
     <style>
         :root { 
             --primary: #e42c64; 
@@ -32,7 +33,7 @@
         /* UPDATED: touch-action manipulation prevents double-tap zoom on buttons */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         html, body { touch-action: manipulation; } 
-        body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: background 0.3s; }
+        body { background: var(--bg); color: var(--text); padding-bottom: 55px; overflow-x: hidden; transition: background 0.3s; }
 
         /* Loader */
         #loader {
@@ -190,6 +191,67 @@
             box-shadow: var(--shadow);
         }
 
+        /* NEW: Sticky Bottom Action Bar */
+        #bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 55px;
+            background: var(--card);
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 2000;
+            box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
+        }
+        #bottom-bar button {
+            border: none;
+            background: var(--secondary);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+        #page-indicator {
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        /* NEW: Live Toast */
+        #toast {
+            position: fixed;
+            bottom: 120px;
+            right: 15px;
+            background: var(--dark);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 10px;
+            font-size: 12px;
+            display: none;
+            z-index: 3000;
+        }
+
+        /* NEW: Order Progress */
+        .order-progress {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 15px;
+        }
+        .step {
+            flex: 1;
+            text-align: center;
+            font-size: 10px;
+            padding: 5px;
+            border-bottom: 3px solid #ccc;
+        }
+        .step.active {
+            border-color: var(--success);
+            font-weight: bold;
+        }
+
         /* Cart & Sidebar */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
         #cart-sidebar.active { right: 0; }
@@ -228,7 +290,7 @@
         #modal-img { width: 100%; height: 100%; object-fit: cover; transform: translateZ(0); }
 
         /* FAB & Others */
-        .contact-fab { position: fixed; bottom: 20px; left: 20px; z-index: 999; }
+        .contact-fab { position: fixed; bottom: 60px; left: 20px; z-index: 999; }
         .fab-btn { width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); position: relative; }
         .fab-options { position: absolute; bottom: 60px; left: 0; display: none; flex-direction: column; gap: 10px; transition: 0.3s; }
         .contact-fab:hover .fab-options { display: flex; }
@@ -236,7 +298,7 @@
         .opt.wa { background: #25D366; }
         .opt.ph { background: var(--secondary); }
         .copy-btn { cursor:pointer; color:var(--secondary); margin-left:8px; font-size:14px; position:relative; }
-        #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
+        #back-to-top { position: fixed; bottom: 60px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
 
         /* Pages */
         .page-content { display: none; padding: 40px 5%; max-width: 800px; margin: 0 auto; line-height: 1.6; }
@@ -246,6 +308,26 @@
         .return-btn { display: inline-block; margin-bottom: 20px; padding: 8px 15px; background: var(--secondary); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
         .about-link { cursor: pointer; font-weight: bold; color: var(--secondary); font-size: 14px; text-align: center; flex: 2; }
         .policy-link-footer { display: block; text-align: center; margin-top: 40px; color: var(--secondary); cursor: pointer; text-decoration: underline; font-size: 13px; }
+
+        /* Wishlist heart */
+        .wishlist-heart {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: #ddd;
+            cursor: pointer;
+            z-index: 5;
+            background: rgba(255,255,255,0.8);
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wishlist-heart.active {
+            color: var(--primary);
+        }
     </style>
 </head>
 <body id="top">
@@ -297,6 +379,7 @@
 
         <!-- UPDATED: Footer Section -->
         <div id="footer-section">
+            <button class="return-btn" onclick="toggleFooter()">⬇ Close Footer</button>
             <div class="testimonials">
                 <h3>What Our Customers Say</h3>
                 <div class="test-grid">
@@ -394,6 +477,9 @@
         </div>
     </div>
 
+    <!-- NEW: Live Toast -->
+    <div id="toast"></div>
+
     <div class="contact-fab">
         <div class="fab-options">
             <a href="https://wa.me/265899195843" class="opt wa" target="_blank"><i class="fab fa-whatsapp"></i></a>
@@ -408,7 +494,27 @@
             <h3 style="margin:0;">🛒 Your Order</h3>
         </div>
         <hr><br>
+        
+        <!-- NEW: Order Progress -->
+        <div class="order-progress">
+            <div class="step active">Placed</div>
+            <div class="step">Processing</div>
+            <div class="step">Delivery</div>
+        </div>
+        
         <div id="cart-items-list"></div>
+        
+        <!-- NEW: Delivery Location -->
+        <div style="margin-top: 15px;">
+            <label style="font-size: 11px; color: var(--secondary); font-weight: bold;">Delivery Location:</label>
+            <select id="delivery-location" onchange="calcDelivery()" style="width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid var(--border); background:var(--card); color:var(--text); font-size: 12px;">
+                <option value="0">Blantyre (MK 0)</option>
+                <option value="3000">Lilongwe (MK 3,000)</option>
+                <option value="4000">Mzuzu (MK 4,000)</option>
+                <option value="2000">Zomba (MK 2,000)</option>
+            </select>
+        </div>
+        
         <div class="promo-box">
             <input type="text" id="promo-input" placeholder="Promo Code (e.g. SAVE10)">
             <button class="promo-btn" onclick="applyPromo()">Apply</button>
@@ -416,6 +522,7 @@
         <div style="margin-top: 20px;">
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
+            <p>Delivery: MK <span id="delivery-fee">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
             
@@ -456,10 +563,14 @@
 
     <button id="back-to-top" onclick="window.scrollTo(0, 0)"><i class="fas fa-arrow-up"></i></button>
 
-    <!-- UPDATED: Footer Access Button -->
-    <button id="footer-btn" title="View Partners & Reviews">
-        <i class="fas fa-info-circle"></i>
-    </button>
+    <!-- NEW: Sticky Bottom Action Bar -->
+    <div id="bottom-bar">
+        <button onclick="prevPage()">◀ Prev</button>
+        <span id="page-indicator">Page 1</span>
+        <button onclick="nextPage()">Next ▶</button>
+        <button onclick="toggleFooter()">ℹ Footer</button>
+        <button onclick="openContact()">💬 Contact</button>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -482,6 +593,60 @@
                 .map(value => ({ value, sort: Math.random() }))
                 .sort((a, b) => a.sort - b.sort)
                 .map(({ value }) => value);
+        }
+
+        // NEW: Pagination Variables
+        let currentPage = 1;
+        const ITEMS_PER_PAGE = 8;
+
+        // NEW: Pagination Functions
+        function paginateProducts(list) {
+            const start = (currentPage - 1) * ITEMS_PER_PAGE;
+            const end = start + ITEMS_PER_PAGE;
+            document.getElementById('page-indicator').innerText = `Page ${currentPage}`;
+            return list.slice(start, end);
+        }
+
+        function nextPage() {
+            if (currentPage * ITEMS_PER_PAGE < allProducts.length) {
+                currentPage++;
+                renderProducts(paginateProducts(allProducts));
+                window.scrollTo(0, 0);
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 1) {
+                currentPage--;
+                renderProducts(paginateProducts(allProducts));
+                window.scrollTo(0, 0);
+            }
+        }
+
+        // NEW: Wishlist Function
+        window.toggleWishlist = (id) => {
+            let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            if (list.includes(id)) {
+                list = list.filter(x => x !== id);
+                alert("Removed from wishlist");
+            } else {
+                list.push(id);
+                alert("Added to wishlist!");
+            }
+            localStorage.setItem('wishlist', JSON.stringify(list));
+        }
+
+        // NEW: Delivery Fee Calculator
+        window.calcDelivery = () => {
+            const deliverySelect = document.getElementById('delivery-location');
+            const fee = Number(deliverySelect.value);
+            document.getElementById('delivery-fee').innerText = fee.toLocaleString();
+            
+            // Recalculate total
+            const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
+            const discount = Number(document.getElementById('cart-discount').innerText.replace(/,/g,'') || 0);
+            const total = subtotal - discount + fee;
+            document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
         // Navigation Logic
@@ -548,10 +713,10 @@
 
         if (localStorage.getItem('theme') === 'dark') toggleTheme();
 
-        // UPDATED: Products are now shuffled on every refresh
+        // UPDATED: Products are now shuffled on every refresh and paginated
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
             allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-            renderProducts(allProducts);
+            renderProducts(paginateProducts(allProducts));
             renderFeatured(allProducts);
             updateHistoryUI();
         });
@@ -560,6 +725,16 @@
             const text = encodeURIComponent("Check out ShopEasy Malawi for amazing deals! 🛍️");
             if (navigator.share) navigator.share({ title: 'ShopEasy', text: text, url: window.location.href });
             else { navigator.clipboard.writeText(window.location.href); alert("Store link copied!"); }
+        };
+
+        // NEW: Footer Toggle
+        window.toggleFooter = () => {
+            document.getElementById('footer-section').classList.toggle('active');
+        };
+
+        // NEW: Open Contact
+        window.openContact = () => {
+            window.open('https://wa.me/265899195843', '_blank');
         };
 
         function renderFeatured(list) {
@@ -576,6 +751,10 @@
         function renderProducts(list) {
             const cont = document.getElementById('store-container');
             cont.innerHTML = "";
+            
+            // Get wishlist from localStorage
+            const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            
             list.forEach(p => {
                 const stockLevel = Number(p.stock);
                 const isHot = stockLevel < 10 && stockLevel > 0;
@@ -585,14 +764,26 @@
                     stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>';
                     btnAttr = "disabled"; btnClass = "btn-buy btn-disabled"; btnText = "Unavailable";
                 } else if (stockLevel <= 5) { stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; }
+                
                 const card = document.createElement('div');
                 card.className = 'product-card';
-                card.innerHTML = `${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
+                
+                // Check if in wishlist
+                const isInWishlist = wishlist.includes(p.id);
+                
+                card.innerHTML = `
+                    ${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
+                    <div class="wishlist-heart ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
+                        <i class="fas fa-heart"></i>
+                    </div>
                     <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'">
-                    <div class="p-info"><div class="rating"><i class="fas fa-star"></i> 4.8</div>
-                        ${stockBadge}<p class="p-name">${p.name}</p>
+                    <div class="p-info">
+                        <div class="rating"><i class="fas fa-star"></i> 4.8</div>
+                        ${stockBadge}
+                        <p class="p-name">${p.name}</p>
                         <p class="p-price">MK ${Number(p.price).toLocaleString()}</p>
-                        <button class="${btnClass}" ${btnAttr}>${btnText}</button></div>`;
+                        <button class="${btnClass}" ${btnAttr}>${btnText}</button>
+                    </div>`;
                 card.onclick = () => showDetails(p, "4.8");
                 cont.appendChild(card);
             });
@@ -636,9 +827,15 @@
 
         window.applyPromo = () => {
             const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if (code === "SAVE5") { discountPercent = 5; alert("Promo applied! 5% discount."); }
-            else { discountPercent = 0; alert("Invalid promo code."); }
-            updateCartUI();
+            if (code === "SAVE10") { 
+                discountPercent = 10; 
+                alert("Promo applied! 10% discount.");
+                updateCartUI();
+            } else { 
+                discountPercent = 0; 
+                alert("Invalid promo code.");
+                updateCartUI();
+            }
         };
 
         window.showCheckoutFields = () => {
@@ -656,13 +853,29 @@
                     <div class="qty-box"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
                         <span>${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
             }).join("");
-            const discountVal = (subtotal * (discountPercent / 100)), finalTotal = subtotal - discountVal;
+            
+            const discountVal = (subtotal * (discountPercent / 100));
+            const deliveryFee = Number(document.getElementById('delivery-location').value) || 0;
+            const finalTotal = subtotal - discountVal + deliveryFee;
+            
             document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString();
-            if (discountPercent > 0) { document.getElementById('discount-row').style.display = 'block'; document.getElementById('cart-discount').innerText = discountVal.toLocaleString(); }
-            else { document.getElementById('discount-row').style.display = 'none'; }
+            document.getElementById('delivery-fee').innerText = deliveryFee.toLocaleString();
+            
+            if (discountPercent > 0) { 
+                document.getElementById('discount-row').style.display = 'block'; 
+                document.getElementById('cart-discount').innerText = discountVal.toLocaleString(); 
+            } else { 
+                document.getElementById('discount-row').style.display = 'none'; 
+            }
+            
             document.getElementById('cart-total').innerText = finalTotal.toLocaleString();
             const proceedBtn = document.getElementById('proceed-btn');
-            if(cart.length > 0) { proceedBtn.style.display = 'block'; } else { proceedBtn.style.display = 'none'; document.getElementById('final-fields').style.display = 'none'; }
+            if(cart.length > 0) { 
+                proceedBtn.style.display = 'block'; 
+            } else { 
+                proceedBtn.style.display = 'none'; 
+                document.getElementById('final-fields').style.display = 'none'; 
+            }
         }
 
         function updateHistoryUI() {
@@ -678,40 +891,84 @@
             const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim();
             const method = document.getElementById('pay-method').value;
             const transId = document.getElementById('trans-id')?.value || "N/A";
+            const deliveryLocation = document.getElementById('delivery-location').options[document.getElementById('delivery-location').selectedIndex].text;
+            const deliveryFee = document.getElementById('delivery-fee').innerText;
             const botCheck = document.getElementById('hp_field').value;
             const lastOrder = localStorage.getItem('last_order_time');
+            
             if(botCheck) return;
             if(lastOrder && Date.now() - lastOrder < 30000) return alert("Please wait 30 seconds.");
             if(!name || !cart.length) return alert("Enter name and add items!");
+            
             let subtotal = 0;
             let itemsText = cart.map(i => {
                 const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
-                subtotal += (p * i.qty); return `- ${i.name} (x${i.qty})`;
+                subtotal += (p * i.qty); 
+                return `- ${i.name} (x${i.qty}) - MK ${(p * i.qty).toLocaleString()}`;
             }).join("%0A");
-            const finalTotal = subtotal * (1 - discountPercent/100);
+            
+            const discountVal = (subtotal * (discountPercent / 100));
+            const finalTotal = subtotal - discountVal + Number(deliveryFee.replace(/,/g, ''));
+            
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
-            history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
+            history.unshift({ 
+                date: new Date().toLocaleDateString(), 
+                total: finalTotal.toLocaleString(), 
+                items: cart.length + " items",
+                location: deliveryLocation
+            });
             localStorage.setItem('orderHistory', JSON.stringify(history));
             localStorage.setItem('last_order_time', Date.now());
+            
             try {
                 await addDoc(collection(db, "orders"), { 
                     customerName: name, 
                     items: cart, 
+                    subtotal: subtotal,
+                    discount: discountVal,
+                    deliveryFee: deliveryFee,
+                    deliveryLocation: deliveryLocation,
                     total: finalTotal, 
                     paymentMethod: method,
                     transactionID: transId,
                     timestamp: Date.now() 
                 });
-                const waMsg = `*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A*Payment:* ${method}%0A*ID:* ${transId}`;
+                
+                const waMsg = `*New Order from ${name}*%0A%0A${itemsText}%0A%0A*Subtotal:* MK ${subtotal.toLocaleString()}%0A*Discount:* MK ${discountVal.toLocaleString()}%0A*Delivery (${deliveryLocation}):* MK ${deliveryFee}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A%0A*Payment:* ${method}%0A*Transaction ID:* ${transId}`;
                 window.open(`https://wa.me/${MY_PHONE}?text=${waMsg}`, '_blank');
-                cart = []; discountPercent = 0; updateCartUI(); updateHistoryUI();
+                
+                cart = []; 
+                discountPercent = 0; 
+                updateCartUI(); 
+                updateHistoryUI();
+                showToast();
+                
             } catch (e) { alert(e.message); }
         };
 
         window.handleSearch = () => {
             const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q)));
+            renderProducts(paginateProducts(allProducts.filter(p => p.name.toLowerCase().includes(q))));
         };
+
+        // NEW: Live Toast Function
+        const towns = ["Blantyre", "Lilongwe", "Zomba", "Mzuzu", "Karonga", "Mulanje", "Thyolo"];
+        function showToast() {
+            if (allProducts.length === 0) return;
+            const p = allProducts[Math.floor(Math.random() * allProducts.length)];
+            const town = towns[Math.floor(Math.random() * towns.length)];
+            const timeAgo = Math.floor(Math.random() * 30) + 1;
+            const toast = document.getElementById('toast');
+            toast.innerText = `🛒 Someone in ${town} bought "${p.name}" ${timeAgo} min ago`;
+            toast.style.display = 'block';
+            setTimeout(() => toast.style.display = 'none', 4000);
+        }
+        
+        // Show toast every 15-30 seconds
+        setInterval(showToast, 15000 + Math.random() * 15000);
+        
+        // Show initial toast after 5 seconds
+        setTimeout(showToast, 5000);
 
         // UPDATED: Modal Zoom removed. Pure slide-in and static image logic.
         const zoomImg = document.getElementById('modal-img');
@@ -760,7 +1017,9 @@
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
+            currentPage = 1; // Reset to page 1 when filtering
+            const filtered = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
+            renderProducts(paginateProducts(filtered));
         };
 
         // UPDATED: Back-to-top button activation
@@ -768,11 +1027,6 @@
             const btn = document.getElementById('back-to-top');
             btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
         });
-
-        // UPDATED: Footer button functionality
-        document.getElementById('footer-btn').onclick = () => {
-            document.getElementById('footer-section').classList.toggle('active');
-        };
 
         // UPDATED: Disable browser zoom (Ctrl+Wheel) and Double Tap Zoom
         window.addEventListener('wheel', function (e) {
@@ -785,6 +1039,17 @@
             if (now - lastTouchEnd <= 300) { event.preventDefault(); }
             lastTouchEnd = now;
         }, false);
+
+        // Service Worker Registration for PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js').then(registration => {
+                    console.log('ServiceWorker registration successful');
+                }).catch(err => {
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
     </script>
 </body>
 </html>
