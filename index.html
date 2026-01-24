@@ -636,7 +636,7 @@
 
         window.applyPromo = () => {
             const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if (code === "SAVE10") { discountPercent = 10; alert("Promo applied! 10% discount."); }
+            if (code === "SAVE5") { discountPercent = 5; alert("Promo applied! 5% discount."); }
             else { discountPercent = 0; alert("Invalid promo code."); }
             updateCartUI();
         };
