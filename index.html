@@ -131,13 +131,51 @@
         .test-card p { font-style: italic; font-size: 14px; margin-bottom: 10px; color: var(--text); }
         .test-card h4 { color: var(--primary); font-size: 13px; }
 
-        /* Newsletter */
-        .newsletter { margin-top: 20px; padding: 40px 5%; background: var(--card); text-align: center; border-top: 1px solid var(--border); }
-        .newsletter h3 { margin-bottom: 10px; color: var(--text); }
-        .newsletter p { font-size: 14px; color: #666; margin-bottom: 20px; }
-        .news-box { display: flex; max-width: 500px; margin: 0 auto; gap: 10px; }
-        .news-box input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
-        .news-box button { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        /* Partnership Section */
+        .partnership-section { 
+            margin-top: 20px; 
+            padding: 40px 5%; 
+            background: var(--card); 
+            text-align: center; 
+            border-top: 1px solid var(--border); 
+            overflow: hidden;
+        }
+        .partnership-section h3 { margin-bottom: 20px; color: var(--text); font-size: 18px; }
+        
+        .logo-slider {
+            display: flex;
+            align-items: center;
+            gap: 50px;
+            overflow-x: auto;
+            padding: 20px 0;
+            scrollbar-width: none;
+            justify-content: center;
+        }
+        .logo-slider::-webkit-scrollbar { display: none; }
+        .partner-logo { 
+            height: 40px; 
+            opacity: 0.6; 
+            filter: grayscale(100%); 
+            transition: 0.3s;
+            flex-shrink: 0;
+        }
+        .partner-logo:hover { opacity: 1; filter: grayscale(0); transform: scale(1.1); }
+        
+        .partner-btn { 
+            display: inline-block;
+            margin-top: 20px;
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            padding: 12px 30px; 
+            border-radius: 30px; 
+            font-weight: bold; 
+            text-decoration: none;
+            cursor: pointer; 
+            transition: 0.3s; 
+            font-size: 14px;
+        }
+        .partner-btn:hover { background: var(--secondary); transform: translateY(-2px); }
 
         /* Promo Code Box */
         .promo-box { display: flex; gap: 8px; margin-top: 15px; }
@@ -247,13 +285,16 @@
             </div>
         </div>
 
-        <div class="newsletter">
-            <h3>Join the ShopEasy Club!</h3>
-            <p>Get exclusive deals and first access to new stock in Malawi.</p>
-            <div class="news-box">
-                <input type="email" id="news-email" placeholder="Your email address">
-                <button id="news-btn" onclick="subscribeNews()">Join</button>
+        <div class="partnership-section">
+            <h3>Our Partners & Sponsors</h3>
+            <div class="logo-slider">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/b/b1/TNM_Logo.png" alt="TNM" class="partner-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/a/a2/Airtel_logo.png" alt="Airtel" class="partner-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/e/e1/Standard_Bank_logo.png" alt="Standard Bank" class="partner-logo">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/1/1b/FDH_Bank_Logo.png" alt="FDH Bank" class="partner-logo">
             </div>
+            <p style="font-size: 14px; color: #666; margin-top: 10px;">Grow your brand with Malawi's premier shopping destination.</p>
+            <a href="https://forms.gle/YOUR_REGISTRATION_LINK" target="_blank" class="partner-btn">Partner With Us</a>
         </div>
     </div>
 
@@ -440,28 +481,20 @@
                 ins.style.display = 'block'; 
                 const num = method === "Mpamba" ? "265899195843" : "265988954053";
                 txt.innerText = `${method}: ${num}`;
-                // Automatically prompt/remind the user they can copy it
                 document.getElementById('tap-hint').innerText = "(Tap icon to copy " + method + " number)";
             }
         };
 
-        // UPDATED Copy function with Prompt Alert
         window.copyNum = () => {
             const textContent = document.getElementById('pay-text').innerText;
             const method = document.getElementById('pay-method').value;
             if(!textContent.includes(': ')) return;
-            
             const num = textContent.split(': ')[1];
             const icon = document.getElementById('copy-icon');
-            
             navigator.clipboard.writeText(num).then(() => {
-                // Flash icon to success
                 icon.className = "fas fa-check"; 
                 icon.style.color = "var(--success)";
-                
-                // Show prompt alert to the customer
                 alert("Success! " + method + " number (" + num + ") copied to clipboard.");
-                
                 setTimeout(() => { 
                     icon.className = "fas fa-copy"; 
                     icon.style.color = "var(--secondary)"; 
@@ -487,26 +520,6 @@
             renderFeatured(allProducts);
             updateHistoryUI();
         });
-
-        window.subscribeNews = async () => {
-            const email = document.getElementById('news-email').value.trim();
-            const btn = document.getElementById('news-btn');
-            const lastSub = localStorage.getItem('last_sub_time');
-            if(lastSub && Date.now() - lastSub < 60000) return alert("Please wait a minute.");
-            if(!email.includes('@')) return alert("Enter valid email.");
-            try {
-                await addDoc(collection(db, "newsletter"), { email: email, timestamp: Date.now() });
-                localStorage.setItem('last_sub_time', Date.now());
-                document.getElementById('sound-success').play();
-                btn.style.background = 'var(--success)';
-                btn.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    btn.style.background = 'var(--primary)';
-                    btn.innerHTML = 'Join';
-                    document.getElementById('news-email').value = "";
-                }, 3000);
-            } catch (e) { alert("Error."); }
-        };
 
         window.shareStore = () => {
             const text = encodeURIComponent("Check out ShopEasy Malawi for amazing deals! 🛍️");
