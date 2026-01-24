@@ -4,7 +4,7 @@ import {
   enableIndexedDbPersistence 
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 
-onst firebaseConfig = {
+const firebaseConfig = {
   apiKey: "AIzaSyDwhyU5BrtjRhy-45rd5oYfzGO8abehUiM",
   authDomain: "shopeasy-14890.firebaseapp.com",
   projectId: "shopeasy-14890",
