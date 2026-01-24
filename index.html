@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>ShopEasy | Premium Shopping Malawi</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -29,24 +29,21 @@
             --shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
+        /* UPDATED: touch-action manipulation prevents double-tap zoom on buttons */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
+        html, body { touch-action: manipulation; } 
         body { background: var(--bg); color: var(--text); padding-bottom: 50px; overflow-x: hidden; transition: background 0.3s; }
 
-        /* Loading Animation Styles - DISABLED */
+        /* Loader */
         #loader {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--card);
-            display: none; flex-direction: column;
-            justify-content: center; align-items: center;
-            z-index: 9999;
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: var(--card); display: none; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 9999;
             transition: opacity 0.5s ease;
         }
         .loader-logo {
-            width: 80px; height: 80px;
-            border-radius: 50%;
-            border: 3px solid var(--secondary);
-            margin-bottom: 15px;
+            width: 80px; height: 80px; border-radius: 50%;
+            border: 3px solid var(--secondary); margin-bottom: 15px;
             animation: pulse 1.5s infinite ease-in-out;
         }
         @keyframes pulse {
@@ -55,13 +52,10 @@
             100% { transform: scale(0.9); opacity: 0.7; }
         }
 
-        /* NEW ANIMATIONS AND STATUS STYLES */
+        /* Animations */
         @keyframes shake {
-            0% { transform: rotate(0); }
-            25% { transform: rotate(15deg); }
-            50% { transform: rotate(-15deg); }
-            75% { transform: rotate(10deg); }
-            100% { transform: rotate(0); }
+            0% { transform: rotate(0); } 25% { transform: rotate(15deg); }
+            50% { transform: rotate(-15deg); } 75% { transform: rotate(10deg); } 100% { transform: rotate(0); }
         }
         .shake-now { animation: shake 0.4s ease-in-out; }
         .out-of-stock-badge { background: #ff4444 !important; color: white !important; }
@@ -72,27 +66,22 @@
         nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
         .logo { flex: 1; display: flex; align-items: center; }
         .logo img { 
-            height: 45px; width: 45px; 
-            object-fit: cover;
-            border-radius: 50%; 
-            border: 2px solid var(--border);
-            display: block; 
-            cursor: pointer; 
-            transition: 0.3s;
+            height: 45px; width: 45px; object-fit: cover;
+            border-radius: 50%; border: 2px solid var(--border);
+            display: block; cursor: pointer; transition: 0.3s;
         }
         .logo img:hover { transform: scale(1.1); border-color: var(--secondary); }
-
         .nav-icons { display: flex; align-items: center; gap: 20px; flex: 1; justify-content: flex-end; }
         .cart-icon, .share-icon, .theme-icon { font-size: 20px; cursor: pointer; position: relative; color: var(--text); }
         .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
-        /* Search Bar */
+        /* Search */
         .search-section { padding: 15px 5%; background: var(--card); border-bottom: 1px solid var(--border); }
         .search-box { position: relative; max-width: 600px; margin: 0 auto; }
         .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid var(--border); outline: none; font-size: 16px; background: var(--bg); color: var(--text); }
         .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
 
-        /* Featured Section */
+        /* Featured */
         .featured-title { padding: 15px 5% 5px; font-size: 18px; font-weight: bold; color: var(--text); }
         .featured-container { display: flex; gap: 15px; padding: 10px 5%; overflow-x: auto; scrollbar-width: none; }
         .featured-container::-webkit-scrollbar { display: none; }
@@ -100,30 +89,49 @@
         .featured-item img { width: 100%; height: 100%; object-fit: cover; position: absolute; z-index: -1; }
         .featured-info { position: absolute; bottom: 10px; left: 10px; color: white; }
 
-        /* Rating Stars */
-        .rating { color: var(--star); font-size: 11px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
-
-        /* Badges */
-        .sale-badge { position: absolute; top: 10px; left: 10px; background: var(--sale); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
-        .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
-        .in-stock { background: #e8f5e9; color: var(--success); }
-
-        /* Filter Container */
+        /* Filters */
         .filter-container { display: flex; gap: 12px; padding: 15px 5%; overflow-x: auto; scrollbar-width: none; }
         .filter-btn { padding: 10px 22px; border-radius: 25px; border: 1px solid var(--secondary); background: var(--card); color: var(--secondary); cursor: pointer; font-weight: bold; white-space: nowrap; }
         .filter-btn.active { background: var(--secondary); color: white; }
 
-        /* Grid */
+        /* UPDATED: GRID SYSTEM RESPONSIVENESS */
         .container { padding: 0 5%; max-width: 1000px; margin: 0 auto; }
-        .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+        .products-grid { display: grid; gap: 12px; }
+
+        /* Phones: 2 Columns */
+        @media (max-width: 600px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        /* Tablets: 4 Columns */
+        @media (min-width: 601px) and (max-width: 1024px) {
+            .products-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        /* Desktop: Auto Responsive */
+        @media (min-width: 1025px) {
+            .products-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+        }
+
         .product-card { background: var(--card); border-radius: 12px; overflow: hidden; box-shadow: var(--shadow); border: 1px solid var(--border); cursor: pointer; position: relative; }
-        .p-img { width: 100%; height: 140px; object-fit: cover; }
+        
+        /* UPDATED: Image Rendering Quality Lock */
+        .p-img { 
+            width: 100%; height: 140px; object-fit: cover; 
+            image-rendering: auto; /* Browser default high quality */
+            transform: translateZ(0); /* Hardware acceleration for sharpness */
+        }
+        
         .p-info { padding: 10px; }
         .p-name { font-weight: bold; font-size: 13px; height: 36px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; color: var(--text); }
         .p-price { color: var(--primary); font-weight: bold; font-size: 14px; margin: 5px 0; }
         .btn-buy { background: var(--secondary); color: white; border: none; width: 100%; padding: 8px; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 12px; }
+        
+        /* Badges */
+        .sale-badge { position: absolute; top: 10px; left: 10px; background: var(--sale); color: white; padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: bold; z-index: 5; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .stock-badge { font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: bold; display: inline-block; margin-bottom: 5px; text-transform: uppercase; }
+        .in-stock { background: #e8f5e9; color: var(--success); }
+        .rating { color: var(--star); font-size: 11px; margin-bottom: 5px; display: flex; align-items: center; gap: 4px; }
 
-        /* Testimonials Section */
+        /* Testimonials */
         .testimonials { padding: 40px 5%; background: var(--bg); text-align: center; }
         .test-grid { display: flex; gap: 20px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; }
         .test-grid::-webkit-scrollbar { display: none; }
@@ -131,81 +139,54 @@
         .test-card p { font-style: italic; font-size: 14px; margin-bottom: 10px; color: var(--text); }
         .test-card h4 { color: var(--primary); font-size: 13px; }
 
-        /* Partnership Section */
-        .partnership-section { 
-            margin-top: 20px; 
-            padding: 40px 5%; 
-            background: var(--card); 
-            text-align: center; 
-            border-top: 1px solid var(--border); 
-            overflow: hidden;
-        }
+        /* Partners */
+        .partnership-section { margin-top: 20px; padding: 40px 5%; background: var(--card); text-align: center; border-top: 1px solid var(--border); overflow: hidden; }
         .partnership-section h3 { margin-bottom: 20px; color: var(--text); font-size: 18px; }
-        
-        .logo-slider {
-            display: flex;
-            align-items: center;
-            gap: 50px;
-            overflow-x: auto;
-            padding: 20px 0;
-            scrollbar-width: none;
-            justify-content: center;
-        }
+        .logo-slider { display: flex; align-items: center; gap: 50px; overflow-x: auto; padding: 20px 0; scrollbar-width: none; justify-content: center; }
         .logo-slider::-webkit-scrollbar { display: none; }
-        .partner-logo { 
-            height: 40px; 
-            opacity: 0.8; 
-            transition: 0.3s;
-            flex-shrink: 0;
-        }
+        .partner-logo { height: 40px; opacity: 0.8; transition: 0.3s; flex-shrink: 0; }
         .partner-logo:hover { opacity: 1; transform: scale(1.1); }
-        
-        .partner-btn { 
-            display: inline-block;
-            margin-top: 20px;
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 12px 30px; 
-            border-radius: 30px; 
-            font-weight: bold; 
-            text-decoration: none;
-            cursor: pointer; 
-            transition: 0.3s; 
-            font-size: 14px;
-        }
+        .partner-btn { display: inline-block; margin-top: 20px; background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; text-decoration: none; cursor: pointer; transition: 0.3s; font-size: 14px; }
         .partner-btn:hover { background: var(--secondary); transform: translateY(-2px); }
 
-        /* Promo Code Box */
-        .promo-box { display: flex; gap: 8px; margin-top: 15px; }
-        .promo-box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
-        .promo-btn { padding: 8px 15px; background: var(--dark); color: white; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
-
-        /* Sidebar & History */
+        /* Cart & Sidebar */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
         #cart-sidebar.active { right: 0; }
-        
         .cart-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; }
         .back-shopping-btn { background: none; border: none; color: var(--text); font-size: 18px; cursor: pointer; padding: 5px; transition: 0.3s; }
         .back-shopping-btn:hover { color: var(--primary); transform: translateX(-3px); }
-
         .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .qty-btn { background: var(--bg); color: var(--text); border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
+        .promo-box { display: flex; gap: 8px; margin-top: 15px; }
+        .promo-box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
+        .promo-btn { padding: 8px 15px; background: var(--dark); color: white; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
         .history-section { margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 20px; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-history-btn { font-size: 10px; color: var(--primary); cursor: pointer; font-weight: bold; border: none; background: none; }
         .history-item { font-size: 11px; background: var(--bg); padding: 8px; border-radius: 6px; margin-bottom: 8px; border-left: 3px solid var(--secondary); }
 
-        /* Modal & Image Zoom */
+        /* UPDATED: Modal & Animation */
         .modal { display: none; position: fixed; z-index: 2000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); align-items: center; justify-content: center; padding: 20px; }
-        .modal-content { background: var(--card); color: var(--text); padding: 20px; border-radius: 15px; max-width: 400px; width: 100%; position: relative; }
+        
+        /* Slide Up Animation */
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .modal-content { 
+            background: var(--card); color: var(--text); padding: 20px; border-radius: 15px; 
+            max-width: 400px; width: 100%; position: relative; 
+            animation: slideUp 0.35s ease-out; /* Smooth entrance */
+        }
+        
         .close-modal { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; z-index: 10; }
         
-        .zoom-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; position: relative; cursor: zoom-in; background: #eee; }
-        #modal-img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.1s ease-out; transform-origin: center center; }
+        /* Removed cursor: zoom-in, removed hover effect */
+        .zoom-container { width: 100%; height: 200px; border-radius: 10px; overflow: hidden; position: relative; background: #eee; cursor: default; }
+        
+        /* Clean image rendering for popup */
+        #modal-img { width: 100%; height: 100%; object-fit: cover; transform: translateZ(0); }
 
-        /* Contact FAB */
+        /* FAB & Others */
         .contact-fab { position: fixed; bottom: 20px; left: 20px; z-index: 999; }
         .fab-btn { width: 50px; height: 50px; background: var(--success); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 22px; cursor: pointer; box-shadow: var(--shadow); position: relative; }
         .fab-options { position: absolute; bottom: 60px; left: 0; display: none; flex-direction: column; gap: 10px; transition: 0.3s; }
@@ -214,11 +195,9 @@
         .opt.wa { background: #25D366; }
         .opt.ph { background: var(--secondary); }
         .copy-btn { cursor:pointer; color:var(--secondary); margin-left:8px; font-size:14px; position:relative; }
-
-        /* Back to Top */
         #back-to-top { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
 
-        /* NEW PAGE STYLES */
+        /* Pages */
         .page-content { display: none; padding: 40px 5%; max-width: 800px; margin: 0 auto; line-height: 1.6; }
         .page-content h2 { color: var(--primary); margin-bottom: 20px; }
         .page-content h3 { margin-top: 20px; color: var(--secondary); }
@@ -470,7 +449,6 @@
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
 
-        // UPDATED Payment Details Helper with Prompt Logic
         window.togglePayDetails = () => {
             const method = document.getElementById('pay-method').value;
             const ins = document.getElementById('pay-instructions'), txt = document.getElementById('pay-text');
@@ -677,20 +655,15 @@
             renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q)));
         };
 
-        const zoomArea = document.getElementById('zoom-area'), zoomImg = document.getElementById('modal-img');
-        zoomArea.addEventListener('mousemove', (e) => {
-            const { left, top, width, height } = zoomArea.getBoundingClientRect();
-            const x = ((e.pageX - left - window.scrollX) / width) * 100, y = ((e.pageY - top - window.scrollY) / height) * 100;
-            zoomImg.style.transformOrigin = `${x}% ${y}%`; zoomImg.style.transform = "scale(2)";
-        });
-        zoomArea.addEventListener('mouseleave', () => { zoomImg.style.transform = "scale(1)"; zoomImg.style.transformOrigin = "center center"; });
+        // UPDATED: Modal Zoom removed. Pure slide-in and static image logic.
+        const zoomImg = document.getElementById('modal-img');
 
         window.showDetails = (p, rating) => {
             currentModalQty = 1; currentActivePrice = p.price;
             const stockLevel = Number(p.stock), modalBtn = document.getElementById('modal-add-btn');
             document.getElementById('modal-qty-val').innerText = "1";
             document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
-            zoomImg.src = p.image; zoomImg.style.transform = "scale(1)";
+            zoomImg.src = p.image; 
             document.getElementById('modal-name').innerText = p.name;
             document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
             document.getElementById('modal-desc').innerText = p.description || "";
@@ -731,6 +704,18 @@
             if(btn) btn.classList.add('active');
             renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
         };
+
+        // UPDATED: Disable browser zoom (Ctrl+Wheel) and Double Tap Zoom
+        window.addEventListener('wheel', function (e) {
+            if (e.ctrlKey) { e.preventDefault(); }
+        }, { passive: false });
+
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) { event.preventDefault(); }
+            lastTouchEnd = now;
+        }, false);
     </script>
 </body>
 </html>
