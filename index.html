@@ -139,6 +139,11 @@
         .news-box input { flex: 1; padding: 12px 20px; border-radius: 30px; border: 1px solid var(--border); background: var(--bg); color: var(--text); outline: none; }
         .news-box button { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; transition: 0.3s; }
 
+        /* Partner Section UI */
+        .partner-banner { padding: 40px 5%; background: var(--bg); text-align: center; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+        .partner-banner h3 { color: var(--text); margin-bottom: 10px; }
+        .partner-banner p { font-size: 14px; color: #666; margin-bottom: 20px; }
+
         /* Promo Code Box */
         .promo-box { display: flex; gap: 8px; margin-top: 15px; }
         .promo-box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
@@ -186,7 +191,7 @@
         .page-content h3 { margin-top: 20px; color: var(--secondary); }
         .page-content p { margin-bottom: 15px; }
         .return-btn { display: inline-block; margin-bottom: 20px; padding: 8px 15px; background: var(--secondary); color: white; border-radius: 5px; text-decoration: none; cursor: pointer; border: none; font-weight: bold; }
-        .about-link { cursor: pointer; font-weight: bold; color: var(--secondary); font-size: 14px; text-align: center; flex: 2; }
+        .about-link, .partner-link { cursor: pointer; font-weight: bold; color: var(--secondary); font-size: 14px; text-align: center; }
         .policy-link-footer { display: block; text-align: center; margin-top: 40px; color: var(--secondary); cursor: pointer; text-decoration: underline; font-size: 13px; }
     </style>
 </head>
@@ -202,10 +207,11 @@
     <audio id="sound-cart" src="https://assets.mixkit.co/active_storage/sfx/2019/2019-preview.mp3"></audio>
 
     <nav>
-        <div class="logo">
-            <img src="logo.png" alt="ShopEasy" onclick="popLogo()">
+        <div class="logo"><img src="logo.png" alt="ShopEasy" onclick="popLogo()"></div>
+        <div style="display: flex; gap: 15px; flex: 2; justify-content: center;">
+            <span class="about-link" onclick="showPage('about-page')">About Us</span>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScU-hdjAM3gS-nRMUv0YfW8htHpzEbHQL4AXi-EHKDsvCG7ag/viewform" target="_blank" class="partner-link" style="text-decoration: none;">Sell with Us</a>
         </div>
-        <span class="about-link" onclick="showPage('about-page')">About Us</span>
         <div class="nav-icons">
             <div class="theme-icon" onclick="toggleTheme()" title="Toggle Dark Mode"><i class="fas fa-moon" id="theme-icon"></i></div>
             <div class="share-icon" onclick="shareStore()" title="Share Website"><i class="fas fa-share-nodes"></i></div>
@@ -246,6 +252,12 @@
             </div>
         </div>
 
+        <div class="partner-banner">
+            <h3>Partner with ShopEasy Malawi</h3>
+            <p>Expand your reach and boost your sales. Join our trusted platform today.</p>
+            <a href="https://docs.google.com/forms/d/e/1FAIpQLScU-hdjAM3gS-nRMUv0YfW8htHpzEbHQL4AXi-EHKDsvCG7ag/viewform" target="_blank" class="btn-buy" style="text-decoration: none; padding: 12px 30px; display: inline-block; width: auto; background: var(--primary);">Become a Partner</a>
+        </div>
+
         <div class="newsletter">
             <h3>Join the ShopEasy Club!</h3>
             <p>Get exclusive deals and first access to new stock in Malawi.</p>
@@ -260,7 +272,6 @@
         <button class="return-btn" onclick="showPage('home-page')"><i class="fas fa-arrow-left"></i> Back to Shopping</button>
         <h2>About ShopEasy Malawi</h2>
         <p>Welcome to <strong>ShopEasy</strong>, Malawi's premier destination for high-quality electronics, fashion, and home essentials. Founded with a vision to bridge the gap between premium global products and Malawian doorsteps, we pride ourselves on being reliable, fast, and affordable.</p>
-        
         <h3>Why Choose Us?</h3>
         <ul>
             <li><strong>Nationwide Delivery:</strong> We deliver to Blantyre, Lilongwe, Mzuzu, and Zomba within 24-48 hours.</li>
@@ -268,10 +279,8 @@
             <li><strong>Customer First:</strong> Our WhatsApp support is available 7 days a week to assist with your orders.</li>
             <li><strong>Fair Pricing:</strong> We strive to provide the most competitive prices in the Malawian market.</li>
         </ul>
-
         <h3>Our Mission</h3>
         <p>To empower Malawian consumers by providing a seamless, secure, and modern shopping experience. We believe everyone deserves access to the best products without the hassle of long shipping times from abroad.</p>
-        
         <span class="policy-link-footer" onclick="showPage('policy-page')">View Privacy Policy</span>
     </div>
 
@@ -279,31 +288,23 @@
         <button class="return-btn" onclick="showPage('about-page')"><i class="fas fa-arrow-left"></i> Return</button>
         <h2>Privacy Policy</h2>
         <p>At ShopEasy, we respect your privacy and are committed to protecting your personal data.</p>
-        
         <h3>1. Information We Collect</h3>
         <p>When you place an order, we collect your name and WhatsApp contact details solely for the purpose of fulfilling your order and communicating delivery status.</p>
-
         <h3>2. How We Use Your Data</h3>
         <p>Your data is used to process orders, improve our services, and send you exclusive offers if you have subscribed to our newsletter.</p>
-
         <h3>3. Data Security</h3>
         <p>We use secure Firebase databases to store your information. We never sell your personal data to third parties.</p>
-
         <h3>4. Order History</h3>
         <p>Order history is stored locally on your device (browser storage) to help you track your purchases. You can clear this at any time using the "Clear History" button in the cart.</p>
-
         <h3>5. Contact Us</h3>
         <p>If you have any questions regarding these policies, please contact us via our WhatsApp support button.</p>
-        <br>
-        <button class="return-btn" onclick="showPage('home-page')">Back to Home</button>
+        <br><button class="return-btn" onclick="showPage('home-page')">Back to Home</button>
     </div>
 
     <div id="productModal" class="modal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeModal()">&times;</span>
-            <div class="zoom-container" id="zoom-area">
-                <img id="modal-img" src="" onerror="this.src='https://via.placeholder.com/400'">
-            </div>
+            <div class="zoom-container" id="zoom-area"><img id="modal-img" src="" onerror="this.src='https://via.placeholder.com/400'"></div>
             <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 15px;">
                 <div id="modal-stock-div"></div>
                 <button onclick="shareProductLink()" style="background:none; border:none; color:var(--secondary); cursor:pointer; font-size:14px;"><i class="fas fa-share-nodes"></i> Share</button>
@@ -315,11 +316,7 @@
             <div id="modal-qty-container" style="background: var(--bg); padding: 12px; border-radius: 10px; margin-bottom: 20px;">
                 <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px;">
                     <span style="font-size: 13px; font-weight: bold;">Select Quantity:</span>
-                    <div class="qty-box">
-                        <button class="qty-btn" onclick="updateModalQty(-1)">-</button>
-                        <span id="modal-qty-val" style="font-weight: bold; min-width: 20px; text-align: center;">1</span>
-                        <button class="qty-btn" onclick="updateModalQty(1)">+</button>
-                    </div>
+                    <div class="qty-box"><button class="qty-btn" onclick="updateModalQty(-1)">-</button><span id="modal-qty-val" style="font-weight: bold; min-width: 20px; text-align: center;">1</span><button class="qty-btn" onclick="updateModalQty(1)">+</button></div>
                 </div>
                 <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border); pt: 8px; margin-top: 8px;">
                     <span style="font-size: 12px; opacity: 0.8;">Subtotal:</span>
@@ -354,10 +351,8 @@
             <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
-            
             <div id="final-fields" style="display:none;">
                 <input type="text" id="hp_field" style="display:none !important;" tabindex="-1" autocomplete="off">
-                
                 <div style="margin-bottom: 15px; background: var(--bg); padding: 10px; border-radius: 8px;">
                     <label style="font-size: 11px; font-weight: bold; color: var(--secondary);">PAYMENT METHOD:</label>
                     <select id="pay-method" onchange="togglePayDetails()" style="width:100%; padding:8px; margin-top:5px; border-radius:5px; border:1px solid var(--border); background:var(--card); color:var(--text);">
@@ -370,7 +365,6 @@
                         <input type="text" id="trans-id" placeholder="Paste Transaction ID here" style="width:100%; padding:8px; margin-top:5px; border:1px solid var(--border); border-radius:5px; background:var(--card); color:var(--text);">
                     </div>
                 </div>
-
                 <div style="display: flex; justify-content: space-between;">
                     <label for="cust-name" style="font-size: 11px; color: var(--primary); font-weight: bold; margin-bottom: 2px;">Letters only please</label>
                     <span id="char-count" style="font-size: 10px; color: #888;">0/50</span>
@@ -381,10 +375,7 @@
             <button class="btn-buy" style="margin-top: 10px; background: #f44336;" onclick="clearCart()">Clear Cart</button>
         </div>
         <div class="history-section" id="history-container">
-            <div class="history-header">
-                <h4>📜 Order History</h4>
-                <button class="clear-history-btn" onclick="clearHistory()">Clear History</button>
-            </div>
+            <div class="history-header"><h4>📜 Order History</h4><button class="clear-history-btn" onclick="clearHistory()">Clear History</button></div>
             <div id="history-list"></div>
         </div>
     </div>
@@ -428,18 +419,13 @@
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
 
-        // Payment Details Helper
         window.togglePayDetails = () => {
             const method = document.getElementById('pay-method').value;
             const ins = document.getElementById('pay-instructions');
             const txt = document.getElementById('pay-text');
-            if(method === "Cash") {
-                ins.style.display = 'none';
-            } else {
+            if(method === "Cash") { ins.style.display = 'none'; } else {
                 ins.style.display = 'block';
-                txt.innerText = method === "Mpamba" ? 
-                    "Send to Mpamba Merchant: 265899195843" : 
-                    "Send to Airtel Till: 265988954053";
+                txt.innerText = method === "Mpamba" ? "Send to Mpamba Merchant: 265899195843" : "Send to Airtel Till: 265988954053";
             }
         };
 
@@ -472,11 +458,7 @@
                 document.getElementById('sound-success').play();
                 btn.style.background = 'var(--success)';
                 btn.innerHTML = '<i class="fas fa-check"></i>';
-                setTimeout(() => {
-                    btn.style.background = 'var(--primary)';
-                    btn.innerHTML = 'Join';
-                    document.getElementById('news-email').value = "";
-                }, 3000);
+                setTimeout(() => { btn.style.background = 'var(--primary)'; btn.innerHTML = 'Join'; document.getElementById('news-email').value = ""; }, 3000);
             } catch (e) { alert("Error."); }
         };
 
@@ -505,10 +487,8 @@
                 const isHot = stockLevel < 10 && stockLevel > 0;
                 let stockBadge = '<span class="stock-badge in-stock">In Stock</span>';
                 let btnAttr = `onclick="event.stopPropagation(); addToCart('${p.id}')"`, btnClass = "btn-buy", btnText = "Add to Cart";
-                if (stockLevel <= 0) {
-                    stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>';
-                    btnAttr = "disabled"; btnClass = "btn-buy btn-disabled"; btnText = "Unavailable";
-                } else if (stockLevel <= 5) { stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; }
+                if (stockLevel <= 0) { stockBadge = '<span class="stock-badge out-of-stock-badge">Out of Stock</span>'; btnAttr = "disabled"; btnClass = "btn-buy btn-disabled"; btnText = "Unavailable"; } 
+                else if (stockLevel <= 5) { stockBadge = `<span class="stock-badge low-stock-badge">Low Stock: ${stockLevel} left</span>`; }
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.innerHTML = `${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
@@ -535,11 +515,7 @@
 
         window.changeQty = (id, delta) => {
             const item = cart.find(i => i.id === id);
-            if (item) {
-                item.qty += delta;
-                if (item.qty <= 0) cart = cart.filter(i => i.id !== id);
-                updateCartUI();
-            }
+            if (item) { item.qty += delta; if (item.qty <= 0) cart = cart.filter(i => i.id !== id); updateCartUI(); }
         };
 
         window.updateModalQty = (delta) => {
@@ -549,9 +525,7 @@
         };
 
         window.shareProductLink = () => {
-            const name = document.getElementById('modal-name').innerText;
-            const price = document.getElementById('modal-price').innerText;
-            const text = `Look at this: ${name} for ${price} at ShopEasy Malawi! 🇲🇼`;
+            const name = document.getElementById('modal-name').innerText, price = document.getElementById('modal-price').innerText, text = `Look at this: ${name} for ${price} at ShopEasy Malawi! 🇲🇼`;
             if (navigator.share) navigator.share({ title: name, text: text, url: window.location.href });
             else { navigator.clipboard.writeText(`${text} ${window.location.href}`); alert("Product link & info copied!"); }
         };
@@ -565,10 +539,7 @@
             updateCartUI();
         };
 
-        window.showCheckoutFields = () => {
-            document.getElementById('proceed-btn').style.display = 'none';
-            document.getElementById('final-fields').style.display = 'block';
-        };
+        window.showCheckoutFields = () => { document.getElementById('proceed-btn').style.display = 'none'; document.getElementById('final-fields').style.display = 'block'; };
 
         function updateCartUI() {
             let subtotal = 0;
@@ -599,48 +570,26 @@
         window.clearHistory = () => { if(confirm("Delete history?")) { localStorage.removeItem('orderHistory'); updateHistoryUI(); } };
 
         window.checkout = async () => {
-            const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim();
-            const method = document.getElementById('pay-method').value;
-            const transId = document.getElementById('trans-id')?.value || "N/A";
-            const botCheck = document.getElementById('hp_field').value;
-            const lastOrder = localStorage.getItem('last_order_time');
-            if(botCheck) return;
-            if(lastOrder && Date.now() - lastOrder < 30000) return alert("Please wait 30 seconds.");
+            const name = document.getElementById('cust-name').value.replace(/[<>]/g, "").trim(), method = document.getElementById('pay-method').value, transId = document.getElementById('trans-id')?.value || "N/A", botCheck = document.getElementById('hp_field').value, lastOrder = localStorage.getItem('last_order_time');
+            if(botCheck || (lastOrder && Date.now() - lastOrder < 30000)) return alert("Please wait.");
             if(!name || !cart.length) return alert("Enter name and add items!");
-            let subtotal = 0;
-            let itemsText = cart.map(i => {
-                const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
-                subtotal += (p * i.qty); return `- ${i.name} (x${i.qty})`;
-            }).join("%0A");
-            const finalTotal = subtotal * (1 - discountPercent/100);
-            const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
+            let subtotal = 0, itemsText = cart.map(i => { const p = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price; subtotal += (p * i.qty); return `- ${i.name} (x${i.qty})`; }).join("%0A");
+            const finalTotal = subtotal * (1 - discountPercent/100), history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ date: new Date().toLocaleDateString(), total: finalTotal.toLocaleString(), items: cart.length + " items" });
-            localStorage.setItem('orderHistory', JSON.stringify(history));
-            localStorage.setItem('last_order_time', Date.now());
+            localStorage.setItem('orderHistory', JSON.stringify(history)); localStorage.setItem('last_order_time', Date.now());
             try {
-                await addDoc(collection(db, "orders"), { 
-                    customerName: name, 
-                    items: cart, 
-                    total: finalTotal, 
-                    paymentMethod: method,
-                    transactionID: transId,
-                    timestamp: Date.now() 
-                });
+                await addDoc(collection(db, "orders"), { customerName: name, items: cart, total: finalTotal, paymentMethod: method, transactionID: transId, timestamp: Date.now() });
                 const waMsg = `*Order from ${name}*%0A${itemsText}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A*Payment:* ${method}%0A*ID:* ${transId}`;
                 window.open(`https://wa.me/${MY_PHONE}?text=${waMsg}`, '_blank');
                 cart = []; discountPercent = 0; updateCartUI(); updateHistoryUI();
             } catch (e) { alert(e.message); }
         };
 
-        window.handleSearch = () => {
-            const q = document.getElementById('search-input').value.toLowerCase();
-            renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q)));
-        };
+        window.handleSearch = () => { const q = document.getElementById('search-input').value.toLowerCase(); renderProducts(allProducts.filter(p => p.name.toLowerCase().includes(q))); };
 
         const zoomArea = document.getElementById('zoom-area'), zoomImg = document.getElementById('modal-img');
         zoomArea.addEventListener('mousemove', (e) => {
-            const { left, top, width, height } = zoomArea.getBoundingClientRect();
-            const x = ((e.pageX - left - window.scrollX) / width) * 100, y = ((e.pageY - top - window.scrollY) / height) * 100;
+            const { left, top, width, height } = zoomArea.getBoundingClientRect(), x = ((e.pageX - left - window.scrollX) / width) * 100, y = ((e.pageY - top - window.scrollY) / height) * 100;
             zoomImg.style.transformOrigin = `${x}% ${y}%`; zoomImg.style.transform = "scale(2)";
         });
         zoomArea.addEventListener('mouseleave', () => { zoomImg.style.transform = "scale(1)"; zoomImg.style.transformOrigin = "center center"; });
@@ -648,49 +597,22 @@
         window.showDetails = (p, rating) => {
             currentModalQty = 1; currentActivePrice = p.price;
             const stockLevel = Number(p.stock), modalBtn = document.getElementById('modal-add-btn');
-            document.getElementById('modal-qty-val').innerText = "1";
-            document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
-            zoomImg.src = p.image; zoomImg.style.transform = "scale(1)";
-            document.getElementById('modal-name').innerText = p.name;
-            document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString();
-            document.getElementById('modal-desc').innerText = p.description || "";
-            document.getElementById('modal-rating').innerHTML = `<i class="fas fa-star"></i> ${rating} Rating`;
-            if (stockLevel <= 0) {
-                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge out-of-stock-badge">Out of Stock</span>`;
-                modalBtn.innerText = "Unavailable"; modalBtn.disabled = true; modalBtn.className = "btn-buy btn-disabled";
-                document.getElementById('modal-qty-container').style.display = 'none';
-            } else {
-                let badgeClass = stockLevel <= 5 ? 'low-stock-badge' : 'in-stock';
-                document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${badgeClass}">${stockLevel <= 5 ? `Low Stock: ${stockLevel} left` : 'In Stock'}</span>`;
-                modalBtn.innerText = "Add to Cart"; modalBtn.disabled = false; modalBtn.className = "btn-buy";
-                document.getElementById('modal-qty-container').style.display = 'block';
-            }
+            document.getElementById('modal-qty-val').innerText = "1"; document.getElementById('modal-subtotal').innerText = "MK " + Number(p.price).toLocaleString();
+            zoomImg.src = p.image; zoomImg.style.transform = "scale(1)"; document.getElementById('modal-name').innerText = p.name; document.getElementById('modal-price').innerText = "MK " + Number(p.price).toLocaleString(); document.getElementById('modal-desc').innerText = p.description || ""; document.getElementById('modal-rating').innerHTML = `<i class="fas fa-star"></i> ${rating} Rating`;
+            if (stockLevel <= 0) { document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge out-of-stock-badge">Out of Stock</span>`; modalBtn.innerText = "Unavailable"; modalBtn.disabled = true; modalBtn.className = "btn-buy btn-disabled"; document.getElementById('modal-qty-container').style.display = 'none'; } 
+            else { let badgeClass = stockLevel <= 5 ? 'low-stock-badge' : 'in-stock'; document.getElementById('modal-stock-div').innerHTML = `<span class="stock-badge ${badgeClass}">${stockLevel <= 5 ? `Low Stock: ${stockLevel} left` : 'In Stock'}</span>`; modalBtn.innerText = "Add to Cart"; modalBtn.disabled = false; modalBtn.className = "btn-buy"; document.getElementById('modal-qty-container').style.display = 'block'; }
             modalBtn.onclick = () => { addToCart(p.id, currentModalQty); closeModal(); };
             document.getElementById('productModal').style.display = 'flex';
         };
 
         window.popLogo = () => {
-            document.getElementById('sound-pop').play(); zoomImg.src = "logo.png";
-            document.getElementById('modal-name').innerText = "ShopEasy Official Logo";
-            document.getElementById('modal-price').innerText = "Mwase's Online Store";
-            document.getElementById('modal-desc').innerText = "Established in Malawi. Providing premium products with fast delivery.";
-            document.getElementById('modal-rating').innerHTML = ""; document.getElementById('modal-stock-div').innerHTML = "";
-            document.getElementById('modal-qty-container').style.display = 'none'; document.getElementById('modal-add-btn').style.display = 'none';
-            document.getElementById('productModal').style.display = 'flex';
+            document.getElementById('sound-pop').play(); zoomImg.src = "logo.png"; document.getElementById('modal-name').innerText = "ShopEasy Official Logo"; document.getElementById('modal-price').innerText = "Mwase's Online Store"; document.getElementById('modal-desc').innerText = "Established in Malawi. Providing premium products with fast delivery."; document.getElementById('modal-rating').innerHTML = ""; document.getElementById('modal-stock-div').innerHTML = ""; document.getElementById('modal-qty-container').style.display = 'none'; document.getElementById('modal-add-btn').style.display = 'none'; document.getElementById('productModal').style.display = 'flex';
         };
 
         window.showDetailsByID = (id) => showDetails(allProducts.find(item => item.id === id), "4.9");
         window.closeModal = () => document.getElementById('productModal').style.display = 'none';
-        window.toggleCart = () => {
-            document.getElementById('cart-sidebar').classList.toggle('active');
-            document.getElementById('proceed-btn').style.display = cart.length > 0 ? 'block' : 'none';
-            document.getElementById('final-fields').style.display = 'none';
-        };
-        window.filterProducts = (cat, btn) => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            if(btn) btn.classList.add('active');
-            renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
-        };
+        window.toggleCart = () => { document.getElementById('cart-sidebar').classList.toggle('active'); document.getElementById('proceed-btn').style.display = cart.length > 0 ? 'block' : 'none'; document.getElementById('final-fields').style.display = 'none'; };
+        window.filterProducts = (cat, btn) => { document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active')); if(btn) btn.classList.add('active'); renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat)); };
     </script>
 </body>
 </html>
