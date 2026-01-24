@@ -75,8 +75,15 @@
         .cart-icon, .share-icon, .theme-icon { font-size: 20px; cursor: pointer; position: relative; color: var(--text); }
         .cart-count { position: absolute; top: -10px; right: -10px; background: var(--primary); color: white; font-size: 10px; padding: 2px 6px; border-radius: 50%; }
 
-        /* Search */
-        .search-section { padding: 15px 5%; background: var(--card); border-bottom: 1px solid var(--border); }
+        /* Search - UPDATED: Sticky search bar */
+        .search-section {
+            position: sticky;
+            top: 70px; /* below nav */
+            z-index: 99;
+            padding: 15px 5%;
+            background: var(--card);
+            border-bottom: 1px solid var(--border);
+        }
         .search-box { position: relative; max-width: 600px; margin: 0 auto; }
         .search-box input { width: 100%; padding: 12px 45px 12px 15px; border-radius: 30px; border: 1px solid var(--border); outline: none; font-size: 16px; background: var(--bg); color: var(--text); }
         .search-box i { position: absolute; right: 20px; top: 15px; color: #888; }
@@ -148,6 +155,40 @@
         .partner-logo:hover { opacity: 1; transform: scale(1.1); }
         .partner-btn { display: inline-block; margin-top: 20px; background: var(--primary); color: white; border: none; padding: 12px 30px; border-radius: 30px; font-weight: bold; text-decoration: none; cursor: pointer; transition: 0.3s; font-size: 14px; }
         .partner-btn:hover { background: var(--secondary); transform: translateY(-2px); }
+
+        /* UPDATED: Footer Section */
+        #footer-section {
+            position: fixed;
+            bottom: -100%;
+            left: 0;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            background: var(--bg);
+            transition: bottom 0.4s ease;
+            z-index: 1500;
+            box-shadow: 0 -5px 20px rgba(0,0,0,0.3);
+        }
+        #footer-section.active {
+            bottom: 0;
+        }
+
+        /* UPDATED: Footer Access Button */
+        #footer-btn {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            border: none;
+            background: var(--secondary);
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 999;
+            box-shadow: var(--shadow);
+        }
 
         /* Cart & Sidebar */
         #cart-sidebar { position: fixed; right: -100%; top: 0; width: 320px; height: 100%; background: var(--card); color: var(--text); box-shadow: -5px 0 15px rgba(0,0,0,0.2); transition: 0.4s; z-index: 1000; padding: 25px; overflow-y: auto; }
@@ -254,25 +295,28 @@
             <div class="products-grid" id="store-container"></div>
         </div>
 
-        <div class="testimonials">
-            <h3>What Our Customers Say</h3>
-            <div class="test-grid">
-                <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
-                <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
-                <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
+        <!-- UPDATED: Footer Section -->
+        <div id="footer-section">
+            <div class="testimonials">
+                <h3>What Our Customers Say</h3>
+                <div class="test-grid">
+                    <div class="test-card"><p>"Fast delivery in Blantyre! The quality exceeded my expectations."</p><h4>- Ricky T.</h4></div>
+                    <div class="test-card"><p>"Best prices for electronics in Malawi. Highly recommend."</p><h4>- Biziwick C.</h4></div>
+                    <div class="test-card"><p>"Responsive customer service. Got my order the next day."</p><h4>- Mphatso S.</h4></div>
+                </div>
             </div>
-        </div>
 
-        <div class="partnership-section">
-            <h3>Our Partners & Sponsors</h3>
-            <div class="logo-slider">
-                <img src="https://i.postimg.cc/c49grfYr/images.png" alt="TNM" class="partner-logo">
-                <img src="https://i.postimg.cc/44jjZS2t/images.png" alt="Airtel" class="partner-logo">
-                <img src="https://i.postimg.cc/SRtSN75Y/fu-0Sr-C-400x400.jpg" alt="National Bank" class="partner-logo">
-                <img src="https://i.postimg.cc/c49grfYr/images.png" alt="Mpamba" class="partner-logo">
+            <div class="partnership-section">
+                <h3>Our Partners & Sponsors</h3>
+                <div class="logo-slider">
+                    <img src="https://i.postimg.cc/c49grfYr/images.png" alt="TNM" class="partner-logo">
+                    <img src="https://i.postimg.cc/44jjZS2t/images.png" alt="Airtel" class="partner-logo">
+                    <img src="https://i.postimg.cc/SRtSN75Y/fu-0Sr-C-400x400.jpg" alt="National Bank" class="partner-logo">
+                    <img src="https://i.postimg.cc/c49grfYr/images.png" alt="Mpamba" class="partner-logo">
+                </div>
+                <p style="font-size: 14px; color: #666; margin-top: 10px;">Grow your brand with Malawi's premier shopping destination.</p>
+                <a href="https://docs.google.com/forms/d/e/1FAIpQLScU-hdjAM3gS-nRMUv0YfW8htHpzEbHQL4AXi-EHKDsvCG7ag/viewform" target="_blank" class="partner-btn">Partner With Us</a>
             </div>
-            <p style="font-size: 14px; color: #666; margin-top: 10px;">Grow your brand with Malawi's premier shopping destination.</p>
-            <a href="https://docs.google.com/forms/d/e/1FAIpQLScU-hdjAM3gS-nRMUv0YfW8htHpzEbHQL4AXi-EHKDsvCG7ag/viewform" target="_blank" class="partner-btn">Partner With Us</a>
         </div>
     </div>
 
@@ -412,6 +456,11 @@
 
     <button id="back-to-top" onclick="window.scrollTo(0, 0)"><i class="fas fa-arrow-up"></i></button>
 
+    <!-- UPDATED: Footer Access Button -->
+    <button id="footer-btn" title="View Partners & Reviews">
+        <i class="fas fa-info-circle"></i>
+    </button>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
@@ -426,6 +475,14 @@
         };
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
+
+        // UPDATED: Shuffle products array function
+        function shuffleArray(arr) {
+            return arr
+                .map(value => ({ value, sort: Math.random() }))
+                .sort((a, b) => a.sort - b.sort)
+                .map(({ value }) => value);
+        }
 
         // Navigation Logic
         window.showPage = (pageId) => {
@@ -491,8 +548,9 @@
 
         if (localStorage.getItem('theme') === 'dark') toggleTheme();
 
+        // UPDATED: Products are now shuffled on every refresh
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
-            allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
             renderProducts(allProducts);
             renderFeatured(allProducts);
             updateHistoryUI();
@@ -703,6 +761,17 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
             renderProducts(cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat));
+        };
+
+        // UPDATED: Back-to-top button activation
+        window.addEventListener('scroll', () => {
+            const btn = document.getElementById('back-to-top');
+            btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
+        });
+
+        // UPDATED: Footer button functionality
+        document.getElementById('footer-btn').onclick = () => {
+            document.getElementById('footer-section').classList.toggle('active');
         };
 
         // UPDATED: Disable browser zoom (Ctrl+Wheel) and Double Tap Zoom
