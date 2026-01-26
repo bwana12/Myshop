@@ -34,6 +34,13 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         html, body { touch-action: manipulation; } 
         body { background: var(--bg); color: var(--text); padding-bottom: 55px; overflow-x: hidden; transition: background 0.3s; }
+        
+        /* Add body class when footer is active */
+        body.footer-active #bottom-bar,
+        body.footer-active #back-to-top,
+        body.footer-active .contact-fab {
+            display: none !important;
+        }
 
         /* Loader */
         #loader {
@@ -206,12 +213,6 @@
             bottom: 0;
         }
 
-        /* Hide back-to-top and contact FAB when footer is active */
-        #footer-section.active ~ #back-to-top,
-        #footer-section.active ~ .contact-fab {
-            display: none;
-        }
-
         /* NEW: Sticky Bottom Action Bar - FIXED POSITIONING */
         #bottom-bar {
             position: fixed;
@@ -229,10 +230,6 @@
         }
         /* Only show on home page */
         body:not(.home-page) #bottom-bar {
-            display: none !important;
-        }
-        /* Hide when footer is active */
-        #footer-section.active ~ #bottom-bar {
             display: none !important;
         }
         #bottom-bar button {
@@ -736,6 +733,18 @@
             }
         };
 
+        // FIXED: Toggle Footer function to add/remove body class
+        window.toggleFooter = () => {
+            const footer = document.getElementById('footer-section');
+            footer.classList.toggle('active');
+            document.body.classList.toggle('footer-active');
+        };
+
+        // NEW: Open Contact
+        window.openContact = () => {
+            window.open('https://wa.me/265899195843', '_blank');
+        };
+
         // Loader control
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
@@ -913,16 +922,6 @@
             const text = encodeURIComponent("Check out ShopEasy Malawi for amazing deals! 🛍️");
             if (navigator.share) navigator.share({ title: 'ShopEasy', text: text, url: window.location.href });
             else { navigator.clipboard.writeText(window.location.href); showToast("✅ Store link copied!"); }
-        };
-
-        // NEW: Footer Toggle
-        window.toggleFooter = () => {
-            document.getElementById('footer-section').classList.toggle('active');
-        };
-
-        // NEW: Open Contact
-        window.openContact = () => {
-            window.open('https://wa.me/265899195843', '_blank');
         };
 
         function renderFeatured(list) {
