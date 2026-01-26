@@ -70,6 +70,51 @@
         .low-stock-badge { background: #ff9800 !important; color: white !important; }
         .btn-disabled { background: #999 !important; cursor: not-allowed !important; opacity: 0.7; }
 
+        /* NEW: Skeleton Loading Animation */
+        @keyframes skeleton-loading {
+            0% { background-position: -200px 0; }
+            100% { background-position: calc(200px + 100%) 0; }
+        }
+        
+        .skeleton-card {
+            background: var(--card);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            border: 1px solid var(--border);
+            height: 250px;
+            position: relative;
+        }
+        
+        .skeleton-image {
+            width: 100%;
+            height: 140px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        
+        .skeleton-content {
+            padding: 10px;
+        }
+        
+        .skeleton-line {
+            height: 12px;
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200px 100%;
+            animation: skeleton-loading 1.5s infinite;
+            margin-bottom: 8px;
+            border-radius: 4px;
+        }
+        
+        .skeleton-line.short {
+            width: 60%;
+        }
+        
+        .skeleton-line.medium {
+            width: 80%;
+        }
+
         /* Navigation */
         nav { background: var(--card); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; box-shadow: var(--shadow); }
         .logo { flex: 1; display: flex; align-items: center; }
@@ -165,6 +210,7 @@
             width: 100%; height: 140px; object-fit: cover; 
             image-rendering: auto; /* Browser default high quality */
             transform: translateZ(0); /* Hardware acceleration for sharpness */
+            transition: opacity 0.3s ease;
         }
         
         .p-info { padding: 10px; }
@@ -282,6 +328,29 @@
         .step.active {
             border-color: var(--success);
             font-weight: bold;
+        }
+
+        /* NEW: Infinite Scroll Loading Indicator */
+        #loading-indicator {
+            text-align: center;
+            padding: 20px;
+            grid-column: 1 / -1;
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border);
+            border-top: 3px solid var(--secondary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         /* Cart & Sidebar */
@@ -413,7 +482,7 @@
             <button onclick="forceRefreshProducts()" style="padding: 8px 15px; background: var(--primary); color: white; border: none; border-radius: 5px; font-size: 12px; cursor: pointer;">
                 <i class="fas fa-sync-alt"></i> Refresh Products
             </button>
-            <span id="product-count" style="margin-left: 10px; font-size: 12px; color: #666;">0 products</span>
+            <span id="product-count" style="margin-left: 10px; font-size: 12px; color: #666;">0 products loaded</span>
         </div>
 
         <div id="featured-section-ui">
@@ -430,7 +499,50 @@
         </div>
 
         <div class="container">
-            <div class="products-grid" id="store-container"></div>
+            <div class="products-grid" id="store-container">
+                <!-- Initial skeleton loaders -->
+                <div class="skeleton-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                </div>
+                <div class="skeleton-card">
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Infinite scroll loading indicator -->
+            <div id="loading-indicator">
+                <div class="loading-spinner"></div>
+                <p style="color: #888; font-size: 12px;">Loading more products...</p>
+            </div>
+            
+            <!-- Intersection Observer Sentinel -->
+            <div id="scroll-sentinel" style="height: 50px;"></div>
         </div>
 
         <!-- UPDATED: Footer Section -->
@@ -616,11 +728,10 @@
 
     <!-- NEW: Sticky Bottom Action Bar -->
     <div id="bottom-bar">
-        <button onclick="prevPage()">◀ Prev</button>
-        <span id="page-indicator">Page 1</span>
-        <button onclick="nextPage()">Next ▶</button>
         <button onclick="toggleFooter()">ℹ Footer</button>
         <button onclick="openContact()">💬 Contact</button>
+        <span id="loaded-count" style="font-size: 12px;">0 products</span>
+        <button onclick="scrollToTop()">⬆ Top</button>
     </div>
 
     <script type="module">
@@ -646,73 +757,104 @@
         console.log("- Cached products:", localStorage.getItem("cachedProducts") ? "Yes" : "No");
         console.log("- Screen size:", window.innerWidth);
 
-        // UPDATED: Shuffle products array function
-        function shuffleArray(arr) {
-            return arr
-                .map(value => ({ value, sort: Math.random() }))
-                .sort((a, b) => a.sort - b.sort)
-                .map(({ value }) => value);
-        }
+        // NEW: Infinite Scroll Variables
+        let allProducts = [];
+        let currentProductList = [];
+        let currentFilter = 'All';
+        let visibleProducts = []; // Products currently in DOM
+        let displayedCount = 0;
+        const INITIAL_LOAD = 12; // Load 12 products initially
+        const LOAD_MORE_COUNT = 8; // Load 8 more each time
+        let isLoading = false;
+        let hasMoreProducts = true;
+        
+        // Image loading optimization
+        const imageObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const img = entry.target;
+                    img.src = img.dataset.src;
+                    img.classList.remove('lazy');
+                    imageObserver.unobserve(img);
+                }
+            });
+        });
 
-        // FIXED: Pagination Variables - Added currentProductList variable
-        let currentPage = 1;
-        const ITEMS_PER_PAGE = 8;
-        let currentProductList = []; // This will hold the current filtered/sorted product list
-        let currentFilter = 'All'; // Track current filter
+        // NEW: Intersection Observer for infinite scroll
+        const scrollObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && hasMoreProducts && !isLoading) {
+                    loadMoreProducts();
+                }
+            });
+        });
 
-        // FIXED: Pagination Functions to work with currentProductList
-        function paginateProducts(list) {
-            const start = (currentPage - 1) * ITEMS_PER_PAGE;
-            const end = start + ITEMS_PER_PAGE;
-            document.getElementById('page-indicator').innerText = `Page ${currentPage} of ${Math.ceil(list.length / ITEMS_PER_PAGE)}`;
-            return list.slice(start, end);
-        }
-
-        // FIXED: Next page function
-        function nextPage() {
-            if (currentPage * ITEMS_PER_PAGE < currentProductList.length) {
-                currentPage++;
-                renderProducts(paginateProducts(currentProductList));
-                window.scrollTo(0, 0);
-            }
-        }
-
-        // FIXED: Previous page function
-        function prevPage() {
-            if (currentPage > 1) {
-                currentPage--;
-                renderProducts(paginateProducts(currentProductList));
-                window.scrollTo(0, 0);
-            }
-        }
-
-        // Expose pagination functions to window
-        window.nextPage = nextPage;
-        window.prevPage = prevPage;
-
-        // NEW: Wishlist Function
-        window.toggleWishlist = (id) => {
-            let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
-            if (list.includes(id)) {
-                list = list.filter(x => x !== id);
-                showToast("Removed from wishlist", 2000);
-            } else {
-                list.push(id);
-                showToast("Added to wishlist! 💖", 2000);
-            }
-            localStorage.setItem('wishlist', JSON.stringify(list));
-        }
-
-        // NEW: Delivery Fee Calculator
-        window.calcDelivery = () => {
-            const deliverySelect = document.getElementById('delivery-location');
-            const fee = Number(deliverySelect.value);
-            document.getElementById('delivery-fee').innerText = fee.toLocaleString();
+        // NEW: Load more products function
+        function loadMoreProducts() {
+            if (isLoading || !hasMoreProducts) return;
             
-            // Recalculate total
-            const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
-            const total = subtotal + fee;
-            document.getElementById('cart-total').innerText = total.toLocaleString();
+            isLoading = true;
+            document.getElementById('loading-indicator').style.display = 'block';
+            
+            // Simulate network delay for better UX
+            setTimeout(() => {
+                const nextProducts = currentProductList.slice(displayedCount, displayedCount + LOAD_MORE_COUNT);
+                
+                if (nextProducts.length > 0) {
+                    renderProducts(nextProducts, true); // Append mode
+                    displayedCount += nextProducts.length;
+                    
+                    // Update counters
+                    document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+                    document.getElementById('loaded-count').innerText = `${displayedCount} products`;
+                    
+                    // Check if we've loaded all products
+                    if (displayedCount >= currentProductList.length) {
+                        hasMoreProducts = false;
+                    }
+                } else {
+                    hasMoreProducts = false;
+                }
+                
+                isLoading = false;
+                document.getElementById('loading-indicator').style.display = 'none';
+            }, 300); // Small delay for smooth UX
+        }
+
+        // NEW: Initialize infinite scroll
+        function initializeInfiniteScroll() {
+            const sentinel = document.getElementById('scroll-sentinel');
+            if (sentinel) {
+                scrollObserver.observe(sentinel);
+            }
+        }
+
+        // NEW: Reset infinite scroll state
+        function resetInfiniteScroll() {
+            displayedCount = 0;
+            hasMoreProducts = true;
+            isLoading = false;
+            
+            // Clear existing products
+            const container = document.getElementById('store-container');
+            container.innerHTML = '';
+            
+            // Add skeleton loaders
+            for (let i = 0; i < INITIAL_LOAD; i++) {
+                const skeleton = document.createElement('div');
+                skeleton.className = 'skeleton-card';
+                skeleton.innerHTML = `
+                    <div class="skeleton-image"></div>
+                    <div class="skeleton-content">
+                        <div class="skeleton-line medium"></div>
+                        <div class="skeleton-line short"></div>
+                        <div class="skeleton-line"></div>
+                    </div>
+                `;
+                container.appendChild(skeleton);
+            }
+            
+            document.getElementById('loading-indicator').style.display = 'none';
         }
 
         // FIXED: Navigation Logic - Add body class to control bottom bar visibility
@@ -740,6 +882,14 @@
             document.body.classList.toggle('footer-active');
         };
 
+        // NEW: Scroll to top function
+        window.scrollToTop = () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        };
+
         // NEW: Open Contact
         window.openContact = () => {
             window.open('https://wa.me/265899195843', '_blank');
@@ -752,9 +902,11 @@
             
             // Initialize bottom bar visibility
             document.getElementById('bottom-bar').style.display = 'flex';
+            
+            // Initialize infinite scroll
+            initializeInfiniteScroll();
         });
 
-        let allProducts = [];
         let cart = [];
         let currentModalQty = 1; 
         let currentActivePrice = 0;
@@ -769,10 +921,20 @@
                     console.log("📦 Loaded products from cache:", parsed.length);
                     
                     // Show cached products immediately for better UX
-                    allProducts = shuffleArray(parsed);
+                    allProducts = parsed; // Don't shuffle for consistent infinite scroll
                     currentProductList = allProducts; // Initialize currentProductList
-                    renderProducts(paginateProducts(currentProductList));
+                    
+                    // Reset and load initial products
+                    resetInfiniteScroll();
+                    const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+                    renderProducts(initialProducts, false);
+                    displayedCount = initialProducts.length;
+                    
                     renderFeatured(allProducts);
+                    
+                    // Update counters
+                    document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+                    document.getElementById('loaded-count').innerText = `${displayedCount} products`;
                     
                     // Show notification if offline
                     if (!navigator.onLine) {
@@ -855,15 +1017,23 @@
                     return;
                 }
                 
-                allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+                allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
                 currentProductList = allProducts; // Update currentProductList
                 
                 // Save to cache
                 localStorage.setItem("cachedProducts", JSON.stringify(allProducts));
                 
-                // Render
-                renderProducts(paginateProducts(currentProductList));
+                // Reset and load initial products
+                resetInfiniteScroll();
+                const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+                renderProducts(initialProducts, false);
+                displayedCount = initialProducts.length;
+                
                 renderFeatured(allProducts);
+                
+                // Update counters
+                document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+                document.getElementById('loaded-count').innerText = `${displayedCount} products`;
                 
                 showToast(`✅ Loaded ${allProducts.length} products`, 3000);
             } catch (error) {
@@ -882,11 +1052,8 @@
                 return;
             }
             
-            // ✅ ALWAYS clear products first
-            document.getElementById('store-container').innerHTML = "";
-            
-            // Process products
-            allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
+            // Clear products and reset
+            allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             
             // Apply current filter
             if (currentFilter === 'All') {
@@ -895,8 +1062,12 @@
                 currentProductList = allProducts.filter(p => p.category === currentFilter);
             }
             
-            // Reset to page 1 when new data arrives
-            currentPage = 1;
+            // Reset infinite scroll state
+            resetInfiniteScroll();
+            const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+            renderProducts(initialProducts, false);
+            displayedCount = initialProducts.length;
+            hasMoreProducts = currentProductList.length > displayedCount;
             
             // ✅ STEP 3: SAVE PRODUCTS TO LOCAL STORAGE
             try {
@@ -907,10 +1078,13 @@
                 console.warn("Could not cache products:", e.message);
             }
             
-            // ✅ IMPORTANT: Always render AFTER clearing
-            renderProducts(paginateProducts(currentProductList));
+            // Render featured products
             renderFeatured(allProducts);
             updateHistoryUI();
+            
+            // Update counters
+            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
             
             // Show update notification
             if (document.hidden === false && navigator.onLine) {
@@ -935,26 +1109,30 @@
                 </div>`).join('');
         }
 
-        function renderProducts(list) {
+        function renderProducts(list, append = false) {
             const cont = document.getElementById('store-container');
             
-            // ✅ CRITICAL: ALWAYS clear container first
-            cont.innerHTML = "";
+            // If not appending, clear container
+            if (!append) {
+                cont.innerHTML = "";
+            }
             
             if (!list || list.length === 0) {
                 console.log("⚠️ No products to render");
-                cont.innerHTML = `
-                    <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
-                        <i class="fas fa-box-open" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
-                        <p style="color: #888; font-size: 16px;">No products available</p>
-                        <button onclick="window.location.reload()" style="margin-top: 15px; padding: 8px 20px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer;">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
-                    </div>`;
+                if (!append) {
+                    cont.innerHTML = `
+                        <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
+                            <i class="fas fa-box-open" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
+                            <p style="color: #888; font-size: 16px;">No products available</p>
+                            <button onclick="window.location.reload()" style="margin-top: 15px; padding: 8px 20px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>`;
+                }
                 return;
             }
             
-            console.log(`🎨 Rendering ${list.length} products`);
+            console.log(`🎨 Rendering ${list.length} products (append: ${append})`);
             
             // Get wishlist from localStorage
             const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
@@ -977,12 +1155,17 @@
                 // Check if in wishlist
                 const isInWishlist = wishlist.includes(p.id);
                 
+                // Lazy loading image with data-src
                 card.innerHTML = `
                     ${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
                     <div class="wishlist-heart ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
                         <i class="fas fa-heart"></i>
                     </div>
-                    <img src="${p.image}" class="p-img" onerror="this.src='https://via.placeholder.com/200'" loading="lazy">
+                    <img class="p-img lazy" 
+                         data-src="${p.image}" 
+                         src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='140'%3E%3Crect width='100%25' height='100%25' fill='%23f0f0f0'/%3E%3C/svg%3E" 
+                         onerror="this.src='https://via.placeholder.com/200'"
+                         loading="lazy">
                     <div class="p-info">
                         <div class="rating"><i class="fas fa-star"></i> 4.8</div>
                         ${stockBadge}
@@ -992,10 +1175,13 @@
                     </div>`;
                 card.onclick = () => showDetails(p, "4.8");
                 cont.appendChild(card);
+                
+                // Observe image for lazy loading
+                const img = card.querySelector('img.lazy');
+                if (img) {
+                    imageObserver.observe(img);
+                }
             });
-            
-            // Update product count display
-            document.getElementById('product-count').innerText = `${currentProductList.length} products (page ${currentPage} of ${Math.ceil(currentProductList.length / ITEMS_PER_PAGE)})`;
         }
 
         window.addToCart = (id, specificQty = 1) => {
@@ -1148,23 +1334,67 @@
             }
         };
 
-        // FIXED: Handle search to work with pagination
+        // FIXED: Handle search to work with infinite scroll
         window.handleSearch = () => {
             const q = document.getElementById('search-input').value.toLowerCase();
-            currentPage = 1; // Reset to page 1 when searching
             currentProductList = q ? allProducts.filter(p => p.name.toLowerCase().includes(q)) : allProducts;
-            renderProducts(paginateProducts(currentProductList));
+            
+            // Reset infinite scroll
+            resetInfiniteScroll();
+            const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+            renderProducts(initialProducts, false);
+            displayedCount = initialProducts.length;
+            hasMoreProducts = currentProductList.length > displayedCount;
+            
+            // Update counters
+            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
         };
 
-        // FIXED: Filter products to work with pagination
+        // FIXED: Filter products to work with infinite scroll
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
-            currentPage = 1; // Reset to page 1 when filtering
+            
             currentFilter = cat;
             currentProductList = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
-            renderProducts(paginateProducts(currentProductList));
+            
+            // Reset infinite scroll
+            resetInfiniteScroll();
+            const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+            renderProducts(initialProducts, false);
+            displayedCount = initialProducts.length;
+            hasMoreProducts = currentProductList.length > displayedCount;
+            
+            // Update counters
+            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
+            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
         };
+
+        // NEW: Wishlist Function
+        window.toggleWishlist = (id) => {
+            let list = JSON.parse(localStorage.getItem('wishlist') || '[]');
+            if (list.includes(id)) {
+                list = list.filter(x => x !== id);
+                showToast("Removed from wishlist", 2000);
+            } else {
+                list.push(id);
+                showToast("Added to wishlist! 💖", 2000);
+            }
+            localStorage.setItem('wishlist', JSON.stringify(list));
+        }
+
+        // NEW: Delivery Fee Calculator
+        window.calcDelivery = () => {
+            const deliverySelect = document.getElementById('delivery-location');
+            const fee = Number(deliverySelect.value);
+            document.getElementById('delivery-fee').innerText = fee.toLocaleString();
+            
+            // Recalculate total
+            const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
+            const total = subtotal + fee;
+            document.getElementById('cart-total').innerText = total.toLocaleString();
+        }
 
         // NEW: Improved Toast Function
         const towns = ["Blantyre", "Lilongwe", "Zomba", "Mzuzu", "Karonga", "Mulanje", "Thyolo"];
