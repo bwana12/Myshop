@@ -37,7 +37,6 @@
         
         /* Add body class when footer is active */
         body.footer-active #bottom-bar,
-        body.footer-active #back-to-top,
         body.footer-active .contact-fab {
             display: none !important;
         }
@@ -287,7 +286,7 @@
             font-size: 12px;
             cursor: pointer;
         }
-        #page-indicator {
+        #loaded-count {
             font-weight: bold;
             font-size: 12px;
         }
@@ -397,7 +396,6 @@
         .opt.wa { background: #25D366; }
         .opt.ph { background: var(--secondary); }
         .copy-btn { cursor:pointer; color:var(--secondary); margin-left:8px; font-size:14px; position:relative; }
-        #back-to-top { position: fixed; bottom: 60px; right: 20px; background: var(--primary); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; display: none; justify-content: center; align-items: center; box-shadow: var(--shadow); z-index: 999; }
 
         /* Pages */
         .page-content { display: none; padding: 40px 5%; max-width: 800px; margin: 0 auto; line-height: 1.6; }
@@ -542,7 +540,7 @@
             </div>
             
             <!-- Intersection Observer Sentinel -->
-            <div id="scroll-sentinel" style="height: 50px;"></div>
+            <div id="scroll-sentinel" style="height: 1px; margin-top: 20px;"></div>
         </div>
 
         <!-- UPDATED: Footer Section -->
@@ -724,7 +722,8 @@
         </div>
     </div>
 
-    <button id="back-to-top" onclick="window.scrollTo(0, 0)"><i class="fas fa-arrow-up"></i></button>
+    <!-- REMOVED: Back to top button -->
+    <!-- <button id="back-to-top" onclick="window.scrollTo(0, 0)"><i class="fas fa-arrow-up"></i></button> -->
 
     <!-- NEW: Sticky Bottom Action Bar -->
     <div id="bottom-bar">
@@ -749,24 +748,21 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // 🐛 DEBUG HELPER
         console.log("🔄 ShopEasy Debug Info:");
         console.log("- Firebase connected:", !!app);
         console.log("- Database:", !!db);
         console.log("- Online status:", navigator.onLine);
-        console.log("- Cached products:", localStorage.getItem("cachedProducts") ? "Yes" : "No");
-        console.log("- Screen size:", window.innerWidth);
 
-        // NEW: Infinite Scroll Variables
+        // FIXED: Infinite Scroll Variables
         let allProducts = [];
         let currentProductList = [];
         let currentFilter = 'All';
-        let visibleProducts = []; // Products currently in DOM
         let displayedCount = 0;
-        const INITIAL_LOAD = 12; // Load 12 products initially
-        const LOAD_MORE_COUNT = 8; // Load 8 more each time
+        const INITIAL_LOAD = 12;
+        const LOAD_MORE_COUNT = 8;
         let isLoading = false;
         let hasMoreProducts = true;
+        let scrollObserver = null;
         
         // Image loading optimization
         const imageObserver = new IntersectionObserver((entries) => {
@@ -778,39 +774,75 @@
                     imageObserver.unobserve(img);
                 }
             });
+        }, {
+            rootMargin: '50px'
         });
 
-        // NEW: Intersection Observer for infinite scroll
-        const scrollObserver = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting && hasMoreProducts && !isLoading) {
-                    loadMoreProducts();
-                }
+        // FIXED: Initialize Intersection Observer for infinite scroll
+        function initializeInfiniteScroll() {
+            // Clean up existing observer
+            if (scrollObserver) {
+                scrollObserver.disconnect();
+            }
+            
+            // Create new observer with better settings
+            scrollObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting && hasMoreProducts && !isLoading) {
+                        console.log("📜 Sentinel detected, loading more products...");
+                        loadMoreProducts();
+                    }
+                });
+            }, {
+                rootMargin: '100px',
+                threshold: 0.1
             });
-        });
+            
+            const sentinel = document.getElementById('scroll-sentinel');
+            if (sentinel) {
+                scrollObserver.observe(sentinel);
+                console.log("👀 Observer attached to sentinel");
+            }
+        }
 
-        // NEW: Load more products function
+        // FIXED: Load more products function
         function loadMoreProducts() {
-            if (isLoading || !hasMoreProducts) return;
+            if (isLoading || !hasMoreProducts || currentProductList.length === 0) {
+                console.log("⏸️ Skipping load:", { isLoading, hasMoreProducts, productCount: currentProductList.length });
+                return;
+            }
+            
+            console.log("🔄 Loading more products...", { 
+                displayedCount, 
+                total: currentProductList.length,
+                remaining: currentProductList.length - displayedCount 
+            });
             
             isLoading = true;
             document.getElementById('loading-indicator').style.display = 'block';
             
             // Simulate network delay for better UX
             setTimeout(() => {
-                const nextProducts = currentProductList.slice(displayedCount, displayedCount + LOAD_MORE_COUNT);
+                const remainingProducts = currentProductList.length - displayedCount;
+                const nextBatchSize = Math.min(LOAD_MORE_COUNT, remainingProducts);
+                const nextProducts = currentProductList.slice(displayedCount, displayedCount + nextBatchSize);
+                
+                console.log("📦 Next batch:", { 
+                    batchSize: nextBatchSize, 
+                    productsToLoad: nextProducts.length 
+                });
                 
                 if (nextProducts.length > 0) {
-                    renderProducts(nextProducts, true); // Append mode
+                    renderProducts(nextProducts, true);
                     displayedCount += nextProducts.length;
                     
                     // Update counters
-                    document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-                    document.getElementById('loaded-count').innerText = `${displayedCount} products`;
+                    updateProductCounters();
                     
                     // Check if we've loaded all products
                     if (displayedCount >= currentProductList.length) {
                         hasMoreProducts = false;
+                        console.log("✅ All products loaded");
                     }
                 } else {
                     hasMoreProducts = false;
@@ -818,18 +850,16 @@
                 
                 isLoading = false;
                 document.getElementById('loading-indicator').style.display = 'none';
-            }, 300); // Small delay for smooth UX
+            }, 300);
         }
 
-        // NEW: Initialize infinite scroll
-        function initializeInfiniteScroll() {
-            const sentinel = document.getElementById('scroll-sentinel');
-            if (sentinel) {
-                scrollObserver.observe(sentinel);
-            }
+        // NEW: Update product counters
+        function updateProductCounters() {
+            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products loaded`;
+            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
         }
 
-        // NEW: Reset infinite scroll state
+        // FIXED: Reset infinite scroll state
         function resetInfiniteScroll() {
             displayedCount = 0;
             hasMoreProducts = true;
@@ -840,7 +870,7 @@
             container.innerHTML = '';
             
             // Add skeleton loaders
-            for (let i = 0; i < INITIAL_LOAD; i++) {
+            for (let i = 0; i < 4; i++) {
                 const skeleton = document.createElement('div');
                 skeleton.className = 'skeleton-card';
                 skeleton.innerHTML = `
@@ -855,9 +885,14 @@
             }
             
             document.getElementById('loading-indicator').style.display = 'none';
+            
+            // Re-initialize observer
+            setTimeout(() => {
+                initializeInfiniteScroll();
+            }, 100);
         }
 
-        // FIXED: Navigation Logic - Add body class to control bottom bar visibility
+        // FIXED: Navigation Logic
         window.showPage = (pageId) => {
             document.getElementById('home-page').style.display = 'none';
             document.getElementById('about-page').style.display = 'none';
@@ -875,7 +910,7 @@
             }
         };
 
-        // FIXED: Toggle Footer function to add/remove body class
+        // FIXED: Toggle Footer function
         window.toggleFooter = () => {
             const footer = document.getElementById('footer-section');
             footer.classList.toggle('active');
@@ -904,7 +939,9 @@
             document.getElementById('bottom-bar').style.display = 'flex';
             
             // Initialize infinite scroll
-            initializeInfiniteScroll();
+            setTimeout(() => {
+                initializeInfiniteScroll();
+            }, 500);
         });
 
         let cart = [];
@@ -912,7 +949,7 @@
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
 
-        // ✅ STEP 4: LOAD CACHED PRODUCTS ON PAGE LOAD
+        // Load cached products
         window.addEventListener("load", () => {
             const cachedProducts = localStorage.getItem("cachedProducts");
             if (cachedProducts) {
@@ -920,23 +957,17 @@
                     const parsed = JSON.parse(cachedProducts);
                     console.log("📦 Loaded products from cache:", parsed.length);
                     
-                    // Show cached products immediately for better UX
-                    allProducts = parsed; // Don't shuffle for consistent infinite scroll
-                    currentProductList = allProducts; // Initialize currentProductList
+                    allProducts = parsed;
+                    currentProductList = allProducts;
                     
-                    // Reset and load initial products
                     resetInfiniteScroll();
                     const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
                     renderProducts(initialProducts, false);
                     displayedCount = initialProducts.length;
                     
                     renderFeatured(allProducts);
+                    updateProductCounters();
                     
-                    // Update counters
-                    document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-                    document.getElementById('loaded-count').innerText = `${displayedCount} products`;
-                    
-                    // Show notification if offline
                     if (!navigator.onLine) {
                         showToast("📶 You're offline. Using cached products.", 5000);
                     }
@@ -945,7 +976,6 @@
                 }
             }
             
-            // Listen for online/offline events
             window.addEventListener("online", () => {
                 console.log("🌐 Online - refreshing products...");
                 showToast("🔄 Connected! Updating products...", 3000);
@@ -1005,10 +1035,8 @@
             showToast("Refreshing products...", 2000);
             
             try {
-                // Clear cache
                 localStorage.removeItem("cachedProducts");
                 
-                // Force Firestore re-fetch
                 const q = query(collection(db, "products"), orderBy("timestamp", "desc"));
                 const snapshot = await getDocs(q);
                 
@@ -1018,22 +1046,17 @@
                 }
                 
                 allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                currentProductList = allProducts; // Update currentProductList
+                currentProductList = allProducts;
                 
-                // Save to cache
                 localStorage.setItem("cachedProducts", JSON.stringify(allProducts));
                 
-                // Reset and load initial products
                 resetInfiniteScroll();
                 const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
                 renderProducts(initialProducts, false);
                 displayedCount = initialProducts.length;
                 
                 renderFeatured(allProducts);
-                
-                // Update counters
-                document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-                document.getElementById('loaded-count').innerText = `${displayedCount} products`;
+                updateProductCounters();
                 
                 showToast(`✅ Loaded ${allProducts.length} products`, 3000);
             } catch (error) {
@@ -1042,7 +1065,7 @@
             }
         };
 
-        // ✅ STEP 3: UPDATED Firebase listener with PROPER rendering
+        // Firebase listener
         onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
             console.log("🔥 Firestore snapshot received:", snapshot.size, "products");
             
@@ -1052,24 +1075,20 @@
                 return;
             }
             
-            // Clear products and reset
             allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
             
-            // Apply current filter
             if (currentFilter === 'All') {
                 currentProductList = allProducts;
             } else {
                 currentProductList = allProducts.filter(p => p.category === currentFilter);
             }
             
-            // Reset infinite scroll state
             resetInfiniteScroll();
             const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
             renderProducts(initialProducts, false);
             displayedCount = initialProducts.length;
             hasMoreProducts = currentProductList.length > displayedCount;
             
-            // ✅ STEP 3: SAVE PRODUCTS TO LOCAL STORAGE
             try {
                 localStorage.setItem("cachedProducts", JSON.stringify(allProducts));
                 localStorage.setItem("productsLastUpdated", Date.now().toString());
@@ -1078,15 +1097,10 @@
                 console.warn("Could not cache products:", e.message);
             }
             
-            // Render featured products
             renderFeatured(allProducts);
             updateHistoryUI();
+            updateProductCounters();
             
-            // Update counters
-            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
-            
-            // Show update notification
             if (document.hidden === false && navigator.onLine) {
                 showToast(`✅ Loaded ${allProducts.length} products`, 2000);
             }
@@ -1112,7 +1126,6 @@
         function renderProducts(list, append = false) {
             const cont = document.getElementById('store-container');
             
-            // If not appending, clear container
             if (!append) {
                 cont.innerHTML = "";
             }
@@ -1134,7 +1147,6 @@
             
             console.log(`🎨 Rendering ${list.length} products (append: ${append})`);
             
-            // Get wishlist from localStorage
             const wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
             
             list.forEach(p => {
@@ -1152,10 +1164,8 @@
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 
-                // Check if in wishlist
                 const isInWishlist = wishlist.includes(p.id);
                 
-                // Lazy loading image with data-src
                 card.innerHTML = `
                     ${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
                     <div class="wishlist-heart ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
@@ -1176,7 +1186,6 @@
                 card.onclick = () => showDetails(p, "4.8");
                 cont.appendChild(card);
                 
-                // Observe image for lazy loading
                 const img = card.querySelector('img.lazy');
                 if (img) {
                     imageObserver.observe(img);
@@ -1225,8 +1234,6 @@
             showToast("🛒 Cart cleared", 2000);
         };
 
-        // REMOVED: applyPromo function
-
         window.showCheckoutFields = () => {
             document.getElementById('proceed-btn').style.display = 'none';
             document.getElementById('final-fields').style.display = 'block';
@@ -1239,7 +1246,7 @@
                 const currentPrice = (i.qty >= 5 && i.bulkPrice) ? i.bulkPrice : i.price;
                 subtotal += currentPrice * i.qty;
                 return `<div class="cart-item"><div><b>${i.name}</b><br><small>MK ${(currentPrice * i.qty).toLocaleString()}</small></div>
-                    <div class="qty-box"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">-</button>
+                    <div class="qty-box"><button class="qty-btn" onclick="changeQty('${i.id}', -1)">1</button>
                         <span>${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
             }).join("");
             
@@ -1334,24 +1341,21 @@
             }
         };
 
-        // FIXED: Handle search to work with infinite scroll
+        // FIXED: Handle search
         window.handleSearch = () => {
             const q = document.getElementById('search-input').value.toLowerCase();
             currentProductList = q ? allProducts.filter(p => p.name.toLowerCase().includes(q)) : allProducts;
             
-            // Reset infinite scroll
             resetInfiniteScroll();
             const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
             renderProducts(initialProducts, false);
             displayedCount = initialProducts.length;
             hasMoreProducts = currentProductList.length > displayedCount;
             
-            // Update counters
-            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
+            updateProductCounters();
         };
 
-        // FIXED: Filter products to work with infinite scroll
+        // FIXED: Filter products
         window.filterProducts = (cat, btn) => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
@@ -1359,16 +1363,13 @@
             currentFilter = cat;
             currentProductList = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
             
-            // Reset infinite scroll
             resetInfiniteScroll();
             const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
             renderProducts(initialProducts, false);
             displayedCount = initialProducts.length;
             hasMoreProducts = currentProductList.length > displayedCount;
             
-            // Update counters
-            document.getElementById('product-count').innerText = `${displayedCount} of ${currentProductList.length} products`;
-            document.getElementById('loaded-count').innerText = `${displayedCount} products`;
+            updateProductCounters();
         };
 
         // NEW: Wishlist Function
@@ -1390,13 +1391,12 @@
             const fee = Number(deliverySelect.value);
             document.getElementById('delivery-fee').innerText = fee.toLocaleString();
             
-            // Recalculate total
             const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
             const total = subtotal + fee;
             document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
-        // NEW: Improved Toast Function
+        // Toast Function
         const towns = ["Blantyre", "Lilongwe", "Zomba", "Mzuzu", "Karonga", "Mulanje", "Thyolo"];
         function showToast(message, duration = 4000) {
             const toast = document.getElementById('toast');
@@ -1405,24 +1405,22 @@
             toast.innerText = message;
             toast.style.display = 'block';
             
-            // Add different styles based on message type
             if (message.includes("offline") || message.includes("cached")) {
-                toast.style.background = "#ff9800"; // Orange for warnings
+                toast.style.background = "#ff9800";
             } else if (message.includes("Connected") || message.includes("success") || message.includes("✅") || message.includes("🎉")) {
-                toast.style.background = "#4CAF50"; // Green for success
+                toast.style.background = "#4CAF50";
             } else if (message.includes("Error") || message.includes("❌") || message.includes("Invalid")) {
-                toast.style.background = "#f44336"; // Red for errors
+                toast.style.background = "#f44336";
             } else {
-                toast.style.background = "var(--dark)"; // Default
+                toast.style.background = "var(--dark)";
             }
             
             setTimeout(() => {
                 toast.style.display = 'none';
-                toast.style.background = "var(--dark)"; // Reset to default
+                toast.style.background = "var(--dark)";
             }, duration);
         }
         
-        // Show live activity toast every 15-30 seconds
         function showLiveActivityToast() {
             if (allProducts.length === 0) return;
             const p = allProducts[Math.floor(Math.random() * allProducts.length)];
@@ -1431,13 +1429,9 @@
             showToast(`🛒 Someone in ${town} bought "${p.name}" ${timeAgo} min ago`);
         }
         
-        // Show toast every 15-30 seconds
         setInterval(showLiveActivityToast, 15000 + Math.random() * 15000);
-        
-        // Show initial toast after 5 seconds
         setTimeout(showLiveActivityToast, 5000);
 
-        // UPDATED: Modal Zoom removed. Pure slide-in and static image logic.
         const zoomImg = document.getElementById('modal-img');
 
         window.showDetails = (p, rating) => {
@@ -1482,12 +1476,6 @@
             document.getElementById('final-fields').style.display = 'none';
         };
 
-        // UPDATED: Back-to-top button activation
-        window.addEventListener('scroll', () => {
-            const btn = document.getElementById('back-to-top');
-            btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
-        });
-
         // ============================================
         // PWA INSTALLATION FEATURES
         // ============================================
@@ -1495,19 +1483,14 @@
         let deferredPrompt;
         const installButton = document.getElementById('install-button');
 
-        // Listen for beforeinstallprompt event
         window.addEventListener('beforeinstallprompt', (e) => {
-            // Prevent Chrome 67 and earlier from automatically showing the prompt
             e.preventDefault();
-            // Stash the event so it can be triggered later
             deferredPrompt = e;
-            // Show the install button
             if (installButton) {
                 installButton.style.display = 'flex';
                 console.log('Install button shown - PWA ready to install');
             }
             
-            // Show a toast notification about installation
             setTimeout(() => {
                 const toast = document.getElementById('toast');
                 if (toast && !localStorage.getItem('installPromptSeen')) {
@@ -1519,20 +1502,15 @@
             }, 10000);
         });
 
-        // Show install prompt when button clicked
         window.showInstallPrompt = () => {
             if (deferredPrompt) {
-                // Show the install prompt
                 deferredPrompt.prompt();
-                // Wait for the user to respond to the prompt
                 deferredPrompt.userChoice.then((choiceResult) => {
                     if (choiceResult.outcome === 'accepted') {
                         console.log('User accepted the install prompt');
-                        // Hide the install button
                         if (installButton) {
                             installButton.style.display = 'none';
                         }
-                        // Show success message
                         showToast('🎉 ShopEasy installed successfully!', 5000);
                     } else {
                         console.log('User dismissed the install prompt');
@@ -1541,41 +1519,34 @@
                     deferredPrompt = null;
                 });
             } else {
-                // If deferredPrompt is not available, show instructions
                 showToast("📱 Tap browser menu (⋮) → 'Add to Home Screen'", 5000);
             }
         };
 
-        // Detect if app is already installed
         window.addEventListener('appinstalled', (evt) => {
             console.log('ShopEasy was successfully installed');
             if (installButton) {
                 installButton.style.display = 'none';
             }
-            // Show welcome message
             setTimeout(() => {
                 showToast("🎉 Welcome to ShopEasy app!", 4000);
             }, 1000);
         });
 
-        // Check if running as PWA
         function isRunningAsPWA() {
             return window.matchMedia('(display-mode: standalone)').matches || 
                    window.navigator.standalone === true ||
                    document.referrer.includes('android-app://');
         }
 
-        // Adjust UI for installed PWA
         if (isRunningAsPWA()) {
             document.body.classList.add('pwa-mode');
-            // Hide install button when already installed
             if (installButton) {
                 installButton.style.display = 'none';
             }
             console.log('Running as installed PWA');
         }
 
-        // ✅ BONUS: PWA Ready Check
         if ('serviceWorker' in navigator) {
             navigator.serviceWorker.ready.then(() => {
                 console.log("✅ PWA Service Worker ready");
@@ -1583,11 +1554,7 @@
             });
         }
 
-        // ============================================
-        // END PWA FEATURES
-        // ============================================
-
-        // UPDATED: Disable browser zoom (Ctrl+Wheel) and Double Tap Zoom
+        // Disable zoom
         window.addEventListener('wheel', function (e) {
             if (e.ctrlKey) { e.preventDefault(); }
         }, { passive: false });
@@ -1601,7 +1568,6 @@
     </script>
 
     <script>
-        // ✅ STEP 2: Service Worker Registration with the new sw.js
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 navigator.serviceWorker
@@ -1609,14 +1575,12 @@
                     .then((registration) => {
                         console.log("✅ Service Worker registered with scope:", registration.scope);
                         
-                        // Check for updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             console.log('🔄 New service worker found');
                             
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    // New update available
                                     const toast = document.getElementById('toast');
                                     if (toast) {
                                         toast.innerText = "🔄 New version available! Tap to refresh.";
