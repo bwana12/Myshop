@@ -206,24 +206,13 @@
             bottom: 0;
         }
 
-        /* UPDATED: Footer Access Button */
-        #footer-btn {
-            position: fixed;
-            bottom: 80px;
-            right: 20px;
-            width: 45px;
-            height: 45px;
-            border-radius: 50%;
-            border: none;
-            background: var(--secondary);
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 999;
-            box-shadow: var(--shadow);
+        /* Hide back-to-top and contact FAB when footer is active */
+        #footer-section.active ~ #back-to-top,
+        #footer-section.active ~ .contact-fab {
+            display: none;
         }
 
-        /* UPDATED: Sticky Bottom Action Bar - FIXED POSITIONING */
+        /* NEW: Sticky Bottom Action Bar - FIXED POSITIONING */
         #bottom-bar {
             position: fixed;
             bottom: 0;
@@ -238,8 +227,12 @@
             z-index: 2000;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.15);
         }
-        /* Hide bottom bar on non-home pages by default */
+        /* Only show on home page */
         body:not(.home-page) #bottom-bar {
+            display: none !important;
+        }
+        /* Hide when footer is active */
+        #footer-section.active ~ #bottom-bar {
             display: none !important;
         }
         #bottom-bar button {
@@ -303,9 +296,7 @@
         .cart-item { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
         .qty-box { display: flex; align-items: center; gap: 8px; margin-top: 5px; }
         .qty-btn { background: var(--bg); color: var(--text); border: none; width: 24px; height: 24px; border-radius: 4px; cursor: pointer; }
-        .promo-box { display: flex; gap: 8px; margin-top: 15px; }
-        .promo-box input { flex: 1; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-size: 12px; }
-        .promo-btn { padding: 8px 15px; background: var(--dark); color: white; border-radius: 8px; border: none; font-size: 12px; cursor: pointer; }
+        /* REMOVED: Promo box styles */
         .history-section { margin-top: 30px; border-top: 2px dashed var(--border); padding-top: 20px; }
         .history-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .clear-history-btn { font-size: 10px; color: var(--primary); cursor: pointer; font-weight: bold; border: none; background: none; }
@@ -378,7 +369,7 @@
         }
     </style>
 </head>
-<body id="top">
+<body id="top" class="home-page">
 
     <div id="loader">
         <img src="logo.png" class="loader-logo" alt="Loading...">
@@ -583,13 +574,8 @@
             </select>
         </div>
         
-        <div class="promo-box">
-            <input type="text" id="promo-input" placeholder="Promo Code (e.g. SAVE10)">
-            <button class="promo-btn" onclick="applyPromo()">Apply</button>
-        </div>
         <div style="margin-top: 20px;">
             <p>Subtotal: MK <span id="cart-subtotal">0</span></p>
-            <p id="discount-row" style="display:none; color:var(--success);">Discount: -MK <span id="cart-discount">0</span></p>
             <p>Delivery: MK <span id="delivery-fee">0</span></p>
             <p><strong>Total: MK <span id="cart-total">0</span></strong></p>
             <button id="proceed-btn" class="btn-buy" style="margin-top: 15px; background: var(--primary); display: none;" onclick="showCheckoutFields()">Proceed to Checkout</button>
@@ -675,6 +661,7 @@
         let currentPage = 1;
         const ITEMS_PER_PAGE = 8;
         let currentProductList = []; // This will hold the current filtered/sorted product list
+        let currentFilter = 'All'; // Track current filter
 
         // FIXED: Pagination Functions to work with currentProductList
         function paginateProducts(list) {
@@ -684,6 +671,7 @@
             return list.slice(start, end);
         }
 
+        // FIXED: Next page function
         function nextPage() {
             if (currentPage * ITEMS_PER_PAGE < currentProductList.length) {
                 currentPage++;
@@ -692,6 +680,7 @@
             }
         }
 
+        // FIXED: Previous page function
         function prevPage() {
             if (currentPage > 1) {
                 currentPage--;
@@ -699,6 +688,10 @@
                 window.scrollTo(0, 0);
             }
         }
+
+        // Expose pagination functions to window
+        window.nextPage = nextPage;
+        window.prevPage = prevPage;
 
         // NEW: Wishlist Function
         window.toggleWishlist = (id) => {
@@ -721,8 +714,7 @@
             
             // Recalculate total
             const subtotal = Number(document.getElementById('cart-subtotal').innerText.replace(/,/g,'') || 0);
-            const discount = Number(document.getElementById('cart-discount').innerText.replace(/,/g,'') || 0);
-            const total = subtotal - discount + fee;
+            const total = subtotal + fee;
             document.getElementById('cart-total').innerText = total.toLocaleString();
         }
 
@@ -748,11 +740,13 @@
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
             if(loader) loader.style.display = 'none';
+            
+            // Initialize bottom bar visibility
+            document.getElementById('bottom-bar').style.display = 'flex';
         });
 
         let allProducts = [];
         let cart = [];
-        let discountPercent = 0;
         let currentModalQty = 1; 
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
@@ -884,7 +878,16 @@
             
             // Process products
             allProducts = shuffleArray(snapshot.docs.map(d => ({ id: d.id, ...d.data() })));
-            currentProductList = allProducts; // Set currentProductList
+            
+            // Apply current filter
+            if (currentFilter === 'All') {
+                currentProductList = allProducts;
+            } else {
+                currentProductList = allProducts.filter(p => p.category === currentFilter);
+            }
+            
+            // Reset to page 1 when new data arrives
+            currentPage = 1;
             
             // ✅ STEP 3: SAVE PRODUCTS TO LOCAL STORAGE
             try {
@@ -1033,23 +1036,11 @@
 
         window.clearCart = () => { 
             cart = []; 
-            discountPercent = 0; 
             updateCartUI(); 
             showToast("🛒 Cart cleared", 2000);
         };
 
-        window.applyPromo = () => {
-            const code = document.getElementById('promo-input').value.trim().toUpperCase();
-            if (code === "SAVE10") { 
-                discountPercent = 10; 
-                showToast("🎉 Promo applied! 10% discount.", 3000);
-                updateCartUI();
-            } else { 
-                discountPercent = 0; 
-                showToast("❌ Invalid promo code.", 3000);
-                updateCartUI();
-            }
-        };
+        // REMOVED: applyPromo function
 
         window.showCheckoutFields = () => {
             document.getElementById('proceed-btn').style.display = 'none';
@@ -1067,19 +1058,11 @@
                         <span>${i.qty}</span><button class="qty-btn" onclick="changeQty('${i.id}', 1)">+</button></div></div>`;
             }).join("");
             
-            const discountVal = (subtotal * (discountPercent / 100));
             const deliveryFee = Number(document.getElementById('delivery-location').value) || 0;
-            const finalTotal = subtotal - discountVal + deliveryFee;
+            const finalTotal = subtotal + deliveryFee;
             
             document.getElementById('cart-subtotal').innerText = subtotal.toLocaleString();
             document.getElementById('delivery-fee').innerText = deliveryFee.toLocaleString();
-            
-            if (discountPercent > 0) { 
-                document.getElementById('discount-row').style.display = 'block'; 
-                document.getElementById('cart-discount').innerText = discountVal.toLocaleString(); 
-            } else { 
-                document.getElementById('discount-row').style.display = 'none'; 
-            }
             
             document.getElementById('cart-total').innerText = finalTotal.toLocaleString();
             const proceedBtn = document.getElementById('proceed-btn');
@@ -1127,8 +1110,7 @@
                 return `- ${i.name} (x${i.qty}) - MK ${(p * i.qty).toLocaleString()}`;
             }).join("%0A");
             
-            const discountVal = (subtotal * (discountPercent / 100));
-            const finalTotal = subtotal - discountVal + Number(deliveryFee.replace(/,/g, ''));
+            const finalTotal = subtotal + Number(deliveryFee.replace(/,/g, ''));
             
             const history = JSON.parse(localStorage.getItem('orderHistory') || '[]');
             history.unshift({ 
@@ -1145,7 +1127,6 @@
                     customerName: name, 
                     items: cart, 
                     subtotal: subtotal,
-                    discount: discountVal,
                     deliveryFee: deliveryFee,
                     deliveryLocation: deliveryLocation,
                     total: finalTotal, 
@@ -1154,11 +1135,10 @@
                     timestamp: Date.now() 
                 });
                 
-                const waMsg = `*New Order from ${name}*%0A%0A${itemsText}%0A%0A*Subtotal:* MK ${subtotal.toLocaleString()}%0A*Discount:* MK ${discountVal.toLocaleString()}%0A*Delivery (${deliveryLocation}):* MK ${deliveryFee}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A%0A*Payment:* ${method}%0A*Transaction ID:* ${transId}`;
+                const waMsg = `*New Order from ${name}*%0A%0A${itemsText}%0A%0A*Subtotal:* MK ${subtotal.toLocaleString()}%0A*Delivery (${deliveryLocation}):* MK ${deliveryFee}%0A*Total:* MK ${finalTotal.toLocaleString()}%0A%0A*Payment:* ${method}%0A*Transaction ID:* ${transId}`;
                 window.open(`https://wa.me/${MY_PHONE}?text=${waMsg}`, '_blank');
                 
                 cart = []; 
-                discountPercent = 0; 
                 updateCartUI(); 
                 updateHistoryUI();
                 showToast("✅ Order sent to WhatsApp!", 5000);
@@ -1182,6 +1162,7 @@
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
             if(btn) btn.classList.add('active');
             currentPage = 1; // Reset to page 1 when filtering
+            currentFilter = cat;
             currentProductList = cat === 'All' ? allProducts : allProducts.filter(p => p.category === cat);
             renderProducts(paginateProducts(currentProductList));
         };
@@ -1277,15 +1258,6 @@
             const btn = document.getElementById('back-to-top');
             btn.style.display = window.scrollY > 300 ? 'flex' : 'none';
         });
-
-        // 🚨 NUCLEAR OPTION: Force render every 2 seconds if empty
-        setInterval(() => {
-            const container = document.getElementById('store-container');
-            if (container && container.children.length === 0 && currentProductList.length > 0) {
-                console.log("⚠️ Container empty but products exist - FORCE RENDER");
-                renderProducts(paginateProducts(currentProductList));
-            }
-        }, 2000);
 
         // ============================================
         // PWA INSTALLATION FEATURES
