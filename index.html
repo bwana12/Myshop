@@ -30,6 +30,34 @@
             --shadow: 0 4px 15px rgba(0,0,0,0.5);
         }
 
+        /* Offline Indicator */
+        #offline-indicator {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            background: linear-gradient(45deg, #ff9800, #ff5722);
+            color: white;
+            text-align: center;
+            padding: 12px;
+            font-size: 13px;
+            z-index: 10000;
+            display: none;
+            animation: slideDown 0.3s ease;
+            box-shadow: 0 2px 10px rgba(255, 152, 0, 0.3);
+            backdrop-filter: blur(10px);
+        }
+        
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        #offline-indicator i {
+            margin-right: 8px;
+            font-size: 14px;
+        }
+
         /* UPDATED: touch-action manipulation prevents double-tap zoom on buttons */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; scroll-behavior: smooth; }
         html, body { touch-action: manipulation; } 
@@ -456,12 +484,48 @@
             z-index: 10000;
             opacity: 0.7;
         }
+        
+        /* Offline Product Card */
+        .product-card.offline-mode {
+            opacity: 0.95;
+            position: relative;
+        }
+        
+        .product-card.offline-mode::after {
+            content: '📶';
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            z-index: 10;
+        }
+        
+        /* Offline Badge */
+        .offline-badge {
+            display: inline-block;
+            background: #666;
+            color: white;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 3px;
+            margin-left: 5px;
+            vertical-align: middle;
+        }
     </style>
 </head>
 <body id="top" class="home-page">
 
     <!-- NEW: Version Indicator -->
-    <div class="version-indicator" id="version-indicator">v1.0.0</div>
+    <div class="version-indicator" id="version-indicator">v1.0.1</div>
+    
+    <!-- NEW: Offline Indicator -->
+    <div id="offline-indicator">
+        <i class="fas fa-wifi-slash"></i> You are offline. Using cached data. Some features may be limited.
+    </div>
 
     <div id="loader">
         <img src="logo.png" class="loader-logo" alt="Loading...">
@@ -823,6 +887,43 @@
         let scrollObserver = null;
         let autoShuffle = true; // NEW: Auto shuffle on refresh
         
+        // Offline state management
+        let isOffline = !navigator.onLine;
+        
+        // Update offline indicator
+        function updateOfflineIndicator() {
+            const indicator = document.getElementById('offline-indicator');
+            if (isOffline) {
+                indicator.style.display = 'block';
+                document.body.classList.add('offline');
+                console.log('📴 Offline mode active');
+            } else {
+                indicator.style.display = 'none';
+                document.body.classList.remove('offline');
+                console.log('🌐 Online mode active');
+            }
+        }
+        
+        // Listen for online/offline events
+        window.addEventListener('online', () => {
+            isOffline = false;
+            updateOfflineIndicator();
+            showToast("✅ You're back online!", 3000);
+            // Try to sync data when coming back online
+            if (allProducts.length === 0) {
+                forceRefreshProducts();
+            }
+        });
+        
+        window.addEventListener('offline', () => {
+            isOffline = true;
+            updateOfflineIndicator();
+            showToast("📶 You're offline. Using cached data.", 5000);
+        });
+        
+        // Initialize offline indicator
+        updateOfflineIndicator();
+
         // NEW: Shuffle function
         function shuffleArray(array) {
             for (let i = array.length - 1; i > 0; i--) {
@@ -1027,6 +1128,115 @@
             }, 100);
         }
 
+        // NEW: Enhanced offline product caching
+        async function cacheProductsForOffline(products) {
+            if (!navigator.onLine) return;
+            
+            try {
+                console.log("💾 Caching products for offline use:", products.length);
+                
+                // Store products in localStorage as backup
+                localStorage.setItem('offlineProducts', JSON.stringify(products));
+                localStorage.setItem('offlineCacheTime', Date.now().toString());
+                
+                // Store in IndexedDB for better performance
+                if ('indexedDB' in window) {
+                    try {
+                        const dbName = 'ShopEasyDB';
+                        const dbVersion = 1;
+                        
+                        const request = indexedDB.open(dbName, dbVersion);
+                        
+                        request.onupgradeneeded = (event) => {
+                            const db = event.target.result;
+                            if (!db.objectStoreNames.contains('products')) {
+                                db.createObjectStore('products', { keyPath: 'id' });
+                            }
+                        };
+                        
+                        request.onsuccess = (event) => {
+                            const db = event.target.result;
+                            const transaction = db.transaction(['products'], 'readwrite');
+                            const store = transaction.objectStore('products');
+                            
+                            // Clear old products
+                            store.clear();
+                            
+                            // Add new products
+                            products.forEach(product => {
+                                store.put(product);
+                            });
+                            
+                            console.log('✅ Products cached in IndexedDB:', products.length);
+                        };
+                        
+                        request.onerror = (event) => {
+                            console.error('IndexedDB error:', event.target.error);
+                        };
+                    } catch (error) {
+                        console.error('IndexedDB caching error:', error);
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Failed to cache products:', error);
+            }
+        }
+
+        // Load products from offline cache
+        async function loadOfflineProducts() {
+            try {
+                console.log("📂 Loading products from offline cache...");
+                
+                // Try IndexedDB first
+                if ('indexedDB' in window) {
+                    try {
+                        const request = indexedDB.open('ShopEasyDB', 1);
+                        
+                        return new Promise((resolve) => {
+                            request.onsuccess = (event) => {
+                                const db = event.target.result;
+                                const transaction = db.transaction(['products'], 'readonly');
+                                const store = transaction.objectStore('products');
+                                const getAllRequest = store.getAll();
+                                
+                                getAllRequest.onsuccess = () => {
+                                    if (getAllRequest.result.length > 0) {
+                                        console.log('📦 Loaded from IndexedDB:', getAllRequest.result.length);
+                                        resolve(getAllRequest.result);
+                                    } else {
+                                        // Fall back to localStorage
+                                        const cached = localStorage.getItem('offlineProducts');
+                                        resolve(cached ? JSON.parse(cached) : []);
+                                    }
+                                };
+                                
+                                getAllRequest.onerror = () => {
+                                    const cached = localStorage.getItem('offlineProducts');
+                                    resolve(cached ? JSON.parse(cached) : []);
+                                };
+                            };
+                            
+                            request.onerror = () => {
+                                const cached = localStorage.getItem('offlineProducts');
+                                resolve(cached ? JSON.parse(cached) : []);
+                            };
+                        });
+                    } catch (error) {
+                        console.error('IndexedDB load error:', error);
+                    }
+                }
+                
+                // Fall back to localStorage
+                const cached = localStorage.getItem('offlineProducts');
+                return cached ? JSON.parse(cached) : [];
+                
+            } catch (error) {
+                console.error('Failed to load offline products:', error);
+                return [];
+            }
+        }
+
         // FIXED: Navigation Logic
         window.showPage = (pageId) => {
             document.getElementById('home-page').style.display = 'none';
@@ -1101,15 +1311,18 @@
         let currentActivePrice = 0;
         const MY_PHONE = "265899195843"; 
 
-        // Load cached products
-        window.addEventListener("load", () => {
-            const cachedProducts = localStorage.getItem("cachedProducts");
-            if (cachedProducts) {
-                try {
-                    const parsed = JSON.parse(cachedProducts);
-                    console.log("📦 Loaded products from cache:", parsed.length);
+        // Load cached products on startup
+        window.addEventListener("load", async () => {
+            // Check if we're offline
+            if (!navigator.onLine) {
+                console.log("📶 Starting in offline mode");
+                
+                // Load products from cache
+                const cachedProducts = await loadOfflineProducts();
+                if (cachedProducts.length > 0) {
+                    console.log("📦 Loaded cached products:", cachedProducts.length);
                     
-                    allProducts = parsed;
+                    allProducts = cachedProducts;
                     
                     // Apply shuffle to cached products if autoShuffle is enabled
                     if (autoShuffle) {
@@ -1126,18 +1339,51 @@
                     renderFeatured(allProducts);
                     updateProductCounters();
                     
-                    if (!navigator.onLine) {
-                        showToast("📶 You're offline. Using cached products.", 5000);
+                    showToast("📶 Offline mode: Using cached products", 5000);
+                } else {
+                    showToast("❌ No cached products found. Connect to internet first.", 5000);
+                }
+            } else {
+                // We're online, load from localStorage cache first for fast display
+                const cachedProducts = localStorage.getItem("cachedProducts");
+                if (cachedProducts) {
+                    try {
+                        const parsed = JSON.parse(cachedProducts);
+                        console.log("📦 Loaded products from cache for fast display:", parsed.length);
+                        
+                        allProducts = parsed;
+                        
+                        // Apply shuffle to cached products if autoShuffle is enabled
+                        if (autoShuffle) {
+                            allProducts = shuffleArray([...allProducts]);
+                        }
+                        
+                        currentProductList = allProducts;
+                        
+                        resetInfiniteScroll();
+                        const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+                        renderProducts(initialProducts, false);
+                        displayedCount = initialProducts.length;
+                        
+                        renderFeatured(allProducts);
+                        updateProductCounters();
+                    } catch (e) {
+                        console.error("Failed to parse cached products:", e);
                     }
-                } catch (e) {
-                    console.error("Failed to parse cached products:", e);
                 }
             }
             
-            window.addEventListener("online", () => {
+            // Listen for connectivity changes
+            window.addEventListener("online", async () => {
                 console.log("🌐 Online - refreshing products...");
                 showToast("🔄 Connected! Updating products...", 3000);
-                checkForUpdates();
+                
+                // Force refresh when coming back online
+                setTimeout(() => {
+                    if (!isLoading) {
+                        forceRefreshProducts();
+                    }
+                }, 1000);
             });
             
             window.addEventListener("offline", () => {
@@ -1193,6 +1439,9 @@
             console.log("🔄 Manual refresh triggered");
             showToast("Refreshing and shuffling products...", 2000);
             
+            // Show loading state
+            document.getElementById('loading-indicator').style.display = 'block';
+            
             try {
                 localStorage.removeItem("cachedProducts");
                 
@@ -1200,11 +1449,15 @@
                 const snapshot = await getDocs(q);
                 
                 if (snapshot.empty) {
-                    showToast("No products found", 3000);
+                    showToast("No products found in database", 3000);
+                    document.getElementById('loading-indicator').style.display = 'none';
                     return;
                 }
                 
                 allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                
+                // Cache for offline use
+                await cacheProductsForOffline(allProducts);
                 
                 // Always shuffle on manual refresh
                 allProducts = shuffleArray([...allProducts]);
@@ -1221,24 +1474,66 @@
                 renderFeatured(allProducts);
                 updateProductCounters();
                 
+                document.getElementById('loading-indicator').style.display = 'none';
                 showToast(`✅ Loaded & shuffled ${allProducts.length} products`, 3000);
             } catch (error) {
                 console.error("Refresh error:", error);
                 showToast("❌ Refresh failed: " + error.message, 4000);
+                document.getElementById('loading-indicator').style.display = 'none';
+                
+                // Fall back to cached products
+                const cached = await loadOfflineProducts();
+                if (cached.length > 0) {
+                    allProducts = cached;
+                    currentProductList = allProducts;
+                    resetInfiniteScroll();
+                    const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+                    renderProducts(initialProducts, false);
+                    displayedCount = initialProducts.length;
+                    updateProductCounters();
+                    showToast("📶 Using offline cached products", 3000);
+                }
             }
         };
 
-        // UPDATED: Firebase listener with auto-shuffle option
-        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), (snapshot) => {
+        // UPDATED: Firebase listener with auto-shuffle option and offline caching
+        onSnapshot(query(collection(db, "products"), orderBy("timestamp", "desc")), async (snapshot) => {
             console.log("🔥 Firestore snapshot received:", snapshot.size, "products");
             
             if (snapshot.empty) {
                 console.log("❌ No products found in Firestore");
-                showToast("No products available. Check your connection.", 3000);
+                
+                // Try to load from offline cache
+                const offlineProducts = await loadOfflineProducts();
+                if (offlineProducts.length > 0 && !navigator.onLine) {
+                    console.log("📦 Using offline cached products:", offlineProducts.length);
+                    allProducts = offlineProducts;
+                    
+                    if (autoShuffle) {
+                        allProducts = shuffleArray([...allProducts]);
+                    }
+                    
+                    currentProductList = [...allProducts];
+                    resetInfiniteScroll();
+                    const initialProducts = currentProductList.slice(0, INITIAL_LOAD);
+                    renderProducts(initialProducts, false);
+                    displayedCount = initialProducts.length;
+                    hasMoreProducts = currentProductList.length > displayedCount;
+                    
+                    renderFeatured(allProducts);
+                    updateProductCounters();
+                    
+                    showToast("📶 Offline mode: Using cached products", 5000);
+                } else {
+                    showToast("❌ No products available. Check your connection.", 3000);
+                }
                 return;
             }
             
             allProducts = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+            
+            // Cache products for offline use
+            await cacheProductsForOffline(allProducts);
             
             // Apply shuffle if autoShuffle is enabled
             if (autoShuffle) {
@@ -1305,7 +1600,7 @@
                         <div style="grid-column: 1/-1; text-align: center; padding: 40px;">
                             <i class="fas fa-box-open" style="font-size: 50px; color: #ccc; margin-bottom: 20px;"></i>
                             <p style="color: #888; font-size: 16px;">No products available</p>
-                            <button onclick="window.location.reload()" style="margin-top: 15px; padding: 8px 20px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer;">
+                            <button onclick="forceRefreshProducts()" style="margin-top: 15px; padding: 8px 20px; background: var(--secondary); color: white; border: none; border-radius: 5px; cursor: pointer;">
                                 <i class="fas fa-sync-alt"></i> Refresh
                             </button>
                         </div>`;
@@ -1330,12 +1625,13 @@
                 }
                 
                 const card = document.createElement('div');
-                card.className = 'product-card';
+                card.className = `product-card ${isOffline ? 'offline-mode' : ''}`;
                 
                 const isInWishlist = wishlist.includes(p.id);
                 
                 card.innerHTML = `
                     ${isHot ? '<div class="sale-badge">HOT SELLER</div>' : ''}
+                    ${isOffline ? '<span class="offline-badge">📶</span>' : ''}
                     <div class="wishlist-heart ${isInWishlist ? 'active' : ''}" onclick="event.stopPropagation(); toggleWishlist('${p.id}')">
                         <i class="fas fa-heart"></i>
                     </div>
@@ -1508,8 +1804,24 @@
                 showToast("✅ Order sent to WhatsApp!", 5000);
                 
             } catch (e) { 
-                showToast("❌ Error: " + e.message, 5000);
-                console.error("Checkout error:", e);
+                // If offline, save order for later
+                if (!navigator.onLine) {
+                    const pendingOrders = JSON.parse(localStorage.getItem('pendingOrders') || '[]');
+                    pendingOrders.push({
+                        customerName: name,
+                        items: cart,
+                        total: finalTotal,
+                        deliveryLocation: deliveryLocation,
+                        timestamp: Date.now()
+                    });
+                    localStorage.setItem('pendingOrders', JSON.stringify(pendingOrders));
+                    showToast("📶 Order saved offline. Will sync when back online.", 5000);
+                    cart = [];
+                    updateCartUI();
+                } else {
+                    showToast("❌ Error: " + e.message, 5000);
+                    console.error("Checkout error:", e);
+                }
             }
         };
 
@@ -1744,9 +2056,9 @@
         }, false);
     </script>
 
-    <!-- UPDATED SERVICE WORKER REGISTRATION WITH VERSION MANAGEMENT -->
+    <!-- UPDATED SERVICE WORKER REGISTRATION WITH OFFLINE SUPPORT -->
     <script>
-        // Service Worker with aggressive update strategy
+        // Service Worker Registration with offline support
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
                 // Add version query string to force update
@@ -1814,6 +2126,14 @@
                             if (event.data.action === 'reload') {
                                 window.location.reload();
                             }
+                            if (event.data.action === 'offline') {
+                                console.log('📴 Service worker reports offline');
+                                document.getElementById('offline-indicator').style.display = 'block';
+                            }
+                            if (event.data.action === 'online') {
+                                console.log('🌐 Service worker reports online');
+                                document.getElementById('offline-indicator').style.display = 'none';
+                            }
                         });
                     })
                     .catch(err => console.log("❌ SW registration failed", err));
@@ -1827,6 +2147,24 @@
                 });
             }
         }
+        
+        // Pre-cache important resources
+        document.addEventListener('DOMContentLoaded', () => {
+            // Pre-cache images when online
+            if (navigator.onLine) {
+                const imagesToPrecache = [
+                    'logo.png',
+                    'https://i.postimg.cc/c49grfYr/images.png',
+                    'https://i.postimg.cc/44jjZS2t/images.png',
+                    'https://i.postimg.cc/SRtSN75Y/fu-0Sr-C-400x400.jpg'
+                ];
+                
+                imagesToPrecache.forEach(imgSrc => {
+                    const img = new Image();
+                    img.src = imgSrc;
+                });
+            }
+        });
     </script>
 </body>
 </html>
