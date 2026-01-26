@@ -1,36 +1,38 @@
 // sw.js - Service Worker for ShopEasy PWA
-const CACHE_NAME = 'shopeasy-v1.0.1';
-const STATIC_CACHE = [
-  '/', // Main page
-  '/index.html', // Main HTML file
+const APP_VERSION = '1.0.1';
+const CACHE_NAME = `shopeasy-v${APP_VERSION}`;
+const OFFLINE_PAGE = '/offline.html';
+
+// Static assets to cache on install
+const STATIC_ASSETS = [
+  '/',
+  '/index.html',
   'logo.png',
-  'manifest.json'
-];
-
-const DYNAMIC_CACHE = 'shopeasy-dynamic-v1';
-
-// External resources to cache
-const EXTERNAL_RESOURCES = [
+  'manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js'
 ];
 
+// Dynamic cache for API responses and images
+const DYNAMIC_CACHE = 'shopeasy-dynamic-v1';
+
 // Install event - cache static assets
 self.addEventListener('install', (event) => {
-  console.log('[Service Worker] Installing...');
+  console.log('[Service Worker] Installing version:', APP_VERSION);
+  
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then((cache) => {
         console.log('[Service Worker] Caching static assets');
-        return cache.addAll([
-          ...STATIC_CACHE,
-          ...EXTERNAL_RESOURCES
-        ]);
+        return cache.addAll(STATIC_ASSETS);
       })
       .then(() => {
-        console.log('[Service Worker] Install completed');
+        console.log('[Service Worker] All assets cached');
         return self.skipWaiting();
+      })
+      .catch((error) => {
+        console.error('[Service Worker] Cache installation failed:', error);
       })
   );
 });
@@ -38,10 +40,12 @@ self.addEventListener('install', (event) => {
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
   console.log('[Service Worker] Activating...');
+  
   event.waitUntil(
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
+          // Delete old caches that don't match current version
           if (cacheName !== CACHE_NAME && cacheName !== DYNAMIC_CACHE) {
             console.log('[Service Worker] Deleting old cache:', cacheName);
             return caches.delete(cacheName);
@@ -59,132 +63,215 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
   
-  // Skip cross-origin requests and non-GET requests
-  if (!event.request.url.startsWith(self.location.origin) || event.request.method !== 'GET') {
+  // Skip non-GET requests and cross-origin requests (except CDNs)
+  if (event.request.method !== 'GET') {
     return;
   }
   
-  // For HTML pages - Network First, then Cache
+  // Handle different types of requests
   if (event.request.headers.get('Accept')?.includes('text/html')) {
+    // HTML requests: Network first, fallback to cache
     event.respondWith(
-      fetch(event.request)
-        .then((response) => {
-          // Cache the HTML page
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then((cache) => {
-              cache.put(event.request, responseClone);
-            });
-          return response;
-        })
-        .catch(() => {
-          return caches.match(event.request)
-            .then((cachedResponse) => {
-              return cachedResponse || caches.match('/');
-            });
-        })
+      networkFirst(event.request)
     );
-    return;
-  }
-  
-  // For CSS, JS, and images - Cache First, then Network
-  if (event.request.url.match(/\.(css|js|png|jpg|jpeg|gif|svg)$/)) {
+  } else if (event.request.url.match(/\.(css|js|woff|woff2)$/)) {
+    // CSS and JS: Cache first, network fallback
     event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          if (cachedResponse) {
-            // Return cached version
-            return cachedResponse;
-          }
-          
-          // Fetch from network
-          return fetch(event.request)
-            .then((response) => {
-              // Don't cache if not a valid response
-              if (!response || response.status !== 200 || response.type !== 'basic') {
-                return response;
-              }
-              
-              // Cache the fetched resource
-              const responseToCache = response.clone();
-              caches.open(DYNAMIC_CACHE)
-                .then((cache) => {
-                  cache.put(event.request, responseToCache);
-                });
-              
-              return response;
-            })
-            .catch((error) => {
-              console.log('[Service Worker] Fetch failed:', error);
-              // For images, return a placeholder
-              if (event.request.url.match(/\.(png|jpg|jpeg|gif)$/)) {
-                return caches.match('logo.png');
-              }
-            });
-        })
+      cacheFirst(event.request)
     );
-    return;
-  }
-  
-  // For Firebase data - Cache First, Network Update
-  if (url.hostname.includes('firestore.googleapis.com') || 
-      url.hostname.includes('firebasestorage.googleapis.com')) {
+  } else if (event.request.url.match(/\.(png|jpg|jpeg|gif|svg|webp)$/)) {
+    // Images: Cache first, with placeholder fallback
     event.respondWith(
-      caches.match(event.request)
-        .then((cachedResponse) => {
-          // Try to fetch fresh data in background
-          const fetchPromise = fetch(event.request)
-            .then((networkResponse) => {
-              // Update cache with fresh data
-              const responseClone = networkResponse.clone();
-              caches.open(DYNAMIC_CACHE)
-                .then((cache) => {
-                  cache.put(event.request, responseClone);
-                });
-              return networkResponse;
-            })
-            .catch(() => {
-              // Network failed, do nothing
-            });
-          
-          // Return cached response immediately, then update
-          return cachedResponse || fetchPromise;
-        })
+      imageCacheFirst(event.request)
     );
-    return;
+  } else if (url.hostname.includes('firestore.googleapis.com') || 
+             url.hostname.includes('firebasestorage.googleapis.com')) {
+    // Firebase data: Network first, cache fallback
+    event.respondWith(
+      networkFirstWithCacheUpdate(event.request)
+    );
+  } else {
+    // Default: Network first, cache fallback
+    event.respondWith(
+      networkFirst(event.request)
+    );
   }
 });
 
-// Background sync for orders when offline
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'sync-orders') {
-    console.log('[Service Worker] Syncing orders...');
-    event.waitUntil(syncOrders());
+// Network First strategy
+async function networkFirst(request) {
+  try {
+    const networkResponse = await fetch(request);
+    
+    // Cache the response for future use
+    const cache = await caches.open(DYNAMIC_CACHE);
+    cache.put(request, networkResponse.clone());
+    
+    return networkResponse;
+  } catch (error) {
+    // Network failed, try cache
+    const cachedResponse = await caches.match(request);
+    
+    if (cachedResponse) {
+      console.log('[Service Worker] Serving from cache:', request.url);
+      return cachedResponse;
+    }
+    
+    // If it's an HTML request and we have no cache, show offline page
+    if (request.headers.get('Accept')?.includes('text/html')) {
+      return caches.match('/');
+    }
+    
+    throw error;
   }
-});
-
-async function syncOrders() {
-  // This would sync pending orders when back online
-  console.log('[Service Worker] Syncing pending orders');
 }
 
-// Periodic sync for product updates
+// Cache First strategy
+async function cacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    
+    // Cache the response
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // If everything fails, return a fallback for CSS/JS
+    if (request.url.match(/\.css$/)) {
+      return new Response('', { headers: { 'Content-Type': 'text/css' } });
+    }
+    
+    if (request.url.match(/\.js$/)) {
+      return new Response('console.log("Offline mode");', { 
+        headers: { 'Content-Type': 'application/javascript' } 
+      });
+    }
+    
+    throw error;
+  }
+}
+
+// Image Cache First with placeholder fallback
+async function imageCacheFirst(request) {
+  const cachedResponse = await caches.match(request);
+  
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+  
+  try {
+    const networkResponse = await fetch(request);
+    
+    // Cache successful image responses
+    if (networkResponse.ok) {
+      const cache = await caches.open(DYNAMIC_CACHE);
+      cache.put(request, networkResponse.clone());
+    }
+    
+    return networkResponse;
+  } catch (error) {
+    // Return a placeholder image for product images
+    if (request.url.includes('placeholder') || request.url.includes('postimg.cc')) {
+      return caches.match('logo.png');
+    }
+    
+    // For other images, create a simple SVG placeholder
+    const placeholderSvg = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+        <rect width="100%" height="100%" fill="#f0f0f0"/>
+        <text x="50%" y="50%" text-anchor="middle" dy=".3em" fill="#999" font-family="sans-serif" font-size="14">
+          Image
+        </text>
+      </svg>
+    `;
+    
+    return new Response(placeholderSvg, {
+      headers: { 'Content-Type': 'image/svg+xml' }
+    });
+  }
+}
+
+// Network first with cache update for dynamic data
+async function networkFirstWithCacheUpdate(request) {
+  try {
+    const networkResponse = await fetch(request);
+    
+    // Update cache with fresh data
+    const cache = await caches.open(DYNAMIC_CACHE);
+    cache.put(request, networkResponse.clone());
+    
+    return networkResponse;
+  } catch (error) {
+    // If network fails, try to serve from cache
+    const cachedResponse = await caches.match(request);
+    
+    if (cachedResponse) {
+      console.log('[Service Worker] Serving Firebase data from cache');
+      return cachedResponse;
+    }
+    
+    // If no cache, return empty response
+    if (request.url.includes('firestore.googleapis.com')) {
+      return new Response(JSON.stringify([]), {
+        headers: { 'Content-Type': 'application/json' }
+      });
+    }
+    
+    throw error;
+  }
+}
+
+// Background sync for pending orders
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'sync-orders') {
+    console.log('[Service Worker] Background sync: Processing pending orders');
+    event.waitUntil(syncPendingOrders());
+  }
+});
+
+// Sync pending orders when back online
+async function syncPendingOrders() {
+  // This would sync any pending orders stored in IndexedDB
+  console.log('[Service Worker] Syncing pending orders...');
+}
+
+// Periodic sync for data updates
 self.addEventListener('periodicsync', (event) => {
   if (event.tag === 'update-products') {
     console.log('[Service Worker] Periodic sync for products');
-    event.waitUntil(updateProducts());
+    event.waitUntil(updateProductCache());
   }
 });
 
-async function updateProducts() {
-  // Update products in background
-  console.log('[Service Worker] Updating products cache');
+// Update product cache in background
+async function updateProductCache() {
+  try {
+    // This would fetch fresh product data
+    console.log('[Service Worker] Background product update');
+  } catch (error) {
+    console.error('[Service Worker] Background sync failed:', error);
+  }
 }
 
-// Message handler for cache management
+// Handle messages from the client
 self.addEventListener('message', (event) => {
-  if (event.data && event.data.action === 'CLEAR_CACHE') {
-    console.log('[Service Worker] Clearing cache for version:', event.data.version);
+  const message = event.data;
+  
+  if (message.action === 'skipWaiting') {
+    self.skipWaiting();
+  }
+  
+  if (message.action === 'CLEAR_CACHE') {
+    console.log('[Service Worker] Clearing cache for version:', message.version);
     caches.keys().then((cacheNames) => {
       return Promise.all(
         cacheNames.map((cacheName) => {
@@ -194,7 +281,51 @@ self.addEventListener('message', (event) => {
     });
   }
   
-  if (event.data && event.data.action === 'skipWaiting') {
-    self.skipWaiting();
+  if (message.action === 'versionCheck') {
+    console.log('[Service Worker] Version check:', message.version);
+    event.source.postMessage({
+      action: 'versionResponse',
+      version: APP_VERSION
+    });
   }
+});
+
+// Handle push notifications
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    const data = event.data.json();
+    
+    const options = {
+      body: data.body || 'New update from ShopEasy',
+      icon: 'logo.png',
+      badge: 'logo.png',
+      vibrate: [100, 50, 100],
+      data: {
+        url: data.url || '/'
+      }
+    };
+    
+    event.waitUntil(
+      self.registration.showNotification(data.title || 'ShopEasy', options)
+    );
+  }
+});
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  event.waitUntil(
+    clients.matchAll({ type: 'window' }).then((clientList) => {
+      for (const client of clientList) {
+        if (client.url === event.notification.data.url && 'focus' in client) {
+          return client.focus();
+        }
+      }
+      
+      if (clients.openWindow) {
+        return clients.openWindow(event.notification.data.url);
+      }
+    })
+  );
 });
