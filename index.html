@@ -442,9 +442,26 @@
         .shuffling {
             animation: shuffle 0.5s ease-in-out;
         }
+
+        /* NEW: Version Indicator */
+        .version-indicator {
+            position: fixed;
+            top: 5px;
+            right: 5px;
+            background: var(--primary);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            z-index: 10000;
+            opacity: 0.7;
+        }
     </style>
 </head>
 <body id="top" class="home-page">
+
+    <!-- NEW: Version Indicator -->
+    <div class="version-indicator" id="version-indicator">v1.0.0</div>
 
     <div id="loader">
         <img src="logo.png" class="loader-logo" alt="Loading...">
@@ -767,6 +784,33 @@
         console.log("- Database:", !!db);
         console.log("- Online status:", navigator.onLine);
 
+        // APP VERSION MANAGEMENT
+        const APP_VERSION = '1.0.1'; // UPDATE THIS WHEN MAKING CHANGES
+        document.getElementById('version-indicator').textContent = `v${APP_VERSION}`;
+        
+        // Check if version changed
+        const lastVersion = localStorage.getItem('appVersion');
+        if (lastVersion !== APP_VERSION) {
+            console.log(`🔄 App version changed from ${lastVersion} to ${APP_VERSION}`);
+            localStorage.setItem('appVersion', APP_VERSION);
+            
+            // Clear old caches
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    action: 'CLEAR_CACHE',
+                    version: APP_VERSION
+                });
+            }
+            
+            // Force reload if installed as PWA
+            if (window.matchMedia('(display-mode: standalone)').matches) {
+                setTimeout(() => {
+                    showToast(`🔄 Updated to v${APP_VERSION}. Refreshing...`, 3000);
+                    setTimeout(() => window.location.reload(), 2000);
+                }, 1000);
+            }
+        }
+
         // FIXED: Infinite Scroll Variables
         let allProducts = [];
         let currentProductList = [];
@@ -792,7 +836,11 @@
         function applyShuffle() {
             if (allProducts.length > 0) {
                 // Play shuffle sound
-                document.getElementById('sound-shuffle').play().catch(e => console.log("Audio error:", e));
+                try {
+                    document.getElementById('sound-shuffle').play();
+                } catch(e) {
+                    console.log("Audio error:", e);
+                }
                 
                 // Animate refresh button
                 const refreshBtn = document.getElementById('refresh-btn');
@@ -1017,6 +1065,20 @@
             window.open('https://wa.me/265899195843', '_blank');
         };
 
+        // NEW: Check for updates
+        function checkForUpdates() {
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.ready.then(registration => {
+                    registration.update().then(() => {
+                        console.log("🔍 Checking for service worker updates...");
+                    });
+                });
+            }
+            
+            // Check for app updates every 30 minutes
+            setTimeout(checkForUpdates, 30 * 60 * 1000);
+        }
+
         // Loader control
         window.addEventListener('load', () => {
             const loader = document.getElementById('loader');
@@ -1029,6 +1091,9 @@
             setTimeout(() => {
                 initializeInfiniteScroll();
             }, 500);
+            
+            // Start update checking
+            setTimeout(checkForUpdates, 10000);
         });
 
         let cart = [];
@@ -1072,6 +1137,7 @@
             window.addEventListener("online", () => {
                 console.log("🌐 Online - refreshing products...");
                 showToast("🔄 Connected! Updating products...", 3000);
+                checkForUpdates();
             });
             
             window.addEventListener("offline", () => {
@@ -1299,7 +1365,11 @@
             const existing = cart.find(i => i.id === id);
             if(existing) existing.qty += specificQty;
             else cart.push({ ...allProducts.find(p => p.id === id), qty: specificQty });
-            document.getElementById('sound-cart').play().catch(e => console.log("Audio error:", e));
+            try {
+                document.getElementById('sound-cart').play();
+            } catch(e) {
+                console.log("Audio error:", e);
+            }
             const navCart = document.getElementById('cart-nav-icon');
             navCart.classList.add('shake-now');
             setTimeout(() => navCart.classList.remove('shake-now'), 400);
@@ -1561,7 +1631,12 @@
         };
 
         window.popLogo = () => {
-            document.getElementById('sound-pop').play().catch(e => console.log("Audio error:", e)); zoomImg.src = "logo.png";
+            try {
+                document.getElementById('sound-pop').play();
+            } catch(e) {
+                console.log("Audio error:", e);
+            }
+            zoomImg.src = "logo.png";
             document.getElementById('modal-name').innerText = "ShopEasy Official Logo";
             document.getElementById('modal-price').innerText = "Mwase's Online Store";
             document.getElementById('modal-desc').innerText = "Established in Malawi. Providing premium products with fast delivery.";
@@ -1669,38 +1744,88 @@
         }, false);
     </script>
 
+    <!-- UPDATED SERVICE WORKER REGISTRATION WITH VERSION MANAGEMENT -->
     <script>
+        // Service Worker with aggressive update strategy
         if ("serviceWorker" in navigator) {
             window.addEventListener("load", () => {
+                // Add version query string to force update
+                const swUrl = `./sw.js?v=${APP_VERSION || '1.0.1'}`;
+                
                 navigator.serviceWorker
-                    .register("./sw.js")
+                    .register(swUrl)
                     .then((registration) => {
                         console.log("✅ Service Worker registered with scope:", registration.scope);
                         
+                        // Force immediate update check
+                        registration.update().then(() => {
+                            console.log("🔍 Forced service worker update check");
+                        });
+                        
+                        // Check for updates every hour
+                        setInterval(() => {
+                            registration.update();
+                        }, 60 * 60 * 1000);
+                        
+                        // Listen for new service worker
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
-                            console.log('🔄 New service worker found');
+                            console.log('🔄 New service worker found:', newWorker);
                             
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New service worker installed, waiting to activate');
+                                    
+                                    // Send message to skip waiting
+                                    newWorker.postMessage({ action: 'skipWaiting' });
+                                    
+                                    // Show update notification
                                     const toast = document.getElementById('toast');
                                     if (toast) {
                                         toast.innerText = "🔄 New version available! Tap to refresh.";
                                         toast.style.display = 'block';
                                         toast.style.background = "#2196F3";
                                         toast.style.cursor = 'pointer';
-                                        toast.onclick = () => window.location.reload();
+                                        toast.onclick = () => {
+                                            window.location.reload();
+                                        };
                                         setTimeout(() => {
-                                            toast.style.display = 'none';
-                                            toast.style.cursor = 'default';
-                                        }, 8000);
+                                            if (toast.style.display !== 'none') {
+                                                window.location.reload(); // Auto-reload after 5 seconds
+                                            }
+                                        }, 5000);
                                     }
                                 }
                             });
                         });
+                        
+                        // Listen for controller change (new service worker activated)
+                        let refreshing = false;
+                        navigator.serviceWorker.addEventListener('controllerchange', () => {
+                            if (!refreshing) {
+                                refreshing = true;
+                                console.log('🔄 Controller changed, reloading page');
+                                window.location.reload();
+                            }
+                        });
+                        
+                        // Listen for messages from service worker
+                        navigator.serviceWorker.addEventListener('message', event => {
+                            if (event.data.action === 'reload') {
+                                window.location.reload();
+                            }
+                        });
                     })
-                    .catch(err => console.log("❌ SW failed", err));
+                    .catch(err => console.log("❌ SW registration failed", err));
             });
+            
+            // Listen for messages to skip waiting
+            if (navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    action: 'versionCheck',
+                    version: APP_VERSION || '1.0.1'
+                });
+            }
         }
     </script>
 </body>
