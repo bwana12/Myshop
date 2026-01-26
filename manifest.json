@@ -1,0 +1,91 @@
+{
+  "name": "ShopEasy Malawi",
+  "short_name": "ShopEasy",
+  "description": "Malawi's premier shopping destination for electronics, fashion, and home essentials",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f9f9f9",
+  "theme_color": "#e42c64",
+  "orientation": "portrait",
+  "scope": "/",
+  "categories": ["shopping", "ecommerce", "retail"],
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png", 
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://i.postimg.cc/c49grfYr/images.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "ShopEasy Home Screen"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Shop Electronics",
+      "short_name": "Electronics",
+      "description": "Browse latest electronics",
+      "url": "./index.html?category=electronics",
+      "icons": [{ "src": "logo.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "My Cart",
+      "short_name": "Cart",
+      "description": "View your shopping cart",
+      "url": "./index.html#cart",
+      "icons": [{ "src": "logo.png", "sizes": "96x96" }]
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": []
+}
