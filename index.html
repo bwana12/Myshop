@@ -2172,25 +2172,15 @@
 
 
 
-    <!-- Paste this into your main store website -->
-<iframe 
-  src="https://ai.studio/apps/drive/1yVwvOhuvVJuBEMlj5zM1q_poB5G5BbfT" 
-  style="position: fixed; bottom: 0; right: 0; width: 450px; height: 800px; border: none; z-index: 9999; pointer-events: none;"
-  id="shopeasy-ai-widget"
-></iframe>
-
-<script>
-  // This helps make the widget feel seamless
-  window.addEventListener('message', function(e) {
-    const frame = document.getElementById('shopeasy-ai-widget');
-    if (e.data === 'open') {
-        frame.style.pointerEvents = 'auto';
-    } else if (e.data === 'close') {
-        frame.style.pointerEvents = 'none';
-    }
-  });
-</script>
-
+    
+<!-- ShopEasy AI Assistant - Paste this before </body> -->
+<div style="position: fixed; bottom: 0; right: 0; width: 400px; height: 100vh; pointer-events: none; z-index: 999999;">
+  <iframe 
+    src="blob:https://1atu8rylm2g5kjbwt536uhkydumiscrpeu755ganfr952nc1uc-h858592233.scf.usercontent.goog/5cc03310-9342-4982-8bb8-d0daa419befc" 
+    style="width: 100%; height: 100%; border: none; pointer-events: auto; background: transparent;"
+    title="ShopEasy AI Assistant"
+  ></iframe>
+</div>
     
 </body>
 </html>
